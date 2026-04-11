@@ -8,32 +8,38 @@ import { AuthService } from '../../services/auth.service';
   standalone: true,
   imports: [CommonModule, RouterLink, RouterLinkActive],
   template: `
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+    <nav class="navbar navbar-expand-lg glass-effect sticky-top shadow-sm py-3">
       <div class="container">
-        <a class="navbar-brand fw-bold" routerLink="/">E-STORE</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <a class="navbar-brand fw-bold mb-0" routerLink="/">
+          <span class="gradient-text h2">ELITE</span><span class="text-dark h2">STORE</span>
+        </a>
+        <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav me-auto">
+          <ul class="navbar-nav ms-auto align-items-center gap-3">
             <li class="nav-item">
-              <a class="nav-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a>
-            </li>
-          </ul>
-          <ul class="navbar-nav ms-auto align-items-center">
-            <li class="nav-item" *ngIf="!isLoggedIn()">
-              <a class="nav-link btn btn-outline-light me-2 px-3" routerLink="/login">Login</a>
+              <a class="nav-link fw-medium text-dark px-3" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a>
             </li>
             <li class="nav-item" *ngIf="!isLoggedIn()">
-              <a class="nav-link btn btn-primary px-3" routerLink="/register">Register</a>
+              <a class="nav-link fw-medium text-dark px-3" routerLink="/login text-decoration-none">Login</a>
+            </li>
+            <li class="nav-item" *ngIf="!isLoggedIn()">
+              <a class="btn-premium text-decoration-none d-inline-block" routerLink="/register">Get Started</a>
             </li>
             
-            <!-- Show these if logged in -->
-            <li class="nav-item mx-2" *ngIf="isLoggedIn()">
-              <span class="text-light me-3 small">Role: {{ userRole }}</span>
-            </li>
-            <li class="nav-item" *ngIf="isLoggedIn()">
-              <button class="btn btn-danger btn-sm" (click)="logout()">Logout</button>
+            <li class="nav-item dropdown ms-lg-3" *ngIf="isLoggedIn()">
+              <div class="d-flex align-items-center gap-2">
+                <div class="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                  {{ userRole?.charAt(0) || 'U' }}
+                </div>
+                <div class="d-none d-xl-block">
+                  <p class="mb-0 small fw-bold">{{ userRole }}</p>
+                </div>
+                <button class="btn btn-link text-danger p-0 ms-2" (click)="logout()">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                </button>
+              </div>
             </li>
           </ul>
         </div>
