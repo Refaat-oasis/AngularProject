@@ -1,30 +1,24 @@
 import { Routes } from '@angular/router';
-import { HomeComponent } from './home.component';
-import { LoginComponent } from './modules/auth/login.component';
-import { RegisterComponent } from './modules/auth/register.component';
+import { HomeComponent } from './pages/home/home.component';
+import { ProductListingComponent } from './pages/product-listing/product-listing.component';
+import { ProductDetailsComponent } from './pages/product-details/product-details.component';
+import { LoginComponent } from './pages/auth/login.component';
+import { RegisterComponent } from './pages/auth/register.component';
+import { CartComponent } from './pages/cart/cart.component';
 import { AuthGuard } from './services/auth.guard';
-import { SellerDashboardComponent } from './modules/seller/seller-dashboard.component';
-import { AdminDashboardComponent } from './modules/admin/admin-dashboard.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
+  { path: 'products', component: ProductListingComponent },
+  { path: 'product/:id', component: ProductDetailsComponent },
+  { path: 'cart', component: CartComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   
-  // Protected Routes
-  { 
-    path: 'seller', 
-    component: SellerDashboardComponent, 
-    canActivate: [AuthGuard], 
-    data: { role: 'Seller' } 
-  },
-  { 
-    path: 'admin', 
-    component: AdminDashboardComponent, 
-    canActivate: [AuthGuard], 
-    data: { role: 'Admin' } 
-  },
+  // Dashboard routes (Placeholder components need to be built or reused)
+  // { path: 'seller', component: SellerDashboardComponent, canActivate: [AuthGuard], data: { role: 'Seller' } },
+  // { path: 'admin', component: AdminDashboardComponent, canActivate: [AuthGuard], data: { role: 'Admin' } },
   
-  // Wildcard route
   { path: '**', redirectTo: '' }
 ];
+

@@ -13,29 +13,47 @@ export class AuthService {
   constructor(private http: HttpClient) {}
 
   login(credentials: any): Observable<any> {
-    // Junior Tip: We'll eventually replace this with a real API call
-    // return this.http.post(`${this.baseUrl}/login`, credentials);
+    // This will be replaced with real .NET API call:
+    // return this.http.post<any>(`${this.baseUrl}/login`, credentials);
     
-    // For now, let's mock a successful login to localStorage
-    return of({ token: 'mock-jwt-token', role: credentials.role || 'Customer' }).pipe(
+    // Mocking a professional JWT response
+    const mockResponse = {
+      token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...', // Mock JWT
+      user: {
+        id: 'user-123',
+        email: credentials.email,
+        role: credentials.role || 'Customer',
+        name: 'The Merchant'
+      }
+    };
+
+    return of(mockResponse).pipe(
       tap(res => {
-        localStorage.setItem('token', res.token);
-        localStorage.setItem('userRole', res.role);
+        this.saveAuthData(res.token, res.user.role);
       })
     );
   }
 
+  private saveAuthData(token: string, role: string) {
+    localStorage.setItem('token', token);
+    localStorage.setItem('userRole', role);
+  }
+
   register(userData: any): Observable<any> {
-    return this.http.post(`${this.baseUrl}/register`, userData);
+    // return this.http.post(`${this.baseUrl}/register`, userData);
+    return of({ success: true, message: 'Account created successfully' });
   }
 
   logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('userRole');
+    localStorage.clear();
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem('token');
   }
 
   isLoggedIn(): boolean {
-    return !!localStorage.getItem('token');
+    return !!this.getToken();
   }
 
   getUserRole(): string {

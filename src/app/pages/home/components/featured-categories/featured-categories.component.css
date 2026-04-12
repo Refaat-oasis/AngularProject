@@ -1,0 +1,8 @@
+.max-w-7xl { max-width: 1400px; margin: 0 auto; }
+.group-hover-scale { transition: transform 0.7s; }
+.card-item:hover .group-hover-scale { transform: scale(1.05); }
+.overlay-dark { 
+  position: absolute; inset: 0; 
+  background: linear-gradient(0deg, rgba(0,0,0,0.6) 0%, transparent 50%);
+}
+.hover-border-secondary:hover { border-color: var(--secondary) !important; color: var(--secondary) !important; transition: all 0.3s; }

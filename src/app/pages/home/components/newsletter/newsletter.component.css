@@ -1,0 +1,11 @@
+.newsletter-card { background-color: var(--primary) !important; }
+.absolute-fill { position: absolute; inset: 0; }
+.bg-white-10 { background-color: rgba(255, 255, 255, 0.1); }
+.border-white-20 { border: 1px solid rgba(255, 255, 255, 0.2); }
+.placeholder-white-40::placeholder { color: rgba(255, 255, 255, 0.4); }
+.text-white-40 { color: rgba(255, 255, 255, 0.4); }
+.text-white-50 { color: rgba(255, 255, 255, 0.5); }
+.max-w-2xl { max-width: 700px; }
+.max-w-lg { max-width: 500px; }
+.ls-widest { letter-spacing: 0.1em; }
+.hover-secondary:hover { background-color: var(--secondary-container); border-color: var(--secondary-container); color: var(--on-secondary-container); }
