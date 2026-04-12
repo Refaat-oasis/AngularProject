@@ -1,0 +1,17 @@
+.max-w-7xl { max-width: 1400px; margin: 0 auto; }
+.aspect-5-6 { aspect-ratio: 4 / 5; }
+.nav-btn {
+  width: 48px; height: 48px; 
+  border-radius: 50%; border: 1px solid rgba(0,0,0,0.1);
+  display: flex; align-items: center; justify-content: center;
+  background: transparent; color: var(--on-surface);
+  transition: all 0.3s;
+}
+.nav-btn:hover { background: white; border-color: var(--secondary); color: var(--secondary); }
+.group-hover-scale { transition: transform 0.5s; }
+.merchant-card:hover .group-hover-scale { transform: scale(1.1); }
+.group-hover-opacity { opacity: 1 !important; transition: opacity 0.3s; }
+.bg-tertiary-container { background-color: var(--tertiary-container); color: var(--on-tertiary-container); font-size: 0.6rem; }
+.ls-wider { letter-spacing: 0.05em; }
+.ls-widest { letter-spacing: 0.1em; }
+.text-secondary-variant { color: var(--on-surface-variant); }

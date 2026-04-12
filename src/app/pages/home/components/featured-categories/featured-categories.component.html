@@ -1,0 +1,35 @@
+<section class="py-5 px-lg-5 container-fluid max-w-7xl">
+  <div class="d-flex justify-content-between align-items-end mb-5">
+    <div>
+      <h2 class="display-6 fw-bold mb-2">The Curation</h2>
+      <p class="text-secondary">Exceptional pieces, sorted by architectural intent.</p>
+    </div>
+    <a href="#" class="text-secondary fw-semibold text-decoration-none border-bottom border-2 border-transparent hover-border-secondary">
+      Browse All Categories
+    </a>
+  </div>
+  
+  <div class="row g-4" style="height: 600px;">
+    <!-- Large Feature -->
+    <div class="col-md-8 position-relative overflow-hidden rounded-4 cursor-pointer group card-item h-100">
+      <img [src]="categories[0]?.imageUrl" class="w-100 h-100 object-fit-cover transition-transform group-hover-scale" alt="Category 1">
+      <div class="overlay-dark"></div>
+      <div class="position-absolute bottom-0 start-0 p-5 text-white">
+        <h3 class="h2 mb-2">{{ categories[0]?.name }}</h3>
+        <p class="text-white-50">{{ categories[0]?.description }}</p>
+      </div>
+    </div>
+    
+    <!-- Small Vertical Stack -->
+    <div class="col-md-4 h-100 d-flex flex-column gap-4">
+      <div class="position-relative overflow-hidden rounded-4 cursor-pointer group card-item flex-grow-1" *ngFor="let cat of categories.slice(1, 3)">
+        <img [src]="cat.imageUrl" class="w-100 h-100 object-fit-cover transition-transform group-hover-scale" [alt]="cat.name">
+        <div class="overlay-dark"></div>
+        <div class="position-absolute bottom-0 start-0 p-4 text-white">
+          <h3 class="h4 mb-1">{{ cat.name }}</h3>
+          <p class="text-white-50 small">{{ cat.description }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

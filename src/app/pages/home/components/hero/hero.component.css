@@ -1,0 +1,9 @@
+.hero-section { height: 85vh; min-height: 600px; }
+.absolute-fill { position: absolute; top: 0; left: 0; right: 0; bottom: 0; }
+.overlay-gradient { 
+  position: absolute; inset: 0; 
+  background: linear-gradient(90deg, rgba(4, 22, 39, 0.8) 0%, rgba(4, 22, 39, 0.2) 50%, transparent 100%);
+}
+.fs-xs { font-size: 0.65rem; }
+.max-w-xl { max-width: 700px; }
+.group:hover .group-hover-translate-x { transform: translateX(4px); transition: transform 0.3s; }
