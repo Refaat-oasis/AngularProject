@@ -15,7 +15,7 @@ import { AuthService } from '../../services/auth.service';
           <h2 class="h3 fw-bold mb-2">Create Account</h2>
           <p class="text-secondary small">Join the elite network of artisans and curators</p>
         </div>
-        
+
         <form (ngSubmit)="onRegister()" #regForm="ngForm">
           <div class="row g-4 mb-4">
             <div class="col-md-6">
@@ -26,22 +26,26 @@ import { AuthService } from '../../services/auth.service';
               <label class="form-label text-secondary small fw-bold uppercase ls-wider mb-2">Email Address</label>
               <input type="email" class="form-control merchant-input" name="email" [(ngModel)]="user.email" required placeholder="name@company.com">
             </div>
+             <div class="col-md-6">
+              <label class="form-label text-secondary small fw-bold uppercase ls-wider mb-2">Address</label>
+              <input type="text" class="form-control merchant-input" name="address" [(ngModel)]="user.address" required placeholder="123 Main St">
+            </div>
           </div>
-          
+
           <div class="mb-4">
             <label class="form-label text-secondary small fw-bold uppercase ls-wider mb-3">I want to join as a:</label>
             <div class="row g-3">
               <div class="col-6">
-                <div class="role-card p-3 text-center cursor-pointer border rounded-3 transition-all" 
-                     [class.active]="user.role === 'Customer'"
-                     (click)="user.role = 'Customer'">
+                <div class="role-card p-3 text-center cursor-pointer border rounded-3 transition-all"
+                     [class.active]="user.role === 'User'"
+                     (click)="user.role = 'User'">
                   <span class="material-symbols-outlined mb-2 fs-2">shopping_bag</span>
                   <div class="fw-bold small">Customer</div>
                   <div class="text-secondary-variant x-small">Browse & Buy</div>
                 </div>
               </div>
               <div class="col-6">
-                <div class="role-card p-3 text-center cursor-pointer border rounded-3 transition-all" 
+                <div class="role-card p-3 text-center cursor-pointer border rounded-3 transition-all"
                      [class.active]="user.role === 'Seller'"
                      (click)="user.role = 'Seller'">
                   <span class="material-symbols-outlined mb-2 fs-2">storefront</span>
@@ -51,26 +55,26 @@ import { AuthService } from '../../services/auth.service';
               </div>
             </div>
           </div>
-          
+
           <div class="mb-5">
             <label class="form-label text-secondary small fw-bold uppercase ls-wider mb-2">Password</label>
             <input type="password" class="form-control merchant-input" name="password" [(ngModel)]="user.password" required placeholder="••••••••">
           </div>
-          
+
           <button type="submit" class="btn btn-primary-merchant w-100 py-3 mb-4" [disabled]="!regForm.form.valid">
             Create Account
           </button>
-          
+
           <p class="text-center small text-secondary mb-0">
-            Already have an account? 
+            Already have an account?
             <a routerLink="/login" class="text-primary fw-bold text-decoration-none hover-secondary">Sign In</a>
           </p>
         </form>
       </div>
-      
+
       <!-- Decorative Background -->
       <div class="absolute-fill z-0 opacity-5">
-        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuApvu3N6znghCVmlY_mIms9CkY20UDAZ2dw9KO9lTxedRX9qfuN2Ec1d2LNBMIMYdX-h6zw-QZjWYNJTdWK6PsnODjW317GbDUY2bcrJi323Z02ELhD4o33M1cDG9jUgKRmwUrTIzqAcob1y1xNLmissd9iNqN_D1fRfmT0dFLuQnqfIpdOWvoFqIbylJBXqbokAq6viBL-SZG5y4EaAMbHoLaLhKWXHFodbne6J9p_ffQV1Qk5F5JEGtve_zH09CH8Obd0t3MDsiA" 
+        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuApvu3N6znghCVmlY_mIms9CkY20UDAZ2dw9KO9lTxedRX9qfuN2Ec1d2LNBMIMYdX-h6zw-QZjWYNJTdWK6PsnODjW317GbDUY2bcrJi323Z02ELhD4o33M1cDG9jUgKRmwUrTIzqAcob1y1xNLmissd9iNqN_D1fRfmT0dFLuQnqfIpdOWvoFqIbylJBXqbokAq6viBL-SZG5y4EaAMbHoLaLhKWXHFodbne6J9p_ffQV1Qk5F5JEGtve_zH09CH8Obd0t3MDsiA"
              class="w-100 h-100 object-fit-cover" alt="Background">
       </div>
     </div>
@@ -80,13 +84,13 @@ import { AuthService } from '../../services/auth.service';
     .auth-card { z-index: 1; border: 1px solid rgba(0,0,0,0.05); }
     .max-w-xl { max-width: 600px; }
     .ls-wider { letter-spacing: 0.05em; }
-    .merchant-input { 
-      background-color: var(--surface-container-low); 
+    .merchant-input {
+      background-color: var(--surface-container-low);
       border: 1px solid transparent;
       padding: 0.75rem 1rem;
       border-radius: 8px;
     }
-    .merchant-input:focus { 
+    .merchant-input:focus {
       background-color: white;
       border-color: var(--secondary);
       box-shadow: none;
@@ -100,13 +104,17 @@ import { AuthService } from '../../services/auth.service';
   `]
 })
 export class RegisterComponent {
-  user = { name: '', email: '', password: '', role: 'Customer' };
+  user = { name: '', email: '', password: '', address: '', role: '' };
 
   constructor(private authService: AuthService, private router: Router) {}
 
   onRegister() {
-    this.authService.register(this.user).subscribe(() => {
-      this.router.navigate(['/login']);
+    this.authService.register(this.user).subscribe({
+      next: () => this.router.navigate(['/login']),
+      error: (err) => {
+        console.error('Registration failed', err);
+        alert('Registration failed. Please check your input and try again.');
+      }
     });
   }
 }

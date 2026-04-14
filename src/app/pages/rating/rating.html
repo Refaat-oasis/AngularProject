@@ -1,0 +1,12 @@
+
+<div class="rating-container">
+  @for (star of stars; track $index) {
+    <span
+      class="star"
+      [class.filled]="star <= rating">
+      ★
+    </span>
+  }
+
+  <span class="rating-value">({{ rating }}/5)</span>
+</div>

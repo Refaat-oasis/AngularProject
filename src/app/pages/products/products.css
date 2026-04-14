@@ -1,0 +1,13 @@
+    .max-w-7xl { max-width: 1400px; margin: 0 auto; min-height: 80vh; }
+    .aspect-5-6 { aspect-ratio: 4 / 5; }
+    .space-y-3 > li { margin-bottom: 0.75rem; }
+    .text-secondary-variant { color: var(--on-surface-variant); }
+    .hover-primary:hover { color: var(--primary) !important; }
+    .group-hover-scale:hover { transform: scale(1.05); transition: transform 0.5s; }
+    .merchant-card:hover .group-hover-scale { transform: scale(1.05); }
+    .group-hover-opacity { opacity: 1 !important; transition: opacity 0.3s; }
+    .ls-wider { letter-spacing: 0.05em; }
+    .ls-widest { letter-spacing: 0.1em; }
+    .bg-tertiary-container { background-color: var(--tertiary-container); color: var(--on-tertiary-container); font-size: 0.6rem; }
+    .custom-range::-webkit-slider-runnable-track { background: var(--outline-variant); }
+    .custom-range::-webkit-slider-thumb { background: var(--secondary); }

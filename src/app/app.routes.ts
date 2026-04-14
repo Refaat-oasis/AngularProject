@@ -1,24 +1,52 @@
 import { Routes } from '@angular/router';
 import { HomeComponent } from './pages/home/home.component';
-import { ProductListingComponent } from './pages/product-listing/product-listing.component';
-import { ProductDetailsComponent } from './pages/product-details/product-details.component';
+
 import { LoginComponent } from './pages/auth/login.component';
 import { RegisterComponent } from './pages/auth/register.component';
 import { CartComponent } from './pages/cart/cart.component';
 import { AuthGuard } from './services/auth.guard';
+import { Products } from './pages/products/products';
+import { ProductDetails } from './pages/product-details/product-details';
+import { Reviews } from './pages/reviews/reviews';
+import { Rating } from './pages/rating/rating';
+import { ProductForm } from './pages/Seller/product-form/product-form';
+import { ProductsList } from './pages/Seller/products-list/products-list';
+import { SellerLayoutComponent } from './pages/Seller/seller-layout-component/seller-layout-component';
+import { ForgotPasswordComponent } from './pages/auth/Forgot password components/forgot-password/forgot-password';
+import { ResetPasswordComponent } from './pages/auth/Forgot password components/reset-password/reset-password';
+import { UserLayout } from './pages/user-layout/user-layout';
 
 export const routes: Routes = [
-  { path: '', component: HomeComponent },
-  { path: 'products', component: ProductListingComponent },
-  { path: 'product/:id', component: ProductDetailsComponent },
-  { path: 'cart', component: CartComponent },
-  { path: 'login', component: LoginComponent },
-  { path: 'register', component: RegisterComponent },
-  
-  // Dashboard routes (Placeholder components need to be built or reused)
-  // { path: 'seller', component: SellerDashboardComponent, canActivate: [AuthGuard], data: { role: 'Seller' } },
-  // { path: 'admin', component: AdminDashboardComponent, canActivate: [AuthGuard], data: { role: 'Admin' } },
-  
+{
+  path: '',
+  component:UserLayout ,
+  children: [
+      { path: '', component: HomeComponent },
+    { path: 'cart', component: CartComponent },
+    { path: 'login', component: LoginComponent },
+    { path: 'register', component: RegisterComponent },
+    { path: 'forgot-password', component: ForgotPasswordComponent },
+    { path: 'reset-password', component: ResetPasswordComponent },
+      {path:'products', component: Products },
+  {path:'product/:id', component: ProductDetails,
+    children: [
+      {path: 'reviews', component: Reviews} ,
+      {path: 'rating', component: Rating}
+    ]
+   },
+  ]
+}
+,
+  {
+    path: 'seller',
+    component: SellerLayoutComponent,
+    children: [
+      { path: 'products', component: ProductsList },
+      { path: 'products/create', component: ProductForm },
+      { path: 'products/edit/:id', component: ProductForm },
+    ]
+  },
+
   { path: '**', redirectTo: '' }
 ];
 

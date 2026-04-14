@@ -1,0 +1,91 @@
+<div class="container mt-5">
+  <div class="card shadow p-4 rounded-4">
+
+    <h4 class="mb-4">
+      {{ isEditMode() ? 'Edit Product' : 'Create Product' }}
+    </h4>
+
+    @if (isLoading()) {
+      <div class="text-center py-4">
+        <div class="spinner-border text-dark" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2 text-muted">Loading product data...</p>
+      </div>
+    }
+
+    @if (!isLoading()) {
+      <form (ngSubmit)="submit()" #form="ngForm">
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Name</label>
+          <input type="text" class="form-control"
+                 placeholder="Enter product name"
+                 [(ngModel)]="name"
+                 name="name" required />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Description</label>
+          <textarea class="form-control"
+                    placeholder="Enter product description"
+                    rows="3"
+                    [(ngModel)]="description"
+                    name="description"></textarea>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Price</label>
+          <input type="number" class="form-control"
+                 placeholder="Enter price"
+                 [(ngModel)]="price"
+                 name="price" min="0" />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Stock</label>
+          <input type="number" class="form-control"
+                 placeholder="Enter stock quantity"
+                 [(ngModel)]="stock"
+                 name="stock" min="0" />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Category ID</label>
+          <input type="number" class="form-control"
+                 placeholder="Enter category ID"
+                 [(ngModel)]="categoryId"
+                 name="categoryId" />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Product Image</label>
+
+          @if (isEditMode() && currentImageUrl()) {
+            <div class="mb-2">
+              <p class="text-muted small mb-1">Current Image:</p>
+              <img [src]="currentImageUrl()" alt="Current product image"
+                   class="img-thumbnail"
+                   style="max-height: 150px; object-fit: cover;" />
+            </div>
+          }
+
+          <input type="file" class="form-control"
+                 accept="image/*"
+                 (change)="onFileSelected($event)" />
+
+          @if (isEditMode()) {
+            <small class="text-muted">Leave empty to keep the existing image.</small>
+          }
+        </div>
+
+        <button type="submit" class="btn btn-dark w-100 mt-2"
+                [disabled]="isSubmitDisabled()">
+          {{ isEditMode() ? 'Update Product' : 'Create Product' }}
+        </button>
+
+      </form>
+    }
+
+  </div>
+</div>

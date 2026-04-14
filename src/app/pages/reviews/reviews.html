@@ -1,0 +1,20 @@
+<div class="reviews-container">
+
+  <h5 class="mb-3">Customer Reviews</h5>
+
+  @for (review of reviews; track review.id) {
+    <div class="review-card">
+
+      <div class="review-header">
+        <strong>{{ review.user }}</strong>
+        <app-rating [rating]="review.rating"></app-rating>
+      </div>
+
+      <p class="review-text">
+        {{ review.comment }}
+      </p>
+
+    </div>
+  }
+
+</div>

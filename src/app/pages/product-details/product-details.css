@@ -1,0 +1,22 @@
+    /* .max-w-7xl { max-width: 1400px; margin: 0 auto; min-height: 90vh; }
+    .product-gallery { height: 600px; }
+    .aspect-square { aspect-ratio: 1 / 1; }
+    .thumb-card { border: 2px solid transparent; transition: all 0.3s; }
+    .border-hover:hover { border-color: var(--secondary) !important; }
+    .text-secondary-variant { color: var(--on-surface-variant); }
+    .bg-tertiary-container { background-color: var(--tertiary-container); color: var(--on-tertiary-container); font-size: 0.7rem; }
+    .ls-wider { letter-spacing: 0.05em; }
+    .ls-widest { letter-spacing: 0.1em; }
+    .leading-relaxed { line-height: 1.8; }
+    .hover-bg-light:hover { background-color: var(--surface-container-low) !important; }
+    .text-secondary-variant { color: #6c757d; } */
+
+.hover-primary:hover { color: #000 !important; }
+.ls-widest { letter-spacing: 0.1em; }
+
+.object-fit-cover { object-fit: cover; }
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
