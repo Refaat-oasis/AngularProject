@@ -4,6 +4,7 @@ import { HomeComponent } from './pages/home/home.component';
 import { LoginComponent } from './pages/auth/login.component';
 import { RegisterComponent } from './pages/auth/register.component';
 import { CartComponent } from './pages/cart/cart.component';
+import { CheckoutComponent } from './pages/checkout/checkout.component';
 import { AuthGuard } from './services/auth.guard';
 import { Products } from './pages/products/products';
 import { ProductDetails } from './pages/product-details/product-details';
@@ -19,21 +20,22 @@ import { UserLayout } from './pages/user-layout/user-layout';
 export const routes: Routes = [
 {
   path: '',
-  component:UserLayout ,
+  component: UserLayout,
   children: [
-      { path: '', component: HomeComponent },
+    { path: '', component: HomeComponent },
+    { path: 'products', component: Products },
+    { path: 'product/:id', component: ProductDetails,
+      children: [
+        { path: 'reviews', component: Reviews },
+        { path: 'rating', component: Rating }
+      ]
+    },
     { path: 'cart', component: CartComponent },
+    { path: 'checkout', component: CheckoutComponent },
     { path: 'login', component: LoginComponent },
     { path: 'register', component: RegisterComponent },
     { path: 'forgot-password', component: ForgotPasswordComponent },
     { path: 'reset-password', component: ResetPasswordComponent },
-      {path:'products', component: Products },
-  {path:'product/:id', component: ProductDetails,
-    children: [
-      {path: 'reviews', component: Reviews} ,
-      {path: 'rating', component: Rating}
-    ]
-   },
   ]
 }
 ,

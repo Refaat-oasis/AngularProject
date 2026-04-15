@@ -69,7 +69,8 @@
         <div class="d-flex gap-3">
 
           <button class="btn btn-dark flex-grow-1 py-3 rounded-3 fw-semibold shadow-sm"
-                  [disabled]="product()!.stock === 0">
+                  [disabled]="product()!.stock === 0"
+                  (click)="addToCart()">
             Add to Cart
           </button>
 

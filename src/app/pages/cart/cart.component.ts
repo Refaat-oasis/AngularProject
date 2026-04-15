@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { MockDataService, Product } from '../../services/mock-data.service';
+import { CartService } from '../../services/cart.service';
+import { CartItemResponse } from '../../models/interfaces';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-cart',
@@ -18,34 +20,44 @@ import { MockDataService, Product } from '../../services/mock-data.service';
         <!-- Cart Items -->
         <div class="col-lg-8">
           <div class="space-y-4" *ngIf="cartItems.length > 0; else emptyCart">
-            <div class="merchant-card p-4 d-flex gap-4 align-items-center" *ngFor="let item of cartItems">
+            <div class="merchant-card p-4 d-flex gap-4 align-items-center mb-4" *ngFor="let item of cartItems">
               <div class="item-img rounded-3 overflow-hidden bg-light" style="width: 120px; height: 120px;">
-                <img [src]="item.imageUrl" class="w-100 h-100 object-fit-cover" [alt]="item.name">
+                <img [src]="item.productImage" class="w-100 h-100 object-fit-cover" [alt]="item.productName">
               </div>
               <div class="flex-grow-1">
                 <div class="d-flex justify-content-between align-items-start mb-2">
                   <div>
-                    <h4 class="h6 fw-bold mb-1">{{ item.name }}</h4>
-                    <p class="text-secondary-variant x-small uppercase ls-widest mb-0">{{ item.brand }} | {{ item.sku }}</p>
+                    <h4 class="h6 fw-bold mb-1">{{ item.productName }}</h4>
                   </div>
-                  <button class="btn btn-link text-secondary p-0 hover-primary">
+                  <button class="btn btn-link text-secondary p-0 hover-primary" (click)="removeItem(item.id)">
                     <span class="material-symbols-outlined fs-5">delete</span>
                   </button>
                 </div>
                 <div class="d-flex justify-content-between align-items-center mt-3">
                   <div class="d-flex align-items-center gap-3 border rounded-pill px-3 py-1">
-                    <button class="btn btn-link p-0 text-secondary fs-4 text-decoration-none">-</button>
-                    <span class="fw-bold">1</span>
-                    <button class="btn btn-link p-0 text-secondary fs-4 text-decoration-none">+</button>
+                    <button class="btn btn-link p-0 text-secondary fs-4 text-decoration-none" 
+                            (click)="updateQuantity(item, -1)" [disabled]="item.quantity <= 1">-</button>
+                    <span class="fw-bold">{{ item.quantity }}</span>
+                    <button class="btn btn-link p-0 text-secondary fs-4 text-decoration-none" 
+                            (click)="updateQuantity(item, 1)">+</button>
                   </div>
-                  <span class="fw-bold text-primary">{{ item.price | currency }}</span>
+                  <div class="text-end">
+                    <span class="fw-bold text-primary">{{ item.subtotal | currency }}</span>
+                    <div class="small text-secondary" *ngIf="item.quantity > 1">
+                      {{ item.productPrice | currency }} each
+                    </div>
+                  </div>
                 </div>
               </div>
+            </div>
+            
+            <div class="d-flex justify-content-end mt-4">
+               <button class="btn btn-outline-danger" (click)="clearCart()">Clear Cart</button>
             </div>
           </div>
           
           <ng-template #emptyCart>
-            <div class="text-center py-5 bg-surface-container-low rounded-5 border border-dashed border-secondary/20">
+            <div class="text-center py-5 bg-surface-container-low rounded-5 border border-dashed border-secondary border-opacity-25">
               <span class="material-symbols-outlined text-secondary fs-large mb-3">shopping_basket</span>
               <h3 class="h5 fw-bold mb-2">Your collection is empty</h3>
               <p class="text-secondary small mb-4">Discover exceptional pieces in our shop</p>
@@ -58,27 +70,28 @@ import { MockDataService, Product } from '../../services/mock-data.service';
         <div class="col-lg-4">
           <div class="sticky-top" style="top: 100px;">
             <div class="merchant-card p-4 p-xl-5 bg-primary text-white border-0 shadow-lg">
-              <h3 class="h5 fw-bold mb-4 font-headline border-bottom border-white/10 pb-3">Acquisition Summary</h3>
+              <h3 class="h5 fw-bold mb-4 font-headline border-bottom border-white border-opacity-10 pb-3">Acquisition Summary</h3>
               
               <div class="space-y-4 mb-5">
-                <div class="d-flex justify-content-between small opacity-70">
+                <div class="d-flex justify-content-between small opacity-75 mb-2">
                   <span>Subtotal</span>
                   <span>{{ subtotal | currency }}</span>
                 </div>
-                <div class="d-flex justify-content-between small opacity-70">
+                <div class="d-flex justify-content-between small opacity-75 mb-4">
                   <span>Merchant Logistics</span>
-                  <span>{{ 150 | currency }}</span>
+                  <span>{{ shippingCost | currency }}</span>
                 </div>
-                <div class="d-flex justify-content-between h5 fw-bold pt-3 border-top border-white/10">
+                <div class="d-flex justify-content-between h5 fw-bold pt-3 border-top border-white border-opacity-10">
                   <span>Total</span>
-                  <span>{{ subtotal + 150 | currency }}</span>
+                  <span>{{ (subtotal > 0 ? subtotal + shippingCost : 0) | currency }}</span>
                 </div>
               </div>
               
-              <button class="btn btn-light w-100 py-3 fw-bold mb-3 hover-secondary" [disabled]="cartItems.length === 0">
+              <button class="btn btn-light w-100 py-3 fw-bold mb-3 text-dark custom-hover" 
+                      [disabled]="cartItems.length === 0" routerLink="/checkout">
                 Proceed to Checkout
               </button>
-              <p class="text-center x-small opacity-50 mb-0">Secure payment via Artisan-approved Gateway</p>
+              <p class="text-center small opacity-50 mb-0" style="font-size: 0.7rem;">Secure payment via Artisan-approved Gateway</p>
             </div>
             
             <div class="mt-4 p-4 rounded-4 bg-surface-container-low border border-light">
@@ -102,24 +115,43 @@ import { MockDataService, Product } from '../../services/mock-data.service';
     .fs-large { font-size: 4rem; }
     .border-dashed { border-style: dashed !important; }
     .hover-primary:hover { color: var(--primary) !important; }
-    .hover-secondary:hover { background-color: var(--secondary-container) !important; color: var(--on-secondary-container) !important; border-color: transparent; }
+    .custom-hover:hover:not([disabled]) { 
+        background-color: var(--secondary-container) !important; 
+        color: var(--on-secondary-container) !important; 
+    }
   `]
 })
-export class CartComponent implements OnInit {
-  cartItems: Product[] = [];
+export class CartComponent implements OnInit, OnDestroy {
+  cartItems: CartItemResponse[] = [];
   subtotal: number = 0;
+  shippingCost = 150;
+  private sub: Subscription = new Subscription();
 
-  constructor(private dataService: MockDataService) {}
+  constructor(private cartService: CartService) {}
 
   ngOnInit(): void {
-    this.dataService.getProducts().subscribe((prods: Product[]) => {
-      // Mocking first 2 items as being in cart
-      this.cartItems = prods.slice(0, 2);
-      this.calculateSubtotal();
+    this.sub = this.cartService.cartItems$.subscribe(items => {
+      this.cartItems = items;
+      this.subtotal = this.cartService.getCartTotal();
     });
   }
 
-  calculateSubtotal() {
-    this.subtotal = this.cartItems.reduce((acc, item) => acc + item.price, 0);
+  ngOnDestroy(): void {
+    this.sub.unsubscribe();
+  }
+
+  updateQuantity(item: CartItemResponse, change: number) {
+    const newQuantity = item.quantity + change;
+    if (newQuantity > 0) {
+      this.cartService.updateQuantity(item.id, newQuantity);
+    }
+  }
+
+  removeItem(id: number) {
+    this.cartService.removeItem(id);
+  }
+
+  clearCart() {
+    this.cartService.clearCart();
   }
 }

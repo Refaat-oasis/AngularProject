@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 import { FormsModule } from '@angular/forms';
 import { debounceTime, Subject } from 'rxjs';
+import { CartService } from '../../../services/cart.service';
 @Component({
   selector: 'app-navbar',
   standalone: true,
@@ -36,8 +37,11 @@ import { debounceTime, Subject } from 'rxjs';
             <button class="btn btn-link p-0 text-dark scale-hover">
               <span class="material-symbols-outlined">favorite</span>
             </button>
-            <button class="btn btn-link p-0 text-dark scale-hover" routerLink="/cart">
+            <button class="btn btn-link p-0 text-dark scale-hover position-relative" routerLink="/cart">
               <span class="material-symbols-outlined">shopping_cart</span>
+              <span *ngIf="(cartService.cartCount$ | async) as count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">
+                {{ count }}
+              </span>
             </button>
 
             <ng-container *ngIf="authService.isLoggedIn(); else loginBtn">
@@ -66,23 +70,25 @@ import { debounceTime, Subject } from 'rxjs';
     .scale-hover:hover { transform: scale(1.1); transition: transform 0.2s; }
     .focus-within-border:focus-within { border: 1px solid var(--secondary) !important; }
     header { height: 72px; }
+    .glass-header { z-index: 1040; background-color: rgba(255,255,255,0.9); }
   `]
 })
 export class NavbarComponent {
   searchTerm: string = '';
   searchSubject = new Subject<string>();
-constructor(
-  public authService: AuthService,
-  private router: Router
-) {
-  this.searchSubject.pipe(
-    debounceTime(400),
-  ).subscribe(term => {
-    this.router.navigate(['/products'], {
-      queryParams: { search: term }
+  constructor(
+    public authService: AuthService,
+    private router: Router,
+    public cartService: CartService
+  ) {
+    this.searchSubject.pipe(
+      debounceTime(400),
+    ).subscribe(term => {
+      this.router.navigate(['/products'], {
+        queryParams: { search: term }
+      });
     });
-  });
-}
+  }
 
   get dashboardLink(): string {
     const role = this.authService.getUserRole();
@@ -104,3 +110,4 @@ constructor(
     window.location.reload();
   }
 }
+

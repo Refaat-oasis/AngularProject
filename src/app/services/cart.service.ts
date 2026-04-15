@@ -1,35 +1,129 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, Observable, map } from 'rxjs';
+import { CartItemResponse } from '../models/interfaces';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CartService {
-  // We'll use a BehaviorSubject to keep the cart state updated across the app
-  private cartItems = new BehaviorSubject<any[]>([]);
-  cartItems$ = this.cartItems.asObservable();
+  private baseUrl = 'http://localhost:5118/api/cart';
+  
+  private cartItemsSubject = new BehaviorSubject<CartItemResponse[]>([]);
+  cartItems$ = this.cartItemsSubject.asObservable();
+  
+  cartCount$ = this.cartItems$.pipe(
+    map(items => items.reduce((total, item) => total + item.quantity, 0))
+  );
 
-  constructor() {
-    // Junior Tip: Load existing cart from localStorage on startup
-    const savedCart = localStorage.getItem('cart');
-    if (savedCart) {
-      this.cartItems.next(JSON.parse(savedCart));
+  constructor(private http: HttpClient, private authService: AuthService) {
+    this.loadCart();
+  }
+
+  loadCart() {
+    if (this.authService.isLoggedIn()) {
+      this.http.get<CartItemResponse[]>(this.baseUrl).subscribe({
+        next: (items) => this.cartItemsSubject.next(items),
+        error: (err) => console.error('Failed to load cart', err)
+      });
+    } else {
+      // Guest cart
+      const savedCart = localStorage.getItem('guestCart');
+      if (savedCart) {
+        this.cartItemsSubject.next(JSON.parse(savedCart));
+      }
     }
   }
 
-  addToCart(product: any) {
-    const currentItems = this.cartItems.value;
-    const updatedItems = [...currentItems, product];
-    this.cartItems.next(updatedItems);
-    localStorage.setItem('cart', JSON.stringify(updatedItems));
+  addToCart(productId: number, quantity: number = 1): void {
+    if (this.authService.isLoggedIn()) {
+      this.http.post(`${this.baseUrl}/add`, { productId, quantity }).subscribe({
+        next: () => this.loadCart(),
+        error: (err) => console.error('Failed to add to cart', err)
+      });
+    } else {
+      // Guest logic
+      const currentCart = this.cartItemsSubject.value;
+      const existingItem = currentCart.find(i => i.productId === productId);
+      
+      if (existingItem) {
+        existingItem.quantity += quantity;
+        existingItem.subtotal = existingItem.quantity * existingItem.productPrice;
+      } else {
+        // We lack product details here without an extra API call for guests, 
+        // to simplify for guests, we'd need minimal details. But since guest checkout
+        // uses localStorage we simulate it:
+        // Actually, for a fully working guest, let's just make a product API call to get details
+        this.http.get<any>(`http://localhost:5118/api/products/${productId}`).subscribe(product => {
+          const newItem: CartItemResponse = {
+            id: Date.now(), // fake id
+            productId: product.id,
+            productName: product.name,
+            productImage: product.imageUrl,
+            productPrice: product.price,
+            quantity: quantity,
+            subtotal: product.price * quantity
+          };
+          const newCart = [...this.cartItemsSubject.value, newItem];
+          this.cartItemsSubject.next(newCart);
+          this.saveGuestCart(newCart);
+        });
+        return;
+      }
+      this.cartItemsSubject.next([...currentCart]);
+      this.saveGuestCart(currentCart);
+    }
   }
 
-  getCartTotal() {
-    return this.cartItems.value.reduce((total, item) => total + item.price, 0);
+  updateQuantity(cartItemId: number, quantity: number): void {
+    if (this.authService.isLoggedIn()) {
+      this.http.put(`${this.baseUrl}/${cartItemId}`, { quantity }).subscribe({
+        next: () => this.loadCart(),
+        error: (err) => console.error('Failed to update quantity', err)
+      });
+    } else {
+      const currentCart = this.cartItemsSubject.value;
+      const item = currentCart.find(i => i.id === cartItemId);
+      if (item) {
+        item.quantity = quantity;
+        item.subtotal = item.quantity * item.productPrice;
+        this.cartItemsSubject.next([...currentCart]);
+        this.saveGuestCart(currentCart);
+      }
+    }
   }
 
-  clearCart() {
-    this.cartItems.next([]);
-    localStorage.removeItem('cart');
+  removeItem(cartItemId: number): void {
+    if (this.authService.isLoggedIn()) {
+      this.http.delete(`${this.baseUrl}/${cartItemId}`).subscribe({
+        next: () => this.loadCart(),
+        error: (err) => console.error('Failed to remove item', err)
+      });
+    } else {
+      const currentCart = this.cartItemsSubject.value.filter(i => i.id !== cartItemId);
+      this.cartItemsSubject.next(currentCart);
+      this.saveGuestCart(currentCart);
+    }
+  }
+
+  clearCart(): void {
+    if (this.authService.isLoggedIn()) {
+      this.http.delete(`${this.baseUrl}/clear`).subscribe({
+        next: () => this.loadCart(),
+        error: (err) => console.error('Failed to clear cart', err)
+      });
+    } else {
+      this.cartItemsSubject.next([]);
+      localStorage.removeItem('guestCart');
+    }
+  }
+
+  getCartTotal(): number {
+    return this.cartItemsSubject.value.reduce((total, item) => total + item.subtotal, 0);
+  }
+
+  private saveGuestCart(cart: CartItemResponse[]) {
+    localStorage.setItem('guestCart', JSON.stringify(cart));
   }
 }

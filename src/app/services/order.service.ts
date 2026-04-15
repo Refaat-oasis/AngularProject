@@ -1,24 +1,26 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { CheckoutRequest, OrderResponse } from '../models/interfaces';
 
 @Injectable({
   providedIn: 'root'
 })
 export class OrderService {
-  private baseUrl = 'https://localhost:7001/api/orders';
+  private baseUrl = 'http://localhost:5118/api/orders';
 
   constructor(private http: HttpClient) {}
 
-  placeOrder(orderData: any): Observable<any> {
-    return this.http.post<any>(this.baseUrl, orderData);
+  checkout(orderData: CheckoutRequest): Observable<OrderResponse> {
+    return this.http.post<OrderResponse>(`${this.baseUrl}/checkout`, orderData);
   }
 
-  getUserOrders(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/my-orders`);
+  getUserOrders(): Observable<OrderResponse[]> {
+    return this.http.get<OrderResponse[]>(this.baseUrl);
   }
 
-  getOrderDetails(id: number): Observable<any> {
-    return this.http.get<any>(`${this.baseUrl}/${id}`);
+  getOrderDetails(id: number): Observable<OrderResponse> {
+    return this.http.get<OrderResponse>(`${this.baseUrl}/${id}`);
   }
 }
+

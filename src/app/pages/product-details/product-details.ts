@@ -53,6 +53,7 @@ import { ReviewService } from '../../services/review-services';
 import { AuthService } from '../../services/auth.service';
 import { CreateReviewDto } from '../../services/review-services'; 
 import { FormsModule } from '@angular/forms';
+import { CartService } from '../../services/cart.service';
 
 @Component({
   selector: 'app-product-details',
@@ -81,8 +82,17 @@ reviewRating = 5;
     private route: ActivatedRoute,
     private productService: ProductService,
     private reviewService: ReviewService,
-    public authService: AuthService
+    public authService: AuthService,
+    private cartService: CartService
   ) {}
+
+  addToCart() {
+    const prod = this.product();
+    if (prod) {
+      this.cartService.addToCart(prod.id, 1);
+    }
+  }
+
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));

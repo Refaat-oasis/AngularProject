@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, tap } from 'rxjs';
 import { RouterLink } from '@angular/router';
@@ -7,10 +7,9 @@ import {jwtDecode} from 'jwt-decode';
   providedIn: 'root'
 })
 export class AuthService {
-  // Placeholder variable for your .NET API URL
   // Your API project is located at: C:\Users\ahta6\OneDrive\Desktop\.Net API & Angular project\ApiProject
   private baseUrl = 'http://localhost:5118/api/Account';
-isLoggedIn = signal<boolean>(!!localStorage.getItem('token'));
+  loggedIn = signal<boolean>(!!localStorage.getItem('token'));
 
   constructor(private http: HttpClient) { }
 
@@ -32,7 +31,7 @@ isLoggedIn = signal<boolean>(!!localStorage.getItem('token'));
       sessionStorage.setItem('token', token);
       console.log(token);
     }
-    this.isLoggedIn.set(true);
+    this.loggedIn.set(true);
   }
 
   register(userData: any): Observable<any> {
