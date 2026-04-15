@@ -7,6 +7,8 @@ import { ProductService } from '../../services/product-service';
 import { IProduct } from '../../models/iproduct';
 import { Rating } from '../rating/rating';
 import { Reviews } from '../reviews/reviews';
+import { CartService } from '../../services/cart.service';
+
 
 @Component({
   selector: 'app-product-details',
@@ -22,8 +24,17 @@ export class ProductDetails implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private productService: ProductService
+    private productService: ProductService,
+    private cartService: CartService
   ) {}
+
+  addToCart() {
+    const prod = this.product();
+    if (prod) {
+      this.cartService.addToCart(prod.id, 1);
+    }
+  }
+
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));

@@ -7,7 +7,6 @@ import { RouterLink } from '@angular/router';
   providedIn: 'root'
 })
 export class AuthService {
-  // Placeholder variable for your .NET API URL
   // Your API project is located at: C:\Users\ahta6\OneDrive\Desktop\.Net API & Angular project\ApiProject
   private baseUrl = 'http://localhost:5118/api/Account';
 
