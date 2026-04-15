@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, tap } from 'rxjs';
 import { RouterLink } from '@angular/router';
-
+import {jwtDecode} from 'jwt-decode';
 @Injectable({
   providedIn: 'root'
 })
@@ -10,20 +10,29 @@ export class AuthService {
   // Placeholder variable for your .NET API URL
   // Your API project is located at: C:\Users\ahta6\OneDrive\Desktop\.Net API & Angular project\ApiProject
   private baseUrl = 'http://localhost:5118/api/Account';
+isLoggedIn = signal<boolean>(!!localStorage.getItem('token'));
 
   constructor(private http: HttpClient) { }
 
   login(credentials: any): Observable<any> {
   return this.http.post<any>(`${this.baseUrl}/login`, credentials).pipe(
     tap(res => {
-      this.saveAuthData(res.token);
+        console.log("LOGIN RESPONSE:", res);
+          const token = res.token.result;
+      this.saveAuthData(token , credentials.rememberMe);
     })
   );
 }
 
-  private saveAuthData(token: string) {
-    localStorage.setItem('token', token);
-    console.log('Token saved to localStorage:', token);
+  private saveAuthData(token: string,rememberMe:boolean ) {
+  if (rememberMe) {
+      localStorage.setItem('token', token );
+      console.log(token);
+    } else {
+      sessionStorage.setItem('token', token);
+      console.log(token);
+    }
+    this.isLoggedIn.set(true);
   }
 
   register(userData: any): Observable<any> {
@@ -46,18 +55,33 @@ resetPassword(data: any): Observable<any> {
 }
   logout() {
     localStorage.removeItem('token');
+    sessionStorage.removeItem('token') ;
     localStorage.clear();
   }
 
   getToken(): string | null {
-    return localStorage.getItem('token');
+    return localStorage.getItem('token')|| sessionStorage.getItem('token');
   }
 
   isLoggedIn(): boolean {
     return !!this.getToken();
   }
 
-  getUserRole(): string {
-    return localStorage.getItem('userRole') || '';
-  }
+getUserRole(): string {
+  const token = this.getToken();
+  if (!token) return '';
+
+  const decoded: any = jwtDecode(token);
+
+  return decoded.role || decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] || '';
+}
+
+getUserId(): string {
+  const token = this.getToken();
+  if (!token) return '';
+
+  const decoded: any = jwtDecode(token);
+
+  return decoded.nameid || decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"];
+}
 }

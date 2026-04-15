@@ -1,12 +1,13 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
-
+import { FormsModule } from '@angular/forms';
+import { debounceTime, Subject } from 'rxjs';
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule , FormsModule],
   template: `
     <header class="fixed top-0 w-full z-50 glass-header">
       <div class="container-fluid px-6 py-3 d-flex align-items-center justify-content-between">
@@ -20,13 +21,17 @@ import { AuthService } from '../../../services/auth.service';
             <a routerLink="/help" class="text-secondary-variant text-decoration-none hover-secondary transition-colors">Help</a>
           </nav>
         </div>
-        
+
         <div class="d-flex align-items-center gap-4">
           <div class="d-none d-lg-flex align-items-center bg-light px-3 py-1.5 rounded-pill border-light focus-within-border">
             <span class="material-symbols-outlined text-secondary fs-5 me-2">search</span>
-            <input type="text" class="bg-transparent border-0 outline-none text-sm w-48" placeholder="Search curated goods...">
+          <input type="text"
+  class="bg-transparent border-0 outline-none text-sm w-48"
+  placeholder="Search..."
+  [(ngModel)]="searchTerm"
+  (ngModelChange)="onSearchChange($event)" />
           </div>
-          
+
           <div class="d-flex align-items-center gap-3">
             <button class="btn btn-link p-0 text-dark scale-hover">
               <span class="material-symbols-outlined">favorite</span>
@@ -34,7 +39,7 @@ import { AuthService } from '../../../services/auth.service';
             <button class="btn btn-link p-0 text-dark scale-hover" routerLink="/cart">
               <span class="material-symbols-outlined">shopping_cart</span>
             </button>
-            
+
             <ng-container *ngIf="authService.isLoggedIn(); else loginBtn">
               <button class="btn btn-link p-0 text-dark scale-hover" [routerLink]="dashboardLink">
                 <span class="material-symbols-outlined">dashboard</span>
@@ -43,7 +48,7 @@ import { AuthService } from '../../../services/auth.service';
                 <span class="material-symbols-outlined">logout</span>
               </button>
             </ng-container>
-            
+
             <ng-template #loginBtn>
               <button class="btn btn-link p-0 text-dark scale-hover" routerLink="/login">
                 <span class="material-symbols-outlined">person</span>
@@ -64,7 +69,20 @@ import { AuthService } from '../../../services/auth.service';
   `]
 })
 export class NavbarComponent {
-  constructor(public authService: AuthService) {}
+  searchTerm: string = '';
+  searchSubject = new Subject<string>();
+constructor(
+  public authService: AuthService,
+  private router: Router
+) {
+  this.searchSubject.pipe(
+    debounceTime(400),
+  ).subscribe(term => {
+    this.router.navigate(['/products'], {
+      queryParams: { search: term }
+    });
+  });
+}
 
   get dashboardLink(): string {
     const role = this.authService.getUserRole();
@@ -72,7 +90,15 @@ export class NavbarComponent {
     if (role === 'Seller') return '/seller';
     return '/';
   }
-
+// onSearch() {
+//   if (this.searchTerm.trim()) {
+//     this.router.navigate(['/products'], {
+//       queryParams: { search: this.searchTerm }
+//     });
+//   }}
+  onSearchChange(value: string) {
+  this.searchSubject.next(value);
+}
   logout() {
     this.authService.logout();
     window.location.reload();

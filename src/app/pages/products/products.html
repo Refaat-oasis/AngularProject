@@ -6,14 +6,17 @@
         <div class="mb-5">
           <h3 class="h5 fw-bold mb-4">Categories</h3>
           <ul class="list-unstyled">
-            @for (cat of categories(); track cat) {
-              <li>
-                <a href="#" class="text-secondary text-decoration-none d-flex justify-content-between">
-                  {{ cat }}
-                  <span class="text-secondary small">(12)</span>
-                </a>
-              </li>
-            }
+     @for (cat of categories(); track cat.id) {
+  <li>
+    <a
+      class="text-secondary text-decoration-none d-flex justify-content-between"
+      style="cursor: pointer"
+      (click)="loadCategoryProducts(cat.id)"
+    >
+      {{ cat.name }}
+    </a>
+  </li>
+}
           </ul>
         </div>
       </div>

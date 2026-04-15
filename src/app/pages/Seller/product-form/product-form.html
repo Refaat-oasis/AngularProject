@@ -1,3 +1,4 @@
+
 <div class="container mt-5">
   <div class="card shadow p-4 rounded-4">
 
@@ -17,47 +18,144 @@
     @if (!isLoading()) {
       <form (ngSubmit)="submit()" #form="ngForm">
 
+      
         <div class="mb-3">
           <label class="form-label fw-semibold">Name</label>
           <input type="text" class="form-control"
-                 placeholder="Enter product name"
                  [(ngModel)]="name"
-                 name="name" required />
+                 name="name"
+                 #nameRef="ngModel"
+                 required
+                 minlength="3"
+                 maxlength="100"
+                 pattern="^[a-zA-Z0-9 _\-\.]+$" />
+
+          @if (nameRef.invalid && nameRef.touched) {
+            @if (nameRef.errors?.['required']) {
+              <small class="text-danger d-block">Name is required.</small>
+            }
+            @if (nameRef.errors?.['minlength']) {
+              <small class="text-danger d-block">Name must be at least 3 characters.</small>
+            }
+            @if (nameRef.errors?.['maxlength']) {
+              <small class="text-danger d-block">Name cannot exceed 100 characters.</small>
+            }
+            @if (nameRef.errors?.['pattern']) {
+              <small class="text-danger d-block">Name can only contain letters, numbers, spaces, hyphens, underscores, and dots.</small>
+            }
+          }
         </div>
 
+ 
         <div class="mb-3">
           <label class="form-label fw-semibold">Description</label>
           <textarea class="form-control"
-                    placeholder="Enter product description"
-                    rows="3"
                     [(ngModel)]="description"
-                    name="description"></textarea>
+                    name="description"
+                    #descRef="ngModel"
+                    required
+                    minlength="10"
+                    maxlength="1000"
+                    rows="4"></textarea>
+
+          <div class="d-flex justify-content-between align-items-start mt-1">
+            <div>
+              @if (descRef.invalid && descRef.touched) {
+                @if (descRef.errors?.['required']) {
+                  <small class="text-danger d-block">Description is required.</small>
+                }
+                @if (descRef.errors?.['minlength']) {
+                  <small class="text-danger d-block">Description must be at least 10 characters.</small>
+                }
+                @if (descRef.errors?.['maxlength']) {
+                  <small class="text-danger d-block">Description cannot exceed 1000 characters.</small>
+                }
+              }
+            </div>
+            <small class="text-muted ms-2 text-nowrap">
+              {{ description?.length || 0 }} / 1000
+            </small>
+          </div>
         </div>
 
+    
         <div class="mb-3">
           <label class="form-label fw-semibold">Price</label>
-          <input type="number" class="form-control"
-                 placeholder="Enter price"
-                 [(ngModel)]="price"
-                 name="price" min="0" />
+          <div class="input-group">
+            <span class="input-group-text">$</span>
+            <input type="number" class="form-control"
+                   [(ngModel)]="price"
+                   name="price"
+                   #priceRef="ngModel"
+                   required
+                   min="0.01"
+                   max="999999"
+                   step="0.01" />
+          </div>
+
+          @if (priceRef.invalid && priceRef.touched) {
+            @if (priceRef.errors?.['required']) {
+              <small class="text-danger d-block">Price is required.</small>
+            }
+            @if (priceRef.errors?.['min']) {
+              <small class="text-danger d-block">Price must be greater than 0.</small>
+            }
+            @if (priceRef.errors?.['max']) {
+              <small class="text-danger d-block">Price cannot exceed $999,999.</small>
+            }
+          }
         </div>
 
+   
         <div class="mb-3">
           <label class="form-label fw-semibold">Stock</label>
           <input type="number" class="form-control"
-                 placeholder="Enter stock quantity"
                  [(ngModel)]="stock"
-                 name="stock" min="0" />
+                 name="stock"
+                 #stockRef="ngModel"
+                 required
+                 min="0"
+                 max="999999"
+                 step="1" />
+
+          @if (stockRef.invalid && stockRef.touched) {
+            @if (stockRef.errors?.['required']) {
+              <small class="text-danger d-block">Stock is required.</small>
+            }
+            @if (stockRef.errors?.['min']) {
+              <small class="text-danger d-block">Stock must be 0 or greater.</small>
+            }
+            @if (stockRef.errors?.['max']) {
+              <small class="text-danger d-block">Stock cannot exceed 999,999 units.</small>
+            }
+          }
         </div>
 
+     
         <div class="mb-3">
-          <label class="form-label fw-semibold">Category ID</label>
-          <input type="number" class="form-control"
-                 placeholder="Enter category ID"
-                 [(ngModel)]="categoryId"
-                 name="categoryId" />
+          <label class="form-label fw-semibold">Category</label>
+
+          <select class="form-select"
+                  [(ngModel)]="categoryId"
+                  name="categoryId"
+                  #catRef="ngModel"
+                  required>
+
+            <option value="">Select Category</option>
+
+            @for (cat of categories(); track cat.id) {
+              <option [value]="cat.id">{{ cat.name }}</option>
+            }
+          </select>
+
+          @if (catRef.invalid && catRef.touched) {
+            @if (catRef.errors?.['required']) {
+              <small class="text-danger d-block">Please select a category.</small>
+            }
+          }
         </div>
 
+    
         <div class="mb-3">
           <label class="form-label fw-semibold">Product Image</label>
 
@@ -71,14 +169,23 @@
           }
 
           <input type="file" class="form-control"
-                 accept="image/*"
+                 accept="image/jpeg,image/png,image/webp,image/gif"
                  (change)="onFileSelected($event)" />
 
-          @if (isEditMode()) {
-            <small class="text-muted">Leave empty to keep the existing image.</small>
+          @if (imageError) {
+            <small class="text-danger d-block">{{ imageError }}</small>
           }
+
+          @if (isEditMode()) {
+            <small class="text-muted d-block mt-1">Leave empty to keep the existing image.</small>
+          }
+
+          <small class="text-muted d-block">
+            Accepted formats: JPG, PNG, WEBP, GIF &mdash; Max size: 5 MB.
+          </small>
         </div>
 
+     
         <button type="submit" class="btn btn-dark w-100 mt-2"
                 [disabled]="isSubmitDisabled()">
           {{ isEditMode() ? 'Update Product' : 'Create Product' }}

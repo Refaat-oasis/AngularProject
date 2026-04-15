@@ -2,6 +2,7 @@ import { Component, OnInit, signal, computed } from '@angular/core';
 import { ProductService } from '../../../services/product-service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { CategoryService } from '../../../services/category-service';
 
 @Component({
   selector: 'app-product-form',
@@ -15,10 +16,12 @@ export class ProductForm implements OnInit {
   isLoading = signal(false);
   selectedFile = signal<File | null>(null);
   currentImageUrl = signal<string | null>(null);
+  baseUrl = 'http://localhost:5118/images/products/';
+  categories = signal<any[]>([]);
+  imageError: string | null = null;
 
-  isSubmitDisabled = computed(() => this.isLoading());
+  isSubmitDisabled = computed(() => this.isLoading() || !!this.imageError);
 
-  // Getters & Setters for ngModel
   get name() { return this.model().name; }
   set name(val: string) { this.model.update(m => ({ ...m, name: val })); }
 
@@ -36,11 +39,18 @@ export class ProductForm implements OnInit {
 
   constructor(
     private productService: ProductService,
+    private categoryService: CategoryService,
     private route: ActivatedRoute,
     private router: Router
   ) {}
 
   ngOnInit() {
+    this.categoryService.getAll().subscribe({
+      next: (res) => {
+        this.categories.set(res);
+      }
+    });
+
     const id = this.route.snapshot.paramMap.get('id');
 
     if (id) {
@@ -50,33 +60,52 @@ export class ProductForm implements OnInit {
       this.productService.getById(+id).subscribe({
         next: (res) => {
           this.model.set(res);
-          this.currentImageUrl.set(res.image ?? null);
+          this.currentImageUrl.set(
+            res.image ? this.baseUrl + res.image : null
+          );
           this.isLoading.set(false);
         },
-        error: () => {
-          this.isLoading.set(false);
-        }
+        error: () => this.isLoading.set(false)
       });
     }
   }
 
-  onFileSelected(event: Event) {
+  onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
-    if (file) {
-      this.selectedFile.set(file);
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        this.currentImageUrl.set(e.target.result);
-      };
-      reader.readAsDataURL(file);
+
+    this.imageError = null;
+
+    if (!file) return;
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    const maxSizeBytes = 5 * 1024 * 1024;
+
+    if (!allowedTypes.includes(file.type)) {
+      this.imageError = 'Invalid file type. Please upload a JPG, PNG, WEBP, or GIF image.';
+      input.value = '';
+      return;
     }
+
+    if (file.size > maxSizeBytes) {
+      this.imageError = 'File is too large. Maximum allowed size is 5 MB.';
+      input.value = '';
+      return;
+    }
+
+    this.selectedFile.set(file);
+
+    const reader = new FileReader();
+    reader.onload = (e: any) => {
+      this.currentImageUrl.set(e.target.result);
+    };
+    reader.readAsDataURL(file);
   }
 
   submit() {
     const current = this.model();
-    const formData = new FormData();
 
+    const formData = new FormData();
     formData.append('name', current.name);
     formData.append('description', current.description);
     formData.append('price', current.price);
@@ -88,14 +117,23 @@ export class ProductForm implements OnInit {
       formData.append('image', file);
     }
 
-    if (this.isEditMode()) {
-      this.productService.update(current.id, formData).subscribe(() => {
+    const request = this.isEditMode()
+      ? this.productService.update(current.id, formData)
+      : this.productService.create(formData);
+
+    request.subscribe({
+      next: () => {
         this.router.navigate(['/seller/products']);
-      });
-    } else {
-      this.productService.create(formData).subscribe(() => {
-        this.router.navigate(['/seller/products']);
-      });
-    }
+      },
+      error: (err) => {
+        console.log(err);
+        if (err.status === 401) {
+          alert('❌ You must login first');
+          this.router.navigate(['/login']);
+        } else {
+          alert('❌ Something went wrong');
+        }
+      }
+    });
   }
 }

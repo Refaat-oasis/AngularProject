@@ -20,16 +20,64 @@ import { AuthService } from '../../services/auth.service';
           <div class="row g-4 mb-4">
             <div class="col-md-6">
               <label class="form-label text-secondary small fw-bold uppercase ls-wider mb-2">Full Name</label>
-              <input type="text" class="form-control merchant-input" name="name" [(ngModel)]="user.name" required placeholder="John Doe">
-            </div>
+<input type="text"  class="form-control merchant-input"  [class.is-invalid]="name.invalid && name.touched" name="name" #name="ngModel" [(ngModel)]="user.name"
+   required minlength="3" pattern="^[a-zA-Z ]+$" placeholder="John Doe">
+    @if (name.touched && name.invalid) {
+                <div class="invalid-feedback">
+                  @if (name.errors?.['required']) {
+                    <div>Full name is required.</div>
+                  }
+                  @if (name.errors?.['minlength']) {
+                    <div>Name must be at least 3 characters.</div>
+                  }
+                  @if (name.errors?.['pattern']) {
+                    <div>Only letters and spaces are allowed.</div>
+                  }
+                </div>
+              }
+                 
+                         </div>
             <div class="col-md-6">
               <label class="form-label text-secondary small fw-bold uppercase ls-wider mb-2">Email Address</label>
-              <input type="email" class="form-control merchant-input" name="email" [(ngModel)]="user.email" required placeholder="name@company.com">
-            </div>
+<input type="email" class="form-control merchant-input" [class.is-invalid]="email.invalid && email.touched" name="email"  #email="ngModel" [(ngModel)]="user.email"
+                required
+                email
+                placeholder="name@company.com">   
+                @if (email.touched && email.invalid) {
+                <div class="invalid-feedback">
+                  @if (email.errors?.['required']) {
+                    <div>Email is required.</div>
+                  }
+                  @if (email.errors?.['email']) {
+                    <div>Please enter a valid email address.</div>
+                  }
+                </div>
+              }      
+                 </div>
              <div class="col-md-6">
               <label class="form-label text-secondary small fw-bold uppercase ls-wider mb-2">Address</label>
-              <input type="text" class="form-control merchant-input" name="address" [(ngModel)]="user.address" required placeholder="123 Main St">
-            </div>
+<input
+                type="text"
+                class="form-control merchant-input"
+                [class.is-invalid]="address.invalid && address.touched"
+                name="address"
+                #address="ngModel"
+                [(ngModel)]="user.address"
+                required
+                minlength="5"
+                placeholder="123 Main St">
+                   @if (address.touched && address.invalid) {
+                <div class="invalid-feedback">
+                  @if (address.errors?.['required']) {
+                    <div>Address is required.</div>
+                  }
+                  @if (address.errors?.['minlength']) {
+                    <div>Address must be at least 5 characters.</div>
+                  }
+                </div>
+              }
+              
+              </div>
           </div>
 
           <div class="mb-4">
@@ -58,8 +106,34 @@ import { AuthService } from '../../services/auth.service';
 
           <div class="mb-5">
             <label class="form-label text-secondary small fw-bold uppercase ls-wider mb-2">Password</label>
-            <input type="password" class="form-control merchant-input" name="password" [(ngModel)]="user.password" required placeholder="••••••••">
-          </div>
+<input
+              type="password"
+              class="form-control merchant-input"
+              [class.is-invalid]="password.invalid && password.touched"
+              name="password"
+              #password="ngModel"
+              [(ngModel)]="user.password"
+              required
+              minlength="6"
+              pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+              placeholder="••••••••">       
+             @if (password.touched && password.invalid) {
+              <div class="invalid-feedback">
+                @if (password.errors?.['required']) {
+                  <div>Password is required.</div>
+                }
+                @if (password.errors?.['minlength']) {
+                  <div>Password must be at least 6 characters.</div>
+                }
+                @if (password.errors?.['pattern']) {
+                  <div>
+                    Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.
+                  </div>
+                }
+              </div>
+            }
+            
+            </div>
 
           <button type="submit" class="btn btn-primary-merchant w-100 py-3 mb-4" [disabled]="!regForm.form.valid">
             Create Account

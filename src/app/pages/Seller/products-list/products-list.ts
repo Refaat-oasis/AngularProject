@@ -24,9 +24,11 @@ selectedId!: number;
   }
 
   loadProducts() {
-    this.productService.getAll().subscribe(res => {
+   this.productService.getMyProducts().subscribe({
+    next: (res) => {
       this.products.set(res);
-    });
+    }
+  });
   }
 
   delete(id: number) {

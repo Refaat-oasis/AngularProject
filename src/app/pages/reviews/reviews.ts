@@ -9,4 +9,5 @@ import { Rating } from '../rating/rating';
 })
 export class Reviews {
     @Input() reviews: any[] = [];
+    
 }

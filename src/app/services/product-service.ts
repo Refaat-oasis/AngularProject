@@ -19,6 +19,15 @@ private apiUrl = 'http://localhost:5118/api/products';
   getById(id: number): Observable<IProduct> {
     return this.http.get<IProduct>(`${this.apiUrl}/${id}`);
 }
+search(term: string) {
+  return this.http.get<any[]>(
+    `${this.apiUrl}/search?term=${term}`
+  );
+}
+getMyProducts() {
+  return this.http.get<any[]>(`${this.apiUrl}/my-products`);
+}
+
 
 create(data: FormData) {
   return this.http.post(this.apiUrl, data);

@@ -40,6 +40,8 @@ export const routes: Routes = [
   {
     path: 'seller',
     component: SellerLayoutComponent,
+     canActivate: [AuthGuard],
+  data: { role: 'Seller' },
     children: [
       { path: 'products', component: ProductsList },
       { path: 'products/create', component: ProductForm },
