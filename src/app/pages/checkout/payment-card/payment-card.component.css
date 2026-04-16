@@ -1,0 +1,70 @@
+.page-wrapper {
+  max-width: 1400px;
+  margin: 0 auto;
+  min-height: 85vh;
+}
+
+.payment-container {
+  transition: all 0.3s ease;
+}
+
+.form-group label {
+  display: block;
+}
+
+.form-control {
+  border-radius: 8px;
+  border: 1px solid #e1e3e4;
+  padding: 12px 16px;
+  background-color: #f3f4f5;
+  transition: all 0.2s ease;
+}
+
+.form-control:focus, .StripeElement--focus {
+  background-color: #fff !important;
+  border-color: #006397 !important;
+  box-shadow: 0 0 0 4px rgba(0, 99, 151, 0.1) !important;
+  outline: none;
+}
+
+#card-element {
+  padding: 14px 16px;
+}
+
+.btn-primary-merchant {
+  background: linear-gradient(135deg, #041627 0%, #1A2B3C 100%);
+  color: white;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.btn-primary-merchant:hover:not(:disabled) {
+  transform: scale(1.01);
+  filter: brightness(1.2);
+}
+
+.btn-primary-merchant:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.back-link:hover {
+  color: #006397 !important;
+  text-decoration: underline !important;
+}
+
+.rounded-lg { border-radius: 16px; }
+.rounded-md { border-radius: 8px; }
+
+.font-headline {
+  font-family: 'Manrope', sans-serif;
+  letter-spacing: -0.01em;
+}
+
+.x-small {
+  font-size: 0.75rem;
+}
+
+.min-h-20 {
+  min-height: 20px;
+}

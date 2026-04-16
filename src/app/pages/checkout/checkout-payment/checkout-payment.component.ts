@@ -1,0 +1,118 @@
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule, Router } from '@angular/router';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { CartService } from '../../../services/cart.service';
+import { AuthService } from '../../../services/auth.service';
+import { OrderService } from '../../../services/order.service';
+import { CheckoutRequest, CartItemResponse } from '../../../models/interfaces';
+
+@Component({
+  selector: 'app-checkout-payment',
+  standalone: true,
+  imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule],
+  templateUrl: './checkout-payment.component.html',
+  styleUrls: ['./checkout-payment.component.css']
+})
+export class CheckoutPaymentComponent implements OnInit {
+  cartItems: CartItemResponse[] = [];
+  subtotal: number = 0;
+  shippingCost = 150;
+  
+  shippingForm: FormGroup;
+  selectedPayment: string = 'CashOnDelivery';
+  isProcessing = false;
+  errorMsg = '';
+
+  paymentMethods = [
+    { value: 'CreditCard', label: 'Credit Card', icon: 'credit_card', desc: 'Secure payment via Stripe. Supports Visa, MasterCard, and Amex.' },
+    { value: 'CashOnDelivery', label: 'Cash on Delivery', icon: 'local_shipping', desc: 'Pay when your order arrives at your doorstep.' }
+  ];
+
+  constructor(
+    public authService: AuthService,
+    private cartService: CartService,
+    private orderService: OrderService,
+    private fb: FormBuilder,
+    private router: Router
+  ) {
+    this.shippingForm = this.fb.group({
+      shippingAddress: ['', Validators.required],
+      guestName: [''],
+      guestEmail: ['']
+    });
+
+    if (!this.authService.isLoggedIn()) {
+      this.shippingForm.get('guestName')?.setValidators(Validators.required);
+      this.shippingForm.get('guestEmail')?.setValidators([Validators.required, Validators.email]);
+    }
+  }
+
+  ngOnInit() {
+    this.cartService.cartItems$.subscribe(items => {
+      this.cartItems = items;
+      this.subtotal = this.cartService.getCartTotal();
+      if (this.cartItems.length === 0) {
+        this.router.navigate(['/cart']);
+      }
+    });
+  }
+
+  selectPayment(method: string) {
+    this.selectedPayment = method;
+  }
+
+  submitOrder() {
+    if (this.shippingForm.invalid) {
+      this.errorMsg = 'Please complete all required shipping fields.';
+      return;
+    }
+    
+    this.errorMsg = '';
+    this.isProcessing = true;
+
+    const request: CheckoutRequest = {
+      shippingAddress: this.shippingForm.value.shippingAddress,
+      paymentMethod: this.selectedPayment as any,
+    };
+
+    if (!this.authService.isLoggedIn()) {
+      request.guestName = this.shippingForm.value.guestName;
+      request.guestEmail = this.shippingForm.value.guestEmail;
+    }
+
+    this.orderService.checkout(request).subscribe({
+      next: (res) => {
+        this.isProcessing = false;
+        if (this.selectedPayment === 'CreditCard') {
+          // Redirect to credit card step with order ID and amount
+          this.router.navigate(['/checkout/payment-card'], { 
+            queryParams: { 
+              orderId: res.id, 
+              amount: res.total 
+            } 
+          });
+        } else {
+          // COD case - Redirect to confirmation
+          // Clear cart for COD
+          this.clearCartAfterSuccess();
+          this.router.navigate(['/checkout/order-confirmation'], { 
+            queryParams: { orderId: res.id } 
+          });
+        }
+      },
+      error: (err) => {
+        this.isProcessing = false;
+        this.errorMsg = err.error?.message || 'An error occurred during checkout.';
+      }
+    });
+  }
+
+  private clearCartAfterSuccess() {
+    if (!this.authService.isLoggedIn()) {
+      this.cartService.clearCart();
+    } else {
+      this.cartService.loadCart();
+    }
+  }
+}

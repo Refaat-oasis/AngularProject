@@ -32,3 +32,12 @@ export interface OrderItemResponse {
   price: number;
   subtotal: number;
 }
+
+export interface PaymentRequest {
+  paymentMethod: string;
+  name: string;
+  stripeToken?: string;
+  amount: number;
+  currency: string;
+  orderId: string;
+}

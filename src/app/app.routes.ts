@@ -4,7 +4,9 @@ import { HomeComponent } from './pages/home/home.component';
 import { LoginComponent } from './pages/auth/login.component';
 import { RegisterComponent } from './pages/auth/register.component';
 import { CartComponent } from './pages/cart/cart.component';
-import { CheckoutComponent } from './pages/checkout/checkout.component';
+import { CheckoutPaymentComponent } from './pages/checkout/checkout-payment/checkout-payment.component';
+import { PaymentCardComponent } from './pages/checkout/payment-card/payment-card.component';
+import { OrderConfirmationComponent } from './pages/checkout/order-confirmation/order-confirmation.component';
 import { AuthGuard } from './services/auth.guard';
 import { Products } from './pages/products/products';
 import { ProductDetails } from './pages/product-details/product-details';
@@ -31,7 +33,9 @@ export const routes: Routes = [
       ]
     },
     { path: 'cart', component: CartComponent },
-    { path: 'checkout', component: CheckoutComponent },
+    { path: 'checkout', component: CheckoutPaymentComponent },
+    { path: 'checkout/payment-card', component: PaymentCardComponent },
+    { path: 'checkout/order-confirmation', component: OrderConfirmationComponent },
     { path: 'login', component: LoginComponent },
     { path: 'register', component: RegisterComponent },
     { path: 'forgot-password', component: ForgotPasswordComponent },
