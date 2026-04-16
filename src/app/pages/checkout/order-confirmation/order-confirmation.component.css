@@ -1,0 +1,47 @@
+.page-wrapper {
+  max-width: 1400px;
+  margin: 0 auto;
+  min-height: 85vh;
+}
+
+.max-w-lg {
+  max-width: 600px;
+}
+
+.merchant-card {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-primary-merchant {
+  background: linear-gradient(135deg, #041627 0%, #1A2B3C 100%);
+  color: white;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.btn-primary-merchant:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.2);
+}
+
+.rounded-lg { border-radius: 16px; }
+.rounded-md { border-radius: 8px; }
+
+.font-headline {
+  font-family: 'Manrope', sans-serif;
+  letter-spacing: -0.01em;
+}
+
+.hover-underline:hover {
+  text-decoration: underline !important;
+  color: #006397 !important;
+}
+
+.success-icon {
+  animation: scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes scaleIn {
+  0% { transform: scale(0); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}

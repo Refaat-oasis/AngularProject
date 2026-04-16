@@ -1,0 +1,16 @@
+<div class="page-wrapper container px-lg-5 pt-5 mt-5">
+  <div class="text-center py-5 merchant-card border-0 shadow-lg py-5 px-4 max-w-lg mx-auto bg-white rounded-lg mt-5">
+    <div class="success-icon mb-4">
+        <span class="material-symbols-outlined text-success" style="font-size: 6rem; font-variation-settings: 'FILL' 1;">check_circle</span>
+    </div>
+    
+    <h2 class="h3 fw-bold mb-3 font-headline">Order Confirmed</h2>
+    <p class="text-secondary mb-2">Thank you for your purchase.</p>
+    <p class="text-secondary mb-4 small">Your order <strong class="text-primary">#{{ orderId }}</strong> has been placed successfully and is being processed.</p>
+    
+    <div class="d-flex flex-column gap-3 mt-5">
+      <button class="btn btn-primary-merchant py-3 fw-bold rounded-md shadow-sm" routerLink="/">Continue Shopping</button>
+      <a routerLink="/orders" class="text-secondary small fw-medium text-decoration-none hover-underline">View Order History</a>
+    </div>
+  </div>
+</div>
