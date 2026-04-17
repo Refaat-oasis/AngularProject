@@ -115,7 +115,6 @@ import { AuthService } from '../../services/auth.service';
               [(ngModel)]="user.password"
               required
               minlength="6"
-              pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
               placeholder="••••••••">       
              @if (password.touched && password.invalid) {
               <div class="invalid-feedback">

@@ -20,34 +20,35 @@ import { ResetPasswordComponent } from './pages/auth/Forgot password components/
 import { UserLayout } from './pages/user-layout/user-layout';
 
 export const routes: Routes = [
-{
-  path: '',
-  component: UserLayout,
-  children: [
-    { path: '', component: HomeComponent },
-    { path: 'products', component: Products },
-    { path: 'product/:id', component: ProductDetails,
-      children: [
-        { path: 'reviews', component: Reviews },
-        { path: 'rating', component: Rating }
-      ]
-    },
-    { path: 'cart', component: CartComponent },
-    { path: 'checkout', component: CheckoutPaymentComponent },
-    { path: 'checkout/payment-card', component: PaymentCardComponent },
-    { path: 'checkout/order-confirmation', component: OrderConfirmationComponent },
-    { path: 'login', component: LoginComponent },
-    { path: 'register', component: RegisterComponent },
-    { path: 'forgot-password', component: ForgotPasswordComponent },
-    { path: 'reset-password', component: ResetPasswordComponent },
-  ]
-}
-,
+  {
+    path: '',
+    component: UserLayout,
+    children: [
+      { path: '', component: HomeComponent },
+      { path: 'products', component: Products },
+      {
+        path: 'product/:id', component: ProductDetails,
+        children: [
+          { path: 'reviews', component: Reviews },
+          { path: 'rating', component: Rating }
+        ]
+      },
+      { path: 'cart', component: CartComponent },
+      { path: 'checkout', component: CheckoutPaymentComponent },
+      { path: 'checkout/payment-card', component: PaymentCardComponent },
+      { path: 'checkout/order-confirmation', component: OrderConfirmationComponent },
+      { path: 'login', component: LoginComponent },
+      { path: 'register', component: RegisterComponent },
+      { path: 'forgot-password', component: ForgotPasswordComponent },
+      { path: 'reset-password', component: ResetPasswordComponent },
+    ]
+  }
+  ,
   {
     path: 'seller',
     component: SellerLayoutComponent,
-     canActivate: [AuthGuard],
-  data: { role: 'Seller' },
+    canActivate: [AuthGuard],
+    data: { role: 'Seller' },
     children: [
       { path: 'products', component: ProductsList },
       { path: 'products/create', component: ProductForm },

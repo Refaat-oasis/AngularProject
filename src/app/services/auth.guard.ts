@@ -19,7 +19,7 @@ export class AuthGuard implements CanActivate {
     }
 
     // Role-based check
-    if (expectedRole && userRole !== expectedRole) {
+    if (expectedRole && userRole !== expectedRole && userRole !== 'Admin') {
       alert('You do not have permission to access this page.');
       this.router.navigate(['/']);
       return false;
