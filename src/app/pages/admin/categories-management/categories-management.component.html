@@ -1,0 +1,195 @@
+<section class="categories-management">
+  <div class="hero-panel">
+    <div class="hero-copy">
+      <span class="eyebrow">Collection Structure</span>
+      <h2>Categories</h2>
+      <p>Organize the storefront, manage category artwork, and review what products belong to each section.</p>
+    </div>
+    <button class="btn btn-primary" (click)="openCreateModal()">Create Category</button>
+  </div>
+
+  <div class="stats-grid" *ngIf="!loading && categories.length">
+    <article class="stat-card">
+      <span class="stat-label">Total Categories</span>
+      <strong>{{ totalCategories }}</strong>
+      <small>All categories currently available</small>
+    </article>
+    <article class="stat-card accent">
+      <span class="stat-label">Filtered Results</span>
+      <strong>{{ filteredCount }}</strong>
+      <small>Matching the current search</small>
+    </article>
+  </div>
+
+  <div *ngIf="error" class="message error">{{ error }}</div>
+  <div *ngIf="success" class="message success">{{ success }}</div>
+
+  <div class="toolbar-shell" *ngIf="!loading && categories.length">
+    <div class="toolbar">
+      <label class="search-field">
+        <span>Search</span>
+        <input
+          type="text"
+          class="search-input"
+          [(ngModel)]="searchTerm"
+          placeholder="Find by category name or ID"
+        />
+      </label>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading-state">Loading categories...</div>
+
+  <div *ngIf="!loading && !categories.length" class="empty-state">
+    <h3>No categories yet</h3>
+    <p>The categories API returned an empty list.</p>
+  </div>
+
+  <div *ngIf="!loading && categories.length && !filteredCategories.length" class="empty-state">
+    <h3>No matching categories</h3>
+    <p>Try a different search term.</p>
+  </div>
+
+  <div *ngIf="!loading && filteredCategories.length" class="categories-grid">
+    <article class="category-card" *ngFor="let category of filteredCategories; trackBy: trackByCategoryId">
+      <div class="image-wrap">
+        <img [src]="getImageUrl(category.imageUrl)" [alt]="category.name" (error)="useFallbackImage($event)" />
+      </div>
+
+      <div class="content">
+        <div class="title-row">
+          <div>
+            <h3>{{ category.name }}</h3>
+            <p>ID #{{ category.id }}</p>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn btn-secondary" (click)="openDetailsModal(category)">Products</button>
+          <button type="button" class="btn btn-secondary" (click)="openEditModal(category)">Edit</button>
+          <button type="button" class="btn btn-danger" (click)="openDeleteOptions(category)">Delete</button>
+        </div>
+      </div>
+    </article>
+  </div>
+
+  <div class="modal-overlay" *ngIf="showFormModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>{{ editingCategoryId === null ? 'Create Category' : 'Edit Category' }}</h3>
+        <button class="close-btn" type="button" (click)="closeFormModal()">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" class="form-control" [(ngModel)]="formName" placeholder="Category name" />
+        </div>
+
+        <div class="form-group">
+          <label>Image</label>
+          <div class="preview" *ngIf="imagePreview">
+            <img [src]="imagePreview" alt="Category preview" />
+          </div>
+          <input type="file" class="form-control" accept="image/jpeg,image/png,image/webp,image/gif" (change)="onFileSelected($event)" />
+          <small *ngIf="imageError" class="error-text">{{ imageError }}</small>
+          <small *ngIf="editingCategoryId !== null">Leave empty to keep the current image.</small>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" (click)="closeFormModal()">Cancel</button>
+          <button type="button" class="btn btn-primary" [disabled]="!formName.trim() || submitting || !!imageError" (click)="saveCategory()">
+            {{ submitting ? 'Saving...' : 'Save Category' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" *ngIf="showDetailsModal">
+    <div class="modal-content modal-wide">
+      <div class="modal-header">
+        <h3>{{ selectedCategoryDetails?.name || 'Category Details' }}</h3>
+        <button class="close-btn" type="button" (click)="closeDetailsModal()">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div *ngIf="detailLoading" class="loading-state compact">Loading category products...</div>
+
+        <ng-container *ngIf="!detailLoading && selectedCategoryDetails">
+          <div class="details-hero">
+            <img [src]="getImageUrl(selectedCategoryDetails.imageUrl)" [alt]="selectedCategoryDetails.name" (error)="useFallbackImage($event)" />
+            <div>
+              <p class="details-kicker">Category</p>
+              <h4>{{ selectedCategoryDetails.name }}</h4>
+              <p>{{ totalProductsInDetails }} products in this category.</p>
+            </div>
+          </div>
+
+          <div *ngIf="!selectedCategoryDetails.products.length" class="empty-state compact">
+            <h3>No products</h3>
+            <p>This category does not contain any products right now.</p>
+          </div>
+
+          <div *ngIf="selectedCategoryDetails.products.length" class="products-list">
+            <article class="product-row" *ngFor="let product of selectedCategoryDetails.products">
+              <div>
+                <strong>{{ product.name }}</strong>
+                <p>{{ product.description }}</p>
+              </div>
+              <span>{{ product.price | currency }}</span>
+            </article>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" *ngIf="showDeleteOptionsModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Delete {{ pendingDeleteCategory?.name }}</h3>
+        <button class="close-btn" type="button" (click)="closeDeleteModals()">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <p class="delete-copy">Choose how you want to delete this category.</p>
+        <div class="delete-options">
+          <button type="button" class="option-card" (click)="chooseDeleteMode('safe')">
+            <strong>Safe Delete</strong>
+            <span>Delete the category and move its products to Others.</span>
+          </button>
+          <button type="button" class="option-card danger" (click)="chooseDeleteMode('force')">
+            <strong>Delete With Products</strong>
+            <span>Delete the category and soft-delete all of its products.</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" *ngIf="showDeleteConfirmModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Confirm {{ deleteMode === 'safe' ? 'Safe Delete' : 'Force Delete' }}</h3>
+        <button class="close-btn" type="button" (click)="closeDeleteModals()">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <p class="delete-copy" *ngIf="deleteMode === 'safe'">
+          Delete <strong>{{ pendingDeleteCategory?.name }}</strong> and move any existing products into the <strong>Others</strong> category?
+        </p>
+        <p class="delete-copy" *ngIf="deleteMode === 'force'">
+          Delete <strong>{{ pendingDeleteCategory?.name }}</strong> and soft-delete every product inside it?
+        </p>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" (click)="closeDeleteModals()">Cancel</button>
+          <button type="button" class="btn btn-danger" (click)="confirmDelete()">
+            {{ deleteMode === 'safe' ? 'Confirm Safe Delete' : 'Confirm Force Delete' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

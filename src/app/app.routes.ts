@@ -18,6 +18,12 @@ import { SellerLayoutComponent } from './pages/Seller/seller-layout-component/se
 import { ForgotPasswordComponent } from './pages/auth/Forgot password components/forgot-password/forgot-password';
 import { ResetPasswordComponent } from './pages/auth/Forgot password components/reset-password/reset-password';
 import { UserLayout } from './pages/user-layout/user-layout';
+import { AdminLayoutComponent } from './pages/admin/admin-layout/admin-layout.component';
+import { UserManagementComponent } from './pages/admin/user-management/user-management.component';
+import { ProductsManagementComponent } from './pages/admin/products-management/products-management.component';
+import { AdminProductFormComponent } from './pages/admin/admin-product-form/admin-product-form.component';
+import { CategoriesManagementComponent } from './pages/admin/categories-management/categories-management.component';
+import { OrdersManagementComponent } from './pages/admin/orders-management/orders-management.component';
 
 export const routes: Routes = [
   {
@@ -55,7 +61,21 @@ export const routes: Routes = [
       { path: 'products/edit/:id', component: ProductForm },
     ]
   },
-
+  {
+    path: 'admin',
+    component: AdminLayoutComponent,
+    canActivate: [AuthGuard],
+    data: { role: 'Admin' },
+    children: [
+      { path: 'users', component: UserManagementComponent },
+      { path: 'products', component: ProductsManagementComponent },
+      { path: 'products/create', component: AdminProductFormComponent },
+      { path: 'products/edit/:id', component: AdminProductFormComponent },
+      { path: 'categories', component: CategoriesManagementComponent },
+      { path: 'orders', component: OrdersManagementComponent },
+      { path: '', redirectTo: 'users', pathMatch: 'full' }
+    ]
+  },
   { path: '**', redirectTo: '' }
 ];
 

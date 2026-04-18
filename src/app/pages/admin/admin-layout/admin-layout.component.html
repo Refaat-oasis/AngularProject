@@ -1,0 +1,36 @@
+<app-navbar [fixed]="false"></app-navbar>
+
+<div class="admin-layout">
+  <aside class="sidebar">
+    <div class="logo">
+      <h2>Admin Panel</h2>
+    </div>
+    <nav class="nav-menu">
+      <a routerLink="/admin/users" routerLinkActive="active" class="nav-item">
+        <span class="icon" aria-hidden="true">U</span>
+        <span>Users</span>
+      </a>
+      <a routerLink="/admin/products" routerLinkActive="active" class="nav-item">
+        <span class="icon" aria-hidden="true">P</span>
+        <span>Products</span>
+      </a>
+      <a routerLink="/admin/categories" routerLinkActive="active" class="nav-item">
+        <span class="icon" aria-hidden="true">C</span>
+        <span>Categories</span>
+      </a>
+      <a routerLink="/admin/orders" routerLinkActive="active" class="nav-item">
+        <span class="icon" aria-hidden="true">O</span>
+        <span>Orders</span>
+      </a>
+    </nav>
+  </aside>
+  <main class="content">
+    <header class="topbar">
+      <h1>Admin Dashboard</h1>
+      <p>Review users, update roles, and control account access.</p>
+    </header>
+    <div class="main-content">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+</div>

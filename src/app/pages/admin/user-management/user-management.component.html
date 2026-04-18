@@ -1,0 +1,170 @@
+<div class="user-management">
+  <div class="hero-panel">
+    <div class="hero-copy">
+      <span class="eyebrow">Access Control</span>
+      <h2>User Management</h2>
+      <p>Search people fast, review account health, and update permissions without leaving the dashboard.</p>
+    </div>
+    <button class="btn btn-primary" (click)="showCreateModal = true">Create Admin</button>
+  </div>
+
+  <div class="stats-grid" *ngIf="!loading && users.length">
+    <article class="stat-card">
+      <span class="stat-label">Total Users</span>
+      <strong>{{ users.length }}</strong>
+      <small>All returned accounts</small>
+    </article>
+    <article class="stat-card">
+      <span class="stat-label">Admins</span>
+      <strong>{{ adminCount }}</strong>
+      <small>Accounts with elevated access</small>
+    </article>
+    <article class="stat-card">
+      <span class="stat-label">Sellers</span>
+      <strong>{{ sellerCount }}</strong>
+      <small>Seller workspace members</small>
+    </article>
+    <article class="stat-card">
+      <span class="stat-label">Users</span>
+      <strong>{{ userCount }}</strong>
+      <small>Standard customer accounts</small>
+    </article>
+    <article class="stat-card accent">
+      <span class="stat-label">Blocked</span>
+      <strong>{{ blockedCount }}</strong>
+      <small>Soft-disabled accounts</small>
+    </article>
+  </div>
+
+  <div *ngIf="error" class="error-msg">{{ error }}</div>
+  <div *ngIf="actionError" class="error-msg">{{ actionError }}</div>
+  <div *ngIf="actionSuccess" class="success-msg">{{ actionSuccess }}</div>
+
+  <div class="toolbar-shell" *ngIf="!loading && users.length">
+    <div class="toolbar">
+      <label class="search-field">
+        <span>Search</span>
+        <input
+          type="text"
+          class="form-control search-input"
+          [(ngModel)]="searchTerm"
+          placeholder="Search by name, email, or username"
+        />
+      </label>
+
+      <label class="filter-field">
+        <span>Role</span>
+        <select class="form-control compact-control" [(ngModel)]="roleFilter">
+          <option value="all">All Roles</option>
+          <option *ngFor="let role of availableRoles" [ngValue]="role">{{ role }}</option>
+        </select>
+      </label>
+
+      <label class="filter-field">
+        <span>Status</span>
+        <select class="form-control compact-control" [(ngModel)]="statusFilter">
+          <option value="all">All Statuses</option>
+          <option value="active">Active</option>
+          <option value="blocked">Blocked</option>
+        </select>
+      </label>
+    </div>
+  </div>
+
+  <div class="table-shell" *ngIf="!loading; else loader">
+    <div class="table-header">
+      <div>
+        <h3>Directory</h3>
+        <p>{{ filteredUsers.length }} users match the current view.</p>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th [class.refresh-anim]="refreshing">Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="!users.length">
+            <td colspan="5" class="empty-state">No users were returned by the API.</td>
+          </tr>
+          <tr *ngIf="users.length && !filteredUsers.length">
+            <td colspan="5" class="empty-state">No users match the current filters.</td>
+          </tr>
+          <tr *ngFor="let user of filteredUsers; trackBy: trackByUserId">
+            <td>
+              <div class="user-cell">
+                <span class="avatar">{{ (user.fullName || user.email).charAt(0) }}</span>
+                <div>
+                  <strong>{{ user.fullName }}</strong>
+                  <small *ngIf="user.userName">{{ user.userName }}</small>
+                </div>
+              </div>
+            </td>
+            <td>{{ user.email }}</td>
+            <td>
+              <select [ngModel]="getPrimaryRole(user)" (ngModelChange)="onRoleChange($event, user)" class="role-select">
+                <option *ngFor="let role of availableRoles" [ngValue]="role">{{ role }}</option>
+              </select>
+            </td>
+            <td>
+              <span class="status-badge" [ngClass]="user.isDeleted ? 'status-blocked' : 'status-active'">
+                {{ user.isDeleted ? 'Blocked' : 'Active' }}
+              </span>
+            </td>
+            <td>
+              <button class="btn btn-sm" [ngClass]="user.isDeleted ? 'btn-success' : 'btn-danger'" (click)="toggleBlockStatus(user)">
+                {{ user.isDeleted ? 'Reactivate' : 'Block' }}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <ng-template #loader>
+    <div class="loader">Loading users...</div>
+  </ng-template>
+
+  <div class="modal-overlay" *ngIf="showCreateModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Create New Admin</h3>
+        <button class="close-btn" type="button" aria-label="Close modal" (click)="closeCreateModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form (ngSubmit)="createAdmin()" #adminForm="ngForm">
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" [(ngModel)]="newAdmin.fullName" name="fullName" required class="form-control" />
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" [(ngModel)]="newAdmin.email" name="email" required class="form-control" />
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" [(ngModel)]="newAdmin.password" name="password" required class="form-control" />
+          </div>
+          <div class="form-group">
+            <label>Address</label>
+            <input type="text" [(ngModel)]="newAdmin.address" name="address" class="form-control" />
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" (click)="closeCreateModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary" [disabled]="!adminForm.valid || submitting">
+              {{ submitting ? 'Creating...' : 'Create' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

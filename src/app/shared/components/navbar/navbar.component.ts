@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
@@ -10,7 +10,7 @@ import { CartService } from '../../../services/cart.service';
   standalone: true,
   imports: [CommonModule, RouterModule , FormsModule],
   template: `
-    <header class="fixed top-0 w-full z-50 glass-header">
+    <header class="w-full z-50 glass-header" [class.fixed]="fixed()" [class.top-0]="fixed()">
       <div class="container-fluid px-6 py-3 d-flex align-items-center justify-content-between">
         <div class="d-flex align-items-center gap-5">
           <a routerLink="/" class="text-xl font-bold tracking-tighter text-dark text-decoration-none">
@@ -45,7 +45,7 @@ import { CartService } from '../../../services/cart.service';
             </button>
 
             <ng-container *ngIf="authService.isLoggedIn(); else loginBtn">
-              <button class="btn btn-link p-0 text-dark scale-hover" [routerLink]="dashboardLink">
+              <button *ngIf="showDashboardIcon" class="btn btn-link p-0 text-dark scale-hover" [routerLink]="dashboardLink">
                 <span class="material-symbols-outlined">dashboard</span>
               </button>
               <button class="btn btn-link p-0 text-dark scale-hover" (click)="logout()">
@@ -74,6 +74,7 @@ import { CartService } from '../../../services/cart.service';
   `]
 })
 export class NavbarComponent {
+  readonly fixed = input(true);
   searchTerm: string = '';
   searchSubject = new Subject<string>();
   constructor(
@@ -95,6 +96,10 @@ export class NavbarComponent {
     if (role === 'Admin') return '/admin';
     if (role === 'Seller') return '/seller';
     return '/';
+  }
+
+  get showDashboardIcon(): boolean {
+    return this.authService.getUserRole() === 'Admin';
   }
 // onSearch() {
 //   if (this.searchTerm.trim()) {
