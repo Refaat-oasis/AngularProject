@@ -77,18 +77,11 @@
           <button class="btn btn-outline-dark rounded-3 px-4">
             ❤
           </button>
-
-        </div>
-<app-reviews ></app-reviews>
-      </div>
-    </div>
-  }
-</div> -->
 <div class="container py-5 mt-5">
 
   @if (loading()) {
     <div class="d-flex justify-content-center align-items-center" style="min-height: 60vh;">
-      <div class="spinner-border text-dark" role="status"></div>
+      <div class="spinner-border text-theme-variant" role="status"></div>
     </div>
   }
 
@@ -98,43 +91,43 @@
 
   @if (!loading() && product()) {
 
-    <a [routerLink]="['/products']"
-       class="text-decoration-none text-muted d-inline-flex align-items-center mb-4 small">
+    <button (click)="router.navigate(['/products'])"
+       class="btn btn-link p-0 text-decoration-none text-theme-variant d-inline-flex align-items-center mb-4 small border-0 hover-secondary">
       ← Back to products
-    </a>
+    </button>
 
     <div class="row g-5 align-items-start">
 
       <div class="col-lg-6">
-        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="merchant-card border-0 shadow-sm rounded-4 overflow-hidden">
 
-          <div style="aspect-ratio: 4/5; background:#f8f9fa;">
+          <div style="aspect-ratio: 4/5; background: var(--surface-container-low);">
             <img
               [src]="selectedImage()"
               [alt]="product()!.name"
               class="w-100 h-100 object-fit-cover transition"
             >
           </div>
-     <app-rating [rating]="roundedAvgRating()"></app-rating>
+          <app-rating [rating]="roundedAvgRating()"></app-rating>
         </div>
       </div>
 
 
       <div class="col-lg-6">
 
-        <span class="badge bg-light text-dark mb-3 px-3 py-2">
+        <span class="badge bg-theme-variant text-theme-primary border-theme mb-3 px-3 py-2">
           Category #{{ product()!.categoryId }}
         </span>
 
-        <h2 class="fw-bold mb-3">{{ product()!.name }}</h2>
+        <h2 class="fw-bold mb-3 text-theme-primary">{{ product()!.name }}</h2>
 
 
-        <h3 class="text-dark fw-bold mb-4">
+        <h3 class="text-theme-primary fw-bold mb-4">
           {{ product()!.price | currency }}
         </h3>
 
 
-        <p class="text-muted mb-4" style="line-height: 1.8;">
+        <p class="text-theme-variant mb-4" style="line-height: 1.8;">
           {{ product()!.description }}
         </p>
 
@@ -153,44 +146,41 @@
 
         <div class="d-flex gap-3">
 
-          <button class="btn btn-dark flex-grow-1 py-3 rounded-3 fw-semibold shadow-sm"
+          <button class="btn btn-primary-merchant flex-grow-1 py-3 rounded-3 fw-semibold shadow-sm"
                   [disabled]="product()!.stock === 0"
                   (click)="addToCart()">
             Add to Cart
           </button>
 
-          <button class="btn btn-outline-dark rounded-3 px-4">
+          <button class="btn btn-outline-theme rounded-3 px-4">
             ❤
           </button>
 
         </div>
 
 
-
-
-        
     <!-- Add Review Section -->
      @if (authService.isLoggedIn()) {
 
-  <div class="mt-5 border rounded-4 overflow-hidden">
+  <div class="mt-5 border-theme rounded-4 overflow-hidden bg-theme-surface">
 
     <button
-      class="w-100 btn btn-light d-flex justify-content-between align-items-center p-4 border-0"
+      class="w-100 btn btn-link d-flex justify-content-between align-items-center p-4 border-0 text-decoration-none text-theme-primary"
       (click)="toggleReviewForm()">
 
       <span class="fw-bold">Write a Review</span>
 
       <span class="fs-5">
         @if (showReviewForm()) {
-          ▲
+          <span class="material-symbols-outlined">expand_less</span>
         } @else {
-          ▼
+          <span class="material-symbols-outlined">expand_more</span>
         }
       </span>
     </button>
 
     @if (showReviewForm()) {
-      <div class="p-4 bg-light border-top">
+      <div class="p-4 bg-theme-variant border-top border-theme">
 
         @if (reviewSuccess()) {
           <div class="alert alert-success">Review submitted successfully!</div>
@@ -201,8 +191,8 @@
         }
 
         <div class="mb-3">
-          <label class="form-label fw-semibold">Rating</label>
-          <select class="form-select" [(ngModel)]="reviewRating">
+          <label class="form-label fw-semibold text-theme-primary">Rating</label>
+          <select class="form-select bg-theme-surface border-theme text-theme-primary" [(ngModel)]="reviewRating">
             <option [value]="5">⭐⭐⭐⭐⭐ 5 - Excellent</option>
             <option [value]="4">⭐⭐⭐⭐ 4 - Good</option>
             <option [value]="3">⭐⭐⭐ 3 - Average</option>
@@ -212,9 +202,9 @@
         </div>
 
         <div class="mb-3">
-          <label class="form-label fw-semibold">Comment</label>
+          <label class="form-label fw-semibold text-theme-primary">Comment</label>
           <textarea
-            class="form-control"
+            class="form-control bg-theme-surface border-theme text-theme-primary"
             rows="3"
             placeholder="Share your experience..."
             [(ngModel)]="reviewComment">
@@ -222,7 +212,7 @@
         </div>
 
         <button
-          class="btn btn-dark px-4"
+          class="btn btn-primary-merchant px-4"
           (click)="submitReview()"
           [disabled]="reviewSubmitting() || !reviewComment.trim()">
 
@@ -237,8 +227,8 @@
   </div>
 
 } @else {
-  <div class="mt-4 p-3 border rounded-4 text-center text-muted bg-light">
-    <a routerLink="/login" class="text-dark fw-semibold">Sign in</a> to leave a review
+  <div class="mt-4 p-3 border-theme rounded-4 text-center text-theme-variant bg-theme-variant">
+    <button (click)="router.navigate(['/login'])" class="btn btn-link p-0 text-theme-primary fw-semibold border-0 text-decoration-none">Sign in</button> to leave a review
   </div>
 }
 

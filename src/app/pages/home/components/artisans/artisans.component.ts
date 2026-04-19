@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MockDataService, Vendor } from '../../../../services/mock-data.service';
 
@@ -10,11 +10,26 @@ import { MockDataService, Vendor } from '../../../../services/mock-data.service'
   styleUrl: './artisans.component.css'
 })
 export class ArtisansComponent implements OnInit {
-  vendors: Vendor[] = [];
+  vendors = signal<Vendor[]>([]);
+  loading = signal(false);
 
   constructor(private dataService: MockDataService) {}
 
   ngOnInit(): void {
-    this.dataService.getVendors().subscribe((v: Vendor[]) => this.vendors = v);
+    this.loadVendors();
+  }
+
+  loadVendors(): void {
+    this.loading.set(true);
+    this.dataService.getVendors().subscribe({
+      next: (v: Vendor[]) => {
+        this.vendors.set(v);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        console.error(err);
+        this.loading.set(false);
+      }
+    });
   }
 }

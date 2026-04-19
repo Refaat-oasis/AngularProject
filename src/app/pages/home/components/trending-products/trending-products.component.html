@@ -1,7 +1,7 @@
-<section class="bg-light py-5">
+<section class="bg-theme-variant py-5 transition-all">
   <div class="container-fluid px-lg-5 max-w-7xl">
     <div class="d-flex justify-content-between align-items-center mb-5">
-      <h2 class="h2 fw-bold tracking-tight">Trending Elements</h2>
+      <h2 class="h2 fw-bold tracking-tight text-theme-primary">Trending Elements</h2>
     </div>
 
     <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4 text-start">
@@ -11,7 +11,7 @@
                           style="cursor: pointer;"
         >
 
-          <div class="position-relative bg-white mb-3 rounded-top-3" style="height:200px;">
+          <div class="position-relative bg-theme-surface mb-3 rounded-top-3" style="height:200px;">
             <img [src]="getImageUrl(product.image)" class="w-100 h-100 object-fit-cover"
               [alt]="product.name" (error)="useFallbackImage($event)">
           </div>
@@ -22,9 +22,9 @@
               <span class="badge bg-danger" *ngIf="product.stock === 0">Out of Stock</span>
             </div>
 
-            <h4 class="h6 fw-bold text-dark mb-1">{{ product.name }}</h4>
-            <p class="text-secondary small mb-2">{{ product.description }}</p>
-            <p class="fw-bold">{{ product.price | currency }}</p>
+            <h4 class="h6 fw-bold text-theme-primary mb-1">{{ product.name }}</h4>
+            <p class="text-theme-variant small mb-2">{{ product.description }}</p>
+            <p class="fw-bold text-theme-primary">{{ product.price | currency }}</p>
           </div>
 
         </div>

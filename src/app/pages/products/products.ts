@@ -7,18 +7,18 @@ import { Icategory } from '../../models/icategory';
 import { CategoryService } from '../../services/category-service';
 import { ActivatedRoute } from '@angular/router';
 import { switchMap } from 'rxjs';
+
 @Component({
   selector: 'app-products',
-  imports: [CurrencyPipe , RouterLink],
+  imports: [CurrencyPipe, RouterLink],
   templateUrl: './products.html',
   styleUrl: './products.css',
 })
 export class Products implements OnInit {
 
   products = signal<IProduct[]>([]);
-  loading = signal(true);
-  error = signal('');
-categories = signal<Icategory[]>([]);
+  loading = signal(false);
+  categories = signal<Icategory[]>([]);
   readonly imageBaseUrl = 'http://localhost:5118';
   readonly fallbackImage =
     'data:image/svg+xml;utf8,' +
@@ -31,85 +31,73 @@ categories = signal<Icategory[]>([]);
       '</svg>'
     );
 
-
   hasProducts = computed(() => this.products().length > 0);
-  isReady = computed(() => !this.loading() && !this.error());
+  isReady = computed(() => !this.loading());
 
- constructor(
-  private productService: ProductService,
-  private categoryService: CategoryService,
-  private route: ActivatedRoute
-) {}
+  constructor(
+    private productService: ProductService,
+    private categoryService: CategoryService,
+    private route: ActivatedRoute
+  ) {}
 
-ngOnInit(): void {
+  ngOnInit(): void {
+    this.loadCategories();
+    this.loadProducts();
+  }
 
+  loadCategories(): void {
+    this.categoryService.getAll().subscribe({
+      next: (data) => this.categories.set(data),
+      error: (err) => console.error(err)
+    });
+  }
 
-  this.categoryService.getAll().subscribe({
-    next: (data) => this.categories.set(data),
-    error: (err) => console.error(err)
-  });
-
-
-  this.route.queryParams.pipe(
-    switchMap(params => {
-      const search = params['search'];
-
-      this.loading.set(true);
-
-      if (search && search.trim() !== '') {
-        return this.productService.search(search);
+  loadProducts(): void {
+    this.route.queryParams.pipe(
+      switchMap(params => {
+        const search = params['search'];
+        this.loading.set(true);
+        if (search && search.trim() !== '') {
+          return this.productService.search(search);
+        }
+        return this.productService.getAll();
+      })
+    ).subscribe({
+      next: (data) => {
+        this.products.set(data);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        console.error(err);
+        this.loading.set(false);
       }
-
-      return this.productService.getAll();
-    })
-  ).subscribe({
-    next: (data) => {
-      this.products.set(data);
-      this.loading.set(false);
-    },
-    error: (err) => {
-      this.error.set('Failed to load products.');
-      this.loading.set(false);
-    }
-  });
-
-}
-
-
-loadCategoryProducts(categoryId: number) {
-  this.loading.set(true);
-  this.error.set('');
-
-  this.categoryService.getByCategory(categoryId).subscribe({
-    next: (data) => {
-      this.products.set(data.products); 
-      this.loading.set(false);
-    },
-    error: () => {
-      this.error.set('Failed to load category products');
-      this.loading.set(false);
-    }
-  });
-}
-
-getImageUrl(path: string | null | undefined): string {
-  if (!path) {
-    return this.fallbackImage;
+    });
   }
 
-  if (path.startsWith('data:image') || path.startsWith('http')) {
-    return path;
+  loadCategoryProducts(categoryId: number): void {
+    this.loading.set(true);
+    this.categoryService.getByCategory(categoryId).subscribe({
+      next: (data) => {
+        this.products.set(data.products);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        console.error(err);
+        this.loading.set(false);
+      }
+    });
   }
 
-  return path.startsWith('/') ? `${this.imageBaseUrl}${path}` : `${this.imageBaseUrl}/${path}`;
-}
-
-useFallbackImage(event: Event): void {
-  const image = event.target as HTMLImageElement | null;
-  if (!image || image.src === this.fallbackImage) {
-    return;
+  getImageUrl(path: string | null | undefined): string {
+    if (!path) return this.fallbackImage;
+    if (path.startsWith('data:image') || path.startsWith('http')) return path;
+    return path.startsWith('/') ? `${this.imageBaseUrl}${path}` : `${this.imageBaseUrl}/${path}`;
   }
 
-  image.src = this.fallbackImage;
+  useFallbackImage(event: Event): void {
+    const image = event.target as HTMLImageElement | null;
+    if (!image || image.src === this.fallbackImage) return;
+    image.src = this.fallbackImage;
+  }
 }
-}
+

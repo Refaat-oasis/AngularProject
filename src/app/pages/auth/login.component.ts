@@ -12,18 +12,18 @@ import { jwtDecode } from 'jwt-decode';
   imports: [CommonModule, FormsModule, RouterModule],
   template: `
     <div class="auth-container d-flex align-items-center justify-content-center">
-      <div class="auth-card p-5 merchant-card max-w-md w-100 position-relative z-1">
+      <div class="auth-card p-5 merchant-card max-w-md w-100 position-relative z-1 transition-all">
         <div class="text-center mb-5">
-          <h2 class="h3 fw-bold mb-2">Welcome Back</h2>
-          <p class="text-secondary small">Sign in to your Merchant account</p>
+          <h2 class="h3 fw-bold mb-2 text-theme-primary">Welcome Back</h2>
+          <p class="text-theme-variant small">Sign in to your Merchant account</p>
         </div>
 
         <form (ngSubmit)="onLogin(loginForm)" #loginForm="ngForm" class="space-y-4">
           <div class="mb-4">
-            <label class="form-label text-secondary small fw-bold uppercase ls-wider mb-2">Email Address</label>
+            <label class="form-label text-theme-variant small fw-bold uppercase ls-wider mb-2">Email Address</label>
  <input
   type="email"
-  class="form-control merchant-input"
+  class="form-control merchant-input bg-theme-variant border-theme text-theme-primary"
 [class.is-invalid]="(email.invalid && ( loginForm.submitted)) || emailNotFound"
   name="email"
   #email="ngModel"
@@ -51,10 +51,10 @@ import { jwtDecode } from 'jwt-decode';
             </div>
 
           <div class="mb-4">
-            <label class="form-label text-secondary small fw-bold uppercase ls-wider mb-2">Password</label>
+            <label class="form-label text-theme-variant small fw-bold uppercase ls-wider mb-2">Password</label>
 <input
   type="password"
-  class="form-control merchant-input"
+  class="form-control merchant-input bg-theme-variant border-theme text-theme-primary"
 [class.is-invalid]="(password.invalid && (loginForm.submitted)) || wrongPassword"
   name="password"
   #password="ngModel"
@@ -83,18 +83,18 @@ import { jwtDecode } from 'jwt-decode';
           <div class="d-flex justify-content-between align-items-center mb-5">
             <div class="form-check">
               <input type="checkbox" class="form-check-input" id="remember"   name="rememberMe" [(ngModel)]="credentials.rememberMe">
-              <label class="form-check-label small text-secondary" for="remember" >Remember me</label>
+              <label class="form-check-label small text-theme-variant" for="remember" >Remember me</label>
             </div>
-            <a routerLink="/forgot-password" class="small text-secondary text-decoration-none hover-primary">Forgot password?</a>
+            <a routerLink="/forgot-password" class="small text-theme-variant text-decoration-none hover-secondary transition-all">Forgot password?</a>
           </div>
 
           <button type="submit" class="btn btn-primary-merchant w-100 py-3 mb-4" >
             Sign In
           </button>
 
-          <p class="text-center small text-secondary mb-0">
+          <p class="text-center small text-theme-variant mb-0">
             Don't have an account?
-            <a routerLink="/register" class="text-primary fw-bold text-decoration-none hover-secondary">Create one</a>
+            <a routerLink="/register" class="text-theme-primary fw-bold text-decoration-none hover-secondary transition-all">Create one</a>
           </p>
         </form>
       </div>
@@ -108,21 +108,18 @@ import { jwtDecode } from 'jwt-decode';
   `,
   styles: [`
     .auth-container { min-height: 100vh; background-color: var(--background); position: relative; }
-    .auth-card { z-index: 1; border: 1px solid rgba(0,0,0,0.05); }
+    .auth-card { z-index: 1; border: 1px solid var(--outline-variant); background: var(--surface); }
     .max-w-md { max-width: 450px; }
     .ls-wider { letter-spacing: 0.05em; }
     .merchant-input {
-      background-color: var(--surface-container-low);
-      border: 1px solid transparent;
       padding: 0.75rem 1rem;
       border-radius: 8px;
     }
     .merchant-input:focus {
-      background-color: white;
+      background-color: var(--surface-container-high);
       border-color: var(--secondary);
       box-shadow: none;
     }
-    .hover-primary:hover { color: var(--primary) !important; }
     .hover-secondary:hover { color: var(--secondary) !important; }
     .absolute-fill { position: absolute; inset: 0; }
   `]

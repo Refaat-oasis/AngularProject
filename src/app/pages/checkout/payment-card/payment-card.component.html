@@ -1,53 +1,81 @@
 <div class="page-wrapper container px-lg-5 pt-5 mt-5">
   <header class="mb-5 pb-3">
-    <div class="d-flex justify-content-between align-items-center">
-      <h1 class="h2 fw-bold mb-0">Architectural Merchant</h1>
-      <nav class="progress-indicator d-flex gap-3 small fw-bold text-uppercase opacity-75">
-        <span class="text-primary">Cart</span>
+    <div class="d-flex justify-content-between align-items-baseline">
+      <h1 class="h2 fw-bold mb-0 text-theme-primary">Payment Card</h1>
+      <nav class="small fw-bold text-uppercase opacity-75 text-theme-variant">
+        <span>Cart</span>
         <span>•</span>
-        <span class="text-secondary">Payment</span>
+        <span class="text-primary">Payment</span>
         <span>•</span>
         <span>Confirmation</span>
       </nav>
     </div>
   </header>
 
-  <main class="d-flex justify-content-center align-items-start pt-4">
-    <div class="payment-container card border-0 shadow-lg p-4 p-xl-5 bg-white rounded-lg" style="width: 100%; max-width: 550px;">
-      <h2 class="h4 fw-bold mb-4 font-headline text-center">Credit Card Payment</h2>
-      
-      <form (submit)="handlePayment(); $event.preventDefault()" id="payment-form">
-        <div class="form-group mb-4">
-          <label class="form-label small fw-bold text-secondary mb-2">Full Name on Card</label>
-          <input type="text" [(ngModel)]="cardholderName" name="cardholderName" class="form-control" placeholder="John Doe" required>
-        </div>
-
-        <div class="form-group mb-4">
-          <label class="form-label small fw-bold text-secondary mb-2">Card Details</label>
-          <div id="card-element" class="form-control p-3">
-            <!-- A Stripe Element will be inserted here. -->
+  <main class="main-grid row g-5">
+    <div class="col-lg-7">
+      <div class="merchant-card card border-0 shadow-lg p-5 bg-theme-surface rounded-lg">
+        <h2 class="h5 fw-bold mb-5 font-headline d-flex align-items-center gap-2 text-theme-primary">
+            <span class="material-symbols-outlined text-primary">credit_card</span>
+            Card Details
+        </h2>
+        <form (submit)="handlePayment(); $event.preventDefault()" id="payment-form">
+          <div class="col-12 mb-4">
+            <label class="form-label small fw-bold text-theme-variant">Cardholder Name</label>
+            <input type="text" class="form-control" [(ngModel)]="cardholderName" name="cardholderName" placeholder="Full name as on card">
+          </div>
+          <div class="col-12 mb-4">
+            <label class="form-label small fw-bold text-theme-variant">Card Information</label>
+            <div id="card-element" class="form-control" style="padding: 12px; min-height: 48px; background: transparent; border-color: var(--outline-variant);">
+              <!-- A Stripe Element will be inserted here. -->
+            </div>
           </div>
           <div id="card-errors" class="text-danger small mt-2 min-h-20" role="alert" *ngIf="errorMsg">
             {{ errorMsg }}
           </div>
-        </div>
-
-        <button type="submit" class="btn btn-primary-merchant w-100 py-3 fw-bold rounded-md shadow-sm d-flex align-items-center justify-content-center gap-2 mt-4" 
-                [disabled]="isProcessing || !cardholderName">
-          <span *ngIf="isProcessing" class="spinner-border spinner-border-sm"></span>
-          <span>Pay Now ({{ amount | currency }})</span>
-        </button>
-
-        <a routerLink="/checkout" class="back-link d-block text-center mt-4 text-secondary text-decoration-none small fw-medium">
-          <span class="material-symbols-outlined align-middle" style="font-size: 16px;">arrow_back</span>
-          Go back to payment selection
-        </a>
-      </form>
-
-      <div class="stripe-branding mt-5 pt-4 text-center border-top border-light opacity-75">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg" alt="Stripe" style="height: 24px; opacity: 0.8;">
-        <p class="x-small text-secondary mt-2 mb-0">Secure payment powered by Stripe</p>
+          
+          <div class="mt-4 p-3 bg-light rounded small text-theme-variant" style="background-color: var(--surface-container-low) !important;">
+            <p class="mb-0 d-flex align-items-center gap-2">
+              <span class="material-symbols-outlined fs-6">info</span>
+              Your card information is processed securely via Stripe. We do not store your card details.
+            </p>
+          </div>
+        </form>
       </div>
     </div>
+
+    <!-- Right: Order Summary -->
+    <aside class="col-lg-5">
+      <div class="sticky-top" style="top: 100px;">
+        <div class="summary-card card border-0 shadow-lg p-5 bg-theme-surface rounded-lg">
+          <h2 class="h5 fw-bold mb-4 font-headline border-bottom pb-3 text-theme-primary border-theme">Payment Summary</h2>
+          
+          <div class="pt-4 space-y-3 mb-5">
+            <div class="d-flex justify-content-between small text-theme-variant">
+              <span>Order Reference</span>
+              <span>#{{ orderId }}</span>
+            </div>
+            <div class="d-flex justify-content-between h4 fw-bold pt-4 mt-4 border-top border-theme text-theme-primary">
+              <span class="font-headline">Payable Total</span>
+              <span class="text-primary">{{ amount | currency }}</span>
+            </div>
+          </div>
+
+          <button class="btn btn-primary-merchant w-100 py-3 fw-bold rounded-md shadow-sm transition-all d-flex align-items-center justify-content-center gap-2" 
+                  [disabled]="isProcessing || !cardholderName" 
+                  (click)="handlePayment()">
+            <span *ngIf="isProcessing" class="spinner-border spinner-border-sm"></span>
+            <span>{{ isProcessing ? 'Processing...' : 'Confirm & Pay Now' }}</span>
+          </button>
+          
+          <div class="text-center mt-4 opacity-75">
+            <p class="x-small text-theme-variant mb-0 d-flex align-items-center justify-content-center gap-1">
+                <span class="material-symbols-outlined" style="font-size: 14px;">verified_user</span>
+                Secure SSL Encrypted Connection
+            </p>
+          </div>
+        </div>
+      </div>
+    </aside>
   </main>
 </div>

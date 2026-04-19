@@ -1,6 +1,6 @@
-import { Component, signal, OnInit } from '@angular/core';
+import { Component, signal, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { IProduct } from '../../../models/iproduct';
 import { ProductService } from '../../../services/product-service';
 
@@ -15,40 +15,50 @@ import { ProductService } from '../../../services/product-service';
 export class ProductsList implements OnInit {
 
   products = signal<IProduct[]>([]);
+  loading = signal(false);
   baseUrl = 'http://localhost:5118';
-selectedId!: number;
-  constructor(private productService: ProductService) {}
+  selectedId!: number;
 
-  ngOnInit() {
+  public router = inject(Router);
+  private productService = inject(ProductService);
+
+  constructor() {}
+
+  ngOnInit(): void {
     this.loadProducts();
   }
 
-  loadProducts() {
-   this.productService.getMyProducts().subscribe({
-    next: (res) => {
-      this.products.set(res);
-    }
-  });
-  }
-
-  delete(id: number) {
-      const confirmDelete = confirm('Are you sure you want to delete this product?');
-
-  if (!confirmDelete) return;
-    this.productService.delete(id).subscribe(() => {
-      this.loadProducts();
+  loadProducts(): void {
+    this.loading.set(true);
+    this.productService.getMyProducts().subscribe({
+      next: (res) => {
+        this.products.set(res);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        console.error(err);
+        this.loading.set(false);
+      }
     });
   }
 
+  delete(id: number): void {
+    const confirmDelete = confirm('Are you sure you want to delete this product?');
+    if (!confirmDelete) return;
+    this.productService.delete(id).subscribe({
+      next: () => this.loadProducts(),
+      error: (err) => console.error(err)
+    });
+  }
 
+  openConfirm(id: number): void {
+    this.selectedId = id;
+  }
 
-openConfirm(id: number) {
-  this.selectedId = id;
-}
-
-confirmDelete() {
-  this.productService.delete(this.selectedId).subscribe(() => {
-    this.loadProducts();
-  });
-}
+  confirmDelete(): void {
+    this.productService.delete(this.selectedId).subscribe({
+      next: () => this.loadProducts(),
+      error: (err) => console.error(err)
+    });
+  }
 }

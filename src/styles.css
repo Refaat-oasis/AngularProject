@@ -1,5 +1,14 @@
 :root {
-  /* Colors - The Architectural Merchant Palette */
+  /* Common Tokens */
+  --font-headline: 'Manrope', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --radius-default: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --shadow-ambient: 0px 12px 32px rgba(25, 28, 29, 0.06);
+
+  /* Light Theme (Default) */
   --primary: #041627;
   --primary-container: #1a2b3c;
   --secondary: #006397;
@@ -7,23 +16,41 @@
   --tertiary: #001913;
   --tertiary-container: #003026;
   --background: #f8f9fa;
-  --surface: #f8f9fa;
+  --surface: #ffffff;
   --surface-container-low: #f3f4f5;
   --surface-container-lowest: #ffffff;
   --on-surface: #191c1d;
   --on-surface-variant: #44474c;
+  --outline: #74777f;
   --outline-variant: #c4c6cd;
-  
-  /* Typography */
-  --font-headline: 'Manrope', sans-serif;
-  --font-body: 'Inter', sans-serif;
-  
-  /* Layout & Depth */
-  --radius-default: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
-  --shadow-ambient: 0px 12px 32px rgba(25, 28, 29, 0.06);
-  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --error: #ba1a1a;
+  --on-error: #ffffff;
+  --error-container: #ffdad6;
+  --on-error-container: #410002;
+  --glass-bg: rgba(255, 255, 255, 0.8);
+}
+
+[data-theme='dark'] {
+  --primary: #d0e4ff;
+  --primary-container: #25405d;
+  --secondary: #91ccff;
+  --secondary-container: #004a75;
+  --tertiary: #b4f1e1;
+  --tertiary-container: #1b4d41;
+  --background: #0b1117;
+  --surface: #151c24;
+  --surface-container-low: #1c252e;
+  --surface-container-lowest: #212c38;
+  --on-surface: #e2e2e6;
+  --on-surface-variant: #c4c6cf;
+  --outline: #8e9099;
+  --outline-variant: #44474f;
+  --error: #ffb4ab;
+  --on-error: #690005;
+  --error-container: #93000a;
+  --on-error-container: #ffdad6;
+  --glass-bg: rgba(11, 17, 23, 0.8);
+  --shadow-ambient: 0px 12px 32px rgba(0, 0, 0, 0.4);
 }
 
 body {
@@ -35,6 +62,13 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+.bg-theme-surface { background-color: var(--surface) !important; }
+.bg-theme-variant { background-color: var(--surface-container-low) !important; }
+.text-theme-primary { color: var(--on-surface) !important; }
+.text-theme-variant { color: var(--on-surface-variant) !important; }
+.border-theme { border: 1px solid var(--outline-variant) !important; }
+.text-theme-error { color: var(--error) !important; }
+
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-headline);
   font-weight: 700;
@@ -43,10 +77,10 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Glassmorphism Utility */
 .glass-header {
-  background: rgba(255, 255, 255, 0.8);
+  background: var(--glass-bg);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(196, 198, 205, 0.15);
+  border-bottom: 1px solid var(--outline-variant);
 }
 
 /* Hero Typography Scale */
@@ -88,5 +122,13 @@ h1, h2, h3, h4, h5, h6 {
 
 .material-symbols-outlined {
     font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+.theme-transition,
+.theme-transition *,
+.theme-transition *:before,
+.theme-transition *:after {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
+  transition-delay: 0s !important;
 }
 

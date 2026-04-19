@@ -1,8 +1,8 @@
 <div class="page-wrapper container px-lg-5 pt-5 mt-5">
   <header class="mb-5 pb-3">
     <div class="d-flex justify-content-between align-items-center">
-      <h1 class="h2 fw-bold mb-0">Checkout – Payment Method</h1>
-      <nav class="progress-indicator d-flex gap-3 small fw-bold text-uppercase opacity-75">
+      <h1 class="h2 fw-bold mb-0 text-theme-primary">Checkout – Payment Method</h1>
+      <nav class="progress-indicator d-flex gap-3 small fw-bold text-uppercase opacity-75 text-theme-variant">
         <span class="text-primary">Cart</span>
         <span>•</span>
         <span class="text-secondary">Payment</span>
@@ -17,11 +17,11 @@
     <div class="col-lg-7">
       <!-- Shipping Information -->
       <section class="mb-5">
-        <h2 class="section-title h4 fw-bold mb-4 font-headline d-flex align-items-center gap-2">
+        <h2 class="section-title h4 fw-bold mb-4 font-headline d-flex align-items-center gap-2 text-theme-primary">
             <span class="material-symbols-outlined text-primary">local_shipping</span>
             1. Shipping Information
         </h2>
-        <div class="merchant-card card border-0 shadow-sm p-4 p-xl-5 bg-white rounded-lg">
+        <div class="merchant-card card border-0 shadow-sm p-4 p-xl-5 bg-theme-surface rounded-lg">
           <form [formGroup]="shippingForm">
             <div class="row g-4">
               <div class="col-md-6" *ngIf="!authService.isLoggedIn()">
@@ -54,7 +54,7 @@
             2. Payment Method
         </h2>
         <div class="payment-options d-grid gap-3">
-          <label class="payment-card-option p-4 border rounded-lg cursor-pointer d-flex align-items-center gap-4 transition-all bg-white shadow-sm"
+          <label class="payment-card-option p-4 border rounded-lg cursor-pointer d-flex align-items-center gap-4 transition-all bg-theme-surface shadow-sm border-theme"
                  *ngFor="let pm of paymentMethods"
                  [ngClass]="{'selected border-secondary': selectedPayment === pm.value}"
                  (click)="selectPayment(pm.value)">
@@ -63,8 +63,8 @@
                 <span class="material-symbols-outlined" style="font-size: 28px;">{{pm.icon}}</span>
             </div>
             <div class="payment-info">
-              <h3 class="h6 fw-bold mb-1 font-headline">{{pm.label}}</h3>
-              <p class="text-secondary small mb-0">{{pm.desc}}</p>
+              <h3 class="h6 fw-bold mb-1 font-headline text-theme-primary">{{pm.label}}</h3>
+              <p class="text-theme-variant small mb-0">{{pm.desc}}</p>
             </div>
           </label>
         </div>
@@ -74,8 +74,8 @@
     <!-- Right: Order Summary -->
     <aside class="col-lg-5">
       <div class="sticky-top" style="top: 100px;">
-        <div class="summary-card card border-0 shadow-lg p-4 p-xl-5 bg-white rounded-lg">
-          <h2 class="h5 fw-bold mb-4 font-headline border-bottom pb-3">Order Summary</h2>
+        <div class="summary-card card border-0 shadow-lg p-4 p-xl-5 bg-theme-surface rounded-lg">
+          <h2 class="h5 fw-bold mb-4 font-headline border-bottom pb-3 text-theme-primary border-theme">Order Summary</h2>
           
           <div class="cart-items-preview mb-4 space-y-3">
             <div class="summary-item d-flex justify-content-between align-items-center mb-3" *ngFor="let item of cartItems">
@@ -90,16 +90,16 @@
             </div>
           </div>
 
-          <div class="pt-4 border-top border-light space-y-2 mb-4">
-            <div class="d-flex justify-content-between small text-secondary">
+          <div class="pt-4 border-top border-theme space-y-2 mb-4">
+            <div class="d-flex justify-content-between small text-theme-variant">
               <span>Subtotal</span>
               <span>{{ subtotal | currency }}</span>
             </div>
-            <div class="d-flex justify-content-between small text-secondary">
+            <div class="d-flex justify-content-between small text-theme-variant">
               <span>Shipping</span>
               <span>{{ shippingCost | currency }}</span>
             </div>
-            <div class="d-flex justify-content-between h4 fw-bold pt-3 mt-3 border-top border-light">
+            <div class="d-flex justify-content-between h4 fw-bold pt-3 mt-3 border-top border-theme text-theme-primary">
               <span class="font-headline">Total</span>
               <span class="text-primary">{{ (subtotal + shippingCost) | currency }}</span>
             </div>

@@ -84,6 +84,7 @@ export class CheckoutPaymentComponent implements OnInit {
     this.orderService.checkout(request).subscribe({
       next: (res) => {
         this.isProcessing = false;
+        
         if (this.selectedPayment === 'CreditCard') {
           // Redirect to credit card step with order ID and amount
           this.router.navigate(['/checkout/payment-card'], { 
@@ -93,8 +94,7 @@ export class CheckoutPaymentComponent implements OnInit {
             } 
           });
         } else {
-          // COD case - Redirect to confirmation
-          // Clear cart for COD
+          // Cash on Delivery - Immediate redirection to confirmation
           this.clearCartAfterSuccess();
           this.router.navigate(['/checkout/order-confirmation'], { 
             queryParams: { orderId: res.id } 
@@ -103,7 +103,7 @@ export class CheckoutPaymentComponent implements OnInit {
       },
       error: (err) => {
         this.isProcessing = false;
-        this.errorMsg = err.error?.message || 'An error occurred during checkout.';
+        this.errorMsg = err.error?.message || 'An error occurred during checkout. Please try again.';
       }
     });
   }
@@ -112,6 +112,7 @@ export class CheckoutPaymentComponent implements OnInit {
     if (!this.authService.isLoggedIn()) {
       this.cartService.clearCart();
     } else {
+      // For logged in users, we reload the cart from the server (which should be empty now)
       this.cartService.loadCart();
     }
   }

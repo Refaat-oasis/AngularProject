@@ -1,7 +1,6 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { finalize } from 'rxjs';
 import { OrderResponse } from '../../../models/interfaces';
 import {
   AdminOrdersService,
@@ -25,31 +24,20 @@ export class OrdersManagementComponent implements OnInit {
     'Cancelled'
   ];
 
-  orders: OrderResponse[] = [];
-  searchTerm = '';
-  statusFilter: OrderStatusFilter = 'all';
-  loading = false;
-  error: string | null = null;
-  success: string | null = null;
-  updatingOrderId: number | null = null;
+  orders = signal<OrderResponse[]>([]);
+  searchTerm = signal('');
+  statusFilter = signal<OrderStatusFilter>('all');
+  loading = signal(false);
+  success = signal<string | null>(null);
+  updatingOrderId = signal<number | null>(null);
 
-  showDetailsModal = false;
-  detailsLoading = false;
-  selectedOrder: OrderResponse | null = null;
+  showDetailsModal = signal(false);
+  detailsLoading = signal(false);
+  selectedOrder = signal<OrderResponse | null>(null);
 
-  constructor(
-    private adminOrdersService: AdminOrdersService,
-    private cdr: ChangeDetectorRef
-  ) {}
-
-  ngOnInit(): void {
-    this.loadOrders();
-  }
-
-  get filteredOrders(): OrderResponse[] {
-    const term = this.searchTerm.trim().toLowerCase();
-
-    return this.orders.filter((order) => {
+  filteredOrders = computed(() => {
+    const term = this.searchTerm().trim().toLowerCase();
+    return this.orders().filter((order) => {
       const matchesSearch =
         !term ||
         String(order.id).includes(term) ||
@@ -57,54 +45,39 @@ export class OrdersManagementComponent implements OnInit {
         order.paymentMethod.toLowerCase().includes(term) ||
         order.items.some((item) => item.productName.toLowerCase().includes(term));
 
-      const matchesStatus = this.statusFilter === 'all' || order.status === this.statusFilter;
-
+      const matchesStatus = this.statusFilter() === 'all' || order.status === this.statusFilter();
       return matchesSearch && matchesStatus;
     });
-  }
+  });
 
-  get totalRevenue(): number {
-    return this.filteredOrders
-      .filter((order) => order.status !== 'Cancelled')
-      .reduce((sum, order) => sum + order.total, 0);
-  }
+  totalRevenue = computed(() =>
+    this.filteredOrders()
+      .filter((o) => o.status !== 'Cancelled')
+      .reduce((sum, o) => sum + o.total, 0)
+  );
+  processingCount = computed(() => this.orders().filter((o) => o.status === 'Processing').length);
+  shippedCount = computed(() => this.orders().filter((o) => o.status === 'Shipped').length);
+  deliveredCount = computed(() => this.orders().filter((o) => o.status === 'Delivered').length);
+  cancelledCount = computed(() => this.orders().filter((o) => o.status === 'Cancelled').length);
 
-  get processingCount(): number {
-    return this.orders.filter((order) => order.status === 'Processing').length;
-  }
+  constructor(private adminOrdersService: AdminOrdersService) {}
 
-  get shippedCount(): number {
-    return this.orders.filter((order) => order.status === 'Shipped').length;
-  }
-
-  get deliveredCount(): number {
-    return this.orders.filter((order) => order.status === 'Delivered').length;
-  }
-
-  get cancelledCount(): number {
-    return this.orders.filter((order) => order.status === 'Cancelled').length;
+  ngOnInit(): void {
+    this.loadOrders();
   }
 
   loadOrders(): void {
-    this.loading = true;
-    this.error = null;
-
-    this.adminOrdersService.getAllOrders()
-      .pipe(finalize(() => {
-        this.loading = false;
-        this.cdr.detectChanges();
-      }))
-      .subscribe({
-        next: (orders) => {
-          this.orders = orders;
-          this.cdr.detectChanges();
-        },
-        error: (error: unknown) => {
-          console.error(error);
-          this.error = 'Failed to load orders.';
-          this.cdr.detectChanges();
-        }
-      });
+    this.loading.set(true);
+    this.adminOrdersService.getAllOrders().subscribe({
+      next: (orders) => {
+        this.orders.set(orders);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        console.error(err);
+        this.loading.set(false);
+      }
+    });
   }
 
   trackByOrderId(index: number, order: OrderResponse): number {
@@ -112,81 +85,62 @@ export class OrdersManagementComponent implements OnInit {
   }
 
   openDetails(order: OrderResponse): void {
-    this.showDetailsModal = true;
-    this.detailsLoading = true;
-    this.selectedOrder = null;
+    this.showDetailsModal.set(true);
+    this.detailsLoading.set(true);
+    this.selectedOrder.set(null);
 
-    this.adminOrdersService.getOrderDetails(order.id)
-      .pipe(finalize(() => {
-        this.detailsLoading = false;
-        this.cdr.detectChanges();
-      }))
-      .subscribe({
-        next: (details) => {
-          this.selectedOrder = details;
-          this.cdr.detectChanges();
-        },
-        error: (error: unknown) => {
-          console.error(error);
-          this.error = 'Failed to load order details.';
-          this.closeDetails();
-          this.cdr.detectChanges();
-        }
-      });
+    this.adminOrdersService.getOrderDetails(order.id).subscribe({
+      next: (details) => {
+        this.selectedOrder.set(details);
+        this.detailsLoading.set(false);
+      },
+      error: (err) => {
+        console.error(err);
+        this.closeDetails();
+      }
+    });
   }
 
   closeDetails(): void {
-    this.showDetailsModal = false;
-    this.detailsLoading = false;
-    this.selectedOrder = null;
+    this.showDetailsModal.set(false);
+    this.detailsLoading.set(false);
+    this.selectedOrder.set(null);
   }
 
   updateStatus(order: OrderResponse, status: string): void {
-    if (!status || status === order.status) {
-      return;
-    }
+    if (!status || status === order.status) return;
 
-    this.updatingOrderId = order.id;
-    this.error = null;
-    this.success = null;
+    this.updatingOrderId.set(order.id);
+    this.success.set(null);
 
-    this.adminOrdersService.updateOrderStatus(order.id, { status })
-      .pipe(finalize(() => {
-        this.updatingOrderId = null;
-        this.cdr.detectChanges();
-      }))
-      .subscribe({
-        next: (response: UpdateOrderStatusResponse) => {
-          const nextStatus = response.status || status;
-          this.orders = this.orders.map((item) =>
-            item.id === order.id ? { ...item, status: nextStatus } : item
-          );
+    this.adminOrdersService.updateOrderStatus(order.id, { status }).subscribe({
+      next: (response: UpdateOrderStatusResponse) => {
+        const nextStatus = response.status || status;
+        this.orders.update((list) =>
+          list.map((item) => item.id === order.id ? { ...item, status: nextStatus } : item)
+        );
 
-          if (this.selectedOrder?.id === order.id) {
-            this.selectedOrder = { ...this.selectedOrder, status: nextStatus };
-          }
-
-          this.success = response.message || `Order #${order.id} updated to ${nextStatus}.`;
-          this.cdr.detectChanges();
-        },
-        error: (error: unknown) => {
-          console.error(error);
-          this.error = `Failed to update order #${order.id}.`;
-          this.cdr.detectChanges();
+        const current = this.selectedOrder();
+        if (current?.id === order.id) {
+          this.selectedOrder.set({ ...current, status: nextStatus });
         }
-      });
+
+        this.success.set(response.message || `Order #${order.id} updated to ${nextStatus}.`);
+        this.updatingOrderId.set(null);
+      },
+      error: (err) => {
+        console.error(err);
+        this.updatingOrderId.set(null);
+      }
+    });
   }
 
   getStatusClass(status: string): string {
     switch (status) {
-      case 'Delivered':
-        return 'status-delivered';
-      case 'Shipped':
-        return 'status-shipped';
-      case 'Cancelled':
-        return 'status-cancelled';
-      default:
-        return 'status-processing';
+      case 'Delivered': return 'status-delivered';
+      case 'Shipped': return 'status-shipped';
+      case 'Cancelled': return 'status-cancelled';
+      default: return 'status-processing';
     }
   }
 }
