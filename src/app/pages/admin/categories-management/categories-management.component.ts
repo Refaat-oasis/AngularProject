@@ -1,7 +1,6 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { finalize } from 'rxjs';
 import {
   AdminCategory,
   AdminCategoryWithProducts
@@ -18,28 +17,27 @@ type DeleteMode = 'safe' | 'force';
   styleUrl: './categories-management.component.css'
 })
 export class CategoriesManagementComponent implements OnInit {
-  categories: AdminCategory[] = [];
-  searchTerm = '';
-  loading = false;
-  submitting = false;
-  detailLoading = false;
-  error: string | null = null;
-  success: string | null = null;
+  categories = signal<AdminCategory[]>([]);
+  searchTerm = signal('');
+  loading = signal(false);
+  submitting = signal(false);
+  detailLoading = signal(false);
+  success = signal<string | null>(null);
 
-  showFormModal = false;
-  editingCategoryId: number | null = null;
-  formName = '';
-  selectedFile: File | null = null;
-  imagePreview = '';
-  imageError: string | null = null;
+  showFormModal = signal(false);
+  editingCategoryId = signal<number | null>(null);
+  formName = signal('');
+  selectedFile = signal<File | null>(null);
+  imagePreview = signal('');
+  imageError = signal<string | null>(null);
 
-  showDetailsModal = false;
-  selectedCategoryDetails: AdminCategoryWithProducts | null = null;
+  showDetailsModal = signal(false);
+  selectedCategoryDetails = signal<AdminCategoryWithProducts | null>(null);
 
-  showDeleteOptionsModal = false;
-  showDeleteConfirmModal = false;
-  pendingDeleteCategory: AdminCategory | null = null;
-  deleteMode: DeleteMode = 'safe';
+  showDeleteOptionsModal = signal(false);
+  showDeleteConfirmModal = signal(false);
+  pendingDeleteCategory = signal<AdminCategory | null>(null);
+  deleteMode = signal<DeleteMode>('safe');
 
   readonly imageBaseUrl = 'http://localhost:5118';
   readonly fallbackImage =
@@ -53,57 +51,35 @@ export class CategoriesManagementComponent implements OnInit {
       '</svg>'
     );
 
-  constructor(
-    private adminCategoriesService: AdminCategoriesService,
-    private cdr: ChangeDetectorRef
-  ) {}
+  filteredCategories = computed(() => {
+    const term = this.searchTerm().trim().toLowerCase();
+    return this.categories().filter((c) =>
+      !term || c.name.toLowerCase().includes(term) || String(c.id).includes(term)
+    );
+  });
+
+  totalCategories = computed(() => this.categories().length);
+  filteredCount = computed(() => this.filteredCategories().length);
+  totalProductsInDetails = computed(() => this.selectedCategoryDetails()?.products.length ?? 0);
+
+  constructor(private adminCategoriesService: AdminCategoriesService) {}
 
   ngOnInit(): void {
     this.loadCategories();
   }
 
-  get filteredCategories(): AdminCategory[] {
-    const term = this.searchTerm.trim().toLowerCase();
-
-    return this.categories.filter((category) =>
-      !term ||
-      category.name.toLowerCase().includes(term) ||
-      String(category.id).includes(term)
-    );
-  }
-
-  get totalCategories(): number {
-    return this.categories.length;
-  }
-
-  get filteredCount(): number {
-    return this.filteredCategories.length;
-  }
-
-  get totalProductsInDetails(): number {
-    return this.selectedCategoryDetails?.products.length ?? 0;
-  }
-
   loadCategories(): void {
-    this.loading = true;
-    this.error = null;
-
-    this.adminCategoriesService.getAll()
-      .pipe(finalize(() => {
-        this.loading = false;
-        this.cdr.detectChanges();
-      }))
-      .subscribe({
-        next: (categories) => {
-          this.categories = categories;
-          this.cdr.detectChanges();
-        },
-        error: (error: unknown) => {
-          console.error(error);
-          this.error = 'Failed to load categories.';
-          this.cdr.detectChanges();
-        }
-      });
+    this.loading.set(true);
+    this.adminCategoriesService.getAll().subscribe({
+      next: (categories) => {
+        this.categories.set(categories);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        console.error(err);
+        this.loading.set(false);
+      }
+    });
   }
 
   trackByCategoryId(index: number, category: AdminCategory): number {
@@ -112,205 +88,161 @@ export class CategoriesManagementComponent implements OnInit {
 
   openCreateModal(): void {
     this.resetForm();
-    this.showFormModal = true;
+    this.showFormModal.set(true);
   }
 
   openEditModal(category: AdminCategory): void {
     this.resetForm();
-    this.editingCategoryId = category.id;
-    this.formName = category.name;
-    this.imagePreview = this.getImageUrl(category.imageUrl);
-    this.showFormModal = true;
+    this.editingCategoryId.set(category.id);
+    this.formName.set(category.name);
+    this.imagePreview.set(this.getImageUrl(category.imageUrl));
+    this.showFormModal.set(true);
   }
 
   closeFormModal(): void {
-    this.showFormModal = false;
+    this.showFormModal.set(false);
     this.resetForm();
   }
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0] ?? null;
-    this.imageError = null;
+    this.imageError.set(null);
 
     if (!file) {
-      this.selectedFile = null;
+      this.selectedFile.set(null);
       return;
     }
 
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
     if (!allowedTypes.includes(file.type)) {
-      this.imageError = 'Please upload JPG, PNG, WEBP, or GIF images only.';
+      this.imageError.set('Please upload JPG, PNG, WEBP, or GIF images only.');
       input.value = '';
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      this.imageError = 'Image size must be 5 MB or less.';
+      this.imageError.set('Image size must be 5 MB or less.');
       input.value = '';
       return;
     }
 
-    this.selectedFile = file;
-    this.imagePreview = URL.createObjectURL(file);
+    this.selectedFile.set(file);
+    this.imagePreview.set(URL.createObjectURL(file));
   }
 
   saveCategory(): void {
-    if (this.submitting || !this.formName.trim() || this.imageError) {
-      return;
-    }
+    if (this.submitting() || !this.formName().trim() || this.imageError()) return;
 
-    this.submitting = true;
-    this.error = null;
-    this.success = null;
+    this.submitting.set(true);
+    this.success.set(null);
 
     const formData = new FormData();
-    formData.append('Name', this.formName.trim());
-    if (this.selectedFile) {
-      formData.append('Image', this.selectedFile);
-    }
+    formData.append('Name', this.formName().trim());
+    const file = this.selectedFile();
+    if (file) formData.append('Image', file);
 
-    if (this.editingCategoryId === null) {
-      this.adminCategoriesService.create(formData)
-        .pipe(finalize(() => {
-          this.submitting = false;
-          this.cdr.detectChanges();
-        }))
-        .subscribe({
-          next: () => {
-            this.success = 'Category created successfully.';
-            this.closeFormModal();
-            this.loadCategories();
-          },
-          error: (error: unknown) => {
-            console.error(error);
-            this.error = 'Failed to save category.';
-            this.cdr.detectChanges();
-          }
-        });
-
-      return;
-    }
-
-    this.adminCategoriesService.update(this.editingCategoryId, formData)
-      .pipe(finalize(() => {
-        this.submitting = false;
-        this.cdr.detectChanges();
-      }))
-      .subscribe({
-        next: () => {
-          this.success = 'Category updated successfully.';
-          this.closeFormModal();
-          this.loadCategories();
-        },
-        error: (error: unknown) => {
-          console.error(error);
-          this.error = 'Failed to save category.';
-          this.cdr.detectChanges();
-        }
-      });
-  }
-
-  openDetailsModal(category: AdminCategory): void {
-    this.showDetailsModal = true;
-    this.selectedCategoryDetails = null;
-    this.detailLoading = true;
-
-    this.adminCategoriesService.getWithProducts(category.id)
-      .pipe(finalize(() => {
-        this.detailLoading = false;
-        this.cdr.detectChanges();
-      }))
-      .subscribe({
-        next: (details) => {
-          this.selectedCategoryDetails = details;
-          this.cdr.detectChanges();
-        },
-        error: (error: unknown) => {
-          console.error(error);
-          this.error = 'Failed to load category details.';
-          this.closeDetailsModal();
-          this.cdr.detectChanges();
-        }
-      });
-  }
-
-  closeDetailsModal(): void {
-    this.showDetailsModal = false;
-    this.selectedCategoryDetails = null;
-    this.detailLoading = false;
-  }
-
-  openDeleteOptions(category: AdminCategory): void {
-    this.pendingDeleteCategory = category;
-    this.deleteMode = 'safe';
-    this.showDeleteOptionsModal = true;
-  }
-
-  chooseDeleteMode(mode: DeleteMode): void {
-    this.deleteMode = mode;
-    this.showDeleteOptionsModal = false;
-    this.showDeleteConfirmModal = true;
-  }
-
-  closeDeleteModals(): void {
-    this.showDeleteOptionsModal = false;
-    this.showDeleteConfirmModal = false;
-    this.pendingDeleteCategory = null;
-    this.deleteMode = 'safe';
-  }
-
-  confirmDelete(): void {
-    if (!this.pendingDeleteCategory) {
-      return;
-    }
-
-    const request = this.deleteMode === 'safe'
-      ? this.adminCategoriesService.delete(this.pendingDeleteCategory.id)
-      : this.adminCategoriesService.forceDelete(this.pendingDeleteCategory.id);
+    const editId = this.editingCategoryId();
+    const request = editId === null
+      ? this.adminCategoriesService.create(formData)
+      : this.adminCategoriesService.update(editId, formData);
 
     request.subscribe({
       next: () => {
-        this.success = this.deleteMode === 'safe'
-          ? 'Category deleted. Products were moved to Others if needed.'
-          : 'Category deleted and its products were soft-deleted.';
-        this.closeDeleteModals();
+        this.success.set(editId === null ? 'Category created successfully.' : 'Category updated successfully.');
+        this.submitting.set(false);
+        this.closeFormModal();
         this.loadCategories();
       },
-      error: (error: unknown) => {
-        console.error(error);
-        this.error = 'Failed to delete category.';
-        this.cdr.detectChanges();
+      error: (err) => {
+        console.error(err);
+        this.submitting.set(false);
       }
     });
   }
 
+  openDetailsModal(category: AdminCategory): void {
+    this.showDetailsModal.set(true);
+    this.selectedCategoryDetails.set(null);
+    this.detailLoading.set(true);
+
+    this.adminCategoriesService.getWithProducts(category.id).subscribe({
+      next: (details) => {
+        this.selectedCategoryDetails.set(details);
+        this.detailLoading.set(false);
+      },
+      error: (err) => {
+        console.error(err);
+        this.closeDetailsModal();
+      }
+    });
+  }
+
+  closeDetailsModal(): void {
+    this.showDetailsModal.set(false);
+    this.selectedCategoryDetails.set(null);
+    this.detailLoading.set(false);
+  }
+
+  openDeleteOptions(category: AdminCategory): void {
+    this.pendingDeleteCategory.set(category);
+    this.deleteMode.set('safe');
+    this.showDeleteOptionsModal.set(true);
+  }
+
+  chooseDeleteMode(mode: DeleteMode): void {
+    this.deleteMode.set(mode);
+    this.showDeleteOptionsModal.set(false);
+    this.showDeleteConfirmModal.set(true);
+  }
+
+  closeDeleteModals(): void {
+    this.showDeleteOptionsModal.set(false);
+    this.showDeleteConfirmModal.set(false);
+    this.pendingDeleteCategory.set(null);
+    this.deleteMode.set('safe');
+  }
+
+  confirmDelete(): void {
+    const category = this.pendingDeleteCategory();
+    if (!category) return;
+
+    const mode = this.deleteMode();
+    const request = mode === 'safe'
+      ? this.adminCategoriesService.delete(category.id)
+      : this.adminCategoriesService.forceDelete(category.id);
+
+    request.subscribe({
+      next: () => {
+        this.success.set(
+          mode === 'safe'
+            ? 'Category deleted. Products were moved to Others if needed.'
+            : 'Category deleted and its products were soft-deleted.'
+        );
+        this.closeDeleteModals();
+        this.loadCategories();
+      },
+      error: (err) => console.error(err)
+    });
+  }
+
   getImageUrl(path: string): string {
-    if (!path) {
-      return this.fallbackImage;
-    }
-
-    if (path.startsWith('data:image') || path.startsWith('http')) {
-      return path;
-    }
-
+    if (!path) return this.fallbackImage;
+    if (path.startsWith('data:image') || path.startsWith('http')) return path;
     return path.startsWith('/') ? `${this.imageBaseUrl}${path}` : `${this.imageBaseUrl}/${path}`;
   }
 
   useFallbackImage(event: Event): void {
     const image = event.target as HTMLImageElement | null;
-    if (!image || image.src === this.fallbackImage) {
-      return;
-    }
-
+    if (!image || image.src === this.fallbackImage) return;
     image.src = this.fallbackImage;
   }
 
   private resetForm(): void {
-    this.editingCategoryId = null;
-    this.formName = '';
-    this.selectedFile = null;
-    this.imagePreview = '';
-    this.imageError = null;
+    this.editingCategoryId.set(null);
+    this.formName.set('');
+    this.selectedFile.set(null);
+    this.imagePreview.set('');
+    this.imageError.set(null);
   }
 }

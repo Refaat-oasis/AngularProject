@@ -25,6 +25,8 @@ import { AdminProductFormComponent } from './pages/admin/admin-product-form/admi
 import { CategoriesManagementComponent } from './pages/admin/categories-management/categories-management.component';
 import { OrdersManagementComponent } from './pages/admin/orders-management/orders-management.component';
 
+import { MyOrdersComponent } from './pages/my-orders/my-orders.component';
+
 export const routes: Routes = [
   {
     path: '',
@@ -43,6 +45,7 @@ export const routes: Routes = [
       { path: 'checkout', component: CheckoutPaymentComponent },
       { path: 'checkout/payment-card', component: PaymentCardComponent },
       { path: 'checkout/order-confirmation', component: OrderConfirmationComponent },
+      { path: 'orders', component: MyOrdersComponent, canActivate: [AuthGuard] },
       { path: 'login', component: LoginComponent },
       { path: 'register', component: RegisterComponent },
       { path: 'forgot-password', component: ForgotPasswordComponent },

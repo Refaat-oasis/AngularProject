@@ -1,23 +1,41 @@
 <section class="py-5 px-lg-5">
-  <div class="newsletter-card position-relative overflow-hidden rounded-5 bg-primary p-5 p-lg-5 text-center text-white">
+  <div class="newsletter-card position-relative overflow-hidden rounded-5 bg-theme-primary p-5 p-lg-5 text-center shadow-lg transition-all">
     <div class="absolute-fill z-0 opacity-10">
       <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuApvu3N6znghCVmlY_mIms9CkY20UDAZ2dw9KO9lTxedRX9qfuN2Ec1d2LNBMIMYdX-h6zw-QZjWYNJTdWK6PsnODjW317GbDUY2bcrJi323Z02ELhD4o33M1cDG9jUgKRmwUrTIzqAcob1y1xNLmissd9iNqN_D1fRfmT0dFLuQnqfIpdOWvoFqIbylJBXqbokAq6viBL-SZG5y4EaAMbHoLaLhKWXHFodbne6J9p_ffQV1Qk5F5JEGtve_zH09CH8Obd0t3MDsiA" 
            class="w-100 h-100 object-fit-cover" alt="Newsletter Pattern">
     </div>
     
     <div class="position-relative z-1 max-w-2xl mx-auto py-5">
-      <h2 class="display-6 fw-bold mb-4 font-headline">Join the Merchant Guild</h2>
-      <p class="text-white-50 mb-5">Get exclusive first access to limited-run collections, architect interviews, and material innovations delivered to your inbox.</p>
+      <h2 class="display-6 fw-bold mb-4 font-headline text-on-primary">Join the Merchant Guild</h2>
+      <p class="text-on-primary-variant mb-5 opacity-75">Get exclusive first access to limited-run collections, architect interviews, and material innovations delivered to your inbox.</p>
       
       <form class="d-flex flex-column flex-sm-row gap-3 max-w-lg mx-auto mb-4">
-        <input type="email" class="form-control flex-grow-1 px-4 py-3 rounded-3 bg-white-10 border-white-20 text-white placeholder-white-40 outline-none" 
+        <input type="email" class="form-control flex-grow-1 px-4 py-3 rounded-3 bg-white-10 border-white-20 text-on-primary placeholder-on-primary-variant outline-none" 
                placeholder="Your professional email">
-        <button class="btn btn-light px-5 py-3 fw-bold rounded-3 hover-secondary transition-all" type="submit">Subscribe</button>
+        <button class="btn btn-premium-light px-5 py-3 fw-bold rounded-3 transition-all" type="submit">Subscribe</button>
       </form>
       
-      <p class="text-uppercase text-white-40 ls-widest fw-medium" style="font-size: 0.6rem;">
+      <p class="text-uppercase text-on-primary-variant ls-widest fw-medium opacity-50" style="font-size: 0.6rem;">
         By subscribing you agree to our curation guidelines.
       </p>
     </div>
   </div>
 </section>
+
+<style>
+  .bg-theme-primary { background: linear-gradient(135deg, var(--primary), var(--primary-container)); }
+  .text-on-primary { color: #ffffff; } /* We keep it white because the background is dark-primary in both modes if we want high contrast, BUT in dark mode var(--primary) is light. */
+  /* Actually, let's make it truly theme aware: */
+  [data-theme='dark'] .bg-theme-primary { background: var(--surface-container-low); border: 1px solid var(--outline-variant); }
+  [data-theme='dark'] .text-on-primary { color: var(--on-surface); }
+  [data-theme='dark'] .text-on-primary-variant { color: var(--on-surface-variant); }
+  [data-theme='dark'] .btn-premium-light { background: var(--primary); color: var(--on-primary); }
+  
+  .text-on-primary { color: #fff; }
+  .text-on-primary-variant { color: rgba(255,255,255,0.8); }
+  .bg-white-10 { background: rgba(255,255,255,0.1); }
+  .border-white-20 { border: 1px solid rgba(255,255,255,0.2); }
+  .placeholder-on-primary-variant::placeholder { color: rgba(255,255,255,0.5); }
+  .btn-premium-light { background: #fff; color: var(--primary); border: none; }
+  .btn-premium-light:hover { background: var(--secondary-container); color: var(--on-secondary-container); }
+</style>

@@ -1,7 +1,6 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { finalize } from 'rxjs';
 import { AdminService } from '../../../services/admin.service';
 import { AdminRole, RegisterDto, UserWithRolesDto } from '../../../models/admin.models';
 
@@ -14,63 +13,20 @@ import { AdminRole, RegisterDto, UserWithRolesDto } from '../../../models/admin.
 })
 export class UserManagementComponent implements OnInit {
   readonly availableRoles: AdminRole[] = ['User', 'Seller', 'Admin'];
-  users: UserWithRolesDto[] = [];
-  searchTerm = '';
-  roleFilter: 'all' | AdminRole = 'all';
-  statusFilter: 'all' | 'active' | 'blocked' = 'all';
-  loading = false;
-  refreshing = false;
-  submitting = false;
-  error: string | null = null;
-  actionError: string | null = null;
-  actionSuccess: string | null = null;
-  showCreateModal = false;
-  newAdmin: RegisterDto = this.createEmptyAdmin();
 
-  constructor(
-    private adminService: AdminService,
-    private cdr: ChangeDetectorRef
-  ) {}
+  users = signal<UserWithRolesDto[]>([]);
+  searchTerm = signal('');
+  roleFilter = signal<'all' | AdminRole>('all');
+  statusFilter = signal<'all' | 'active' | 'blocked'>('all');
+  loading = signal(false);
+  submitting = signal(false);
+  actionSuccess = signal<string | null>(null);
+  showCreateModal = signal(false);
+  newAdmin = signal<RegisterDto>(this.createEmptyAdmin());
 
-  ngOnInit(): void {
-    this.loadUsers(true);
-  }
-
-  loadUsers(isInitial = false): void {
-    if (isInitial) {
-      this.loading = true;
-    }
-    this.refreshing = true;
-    this.error = null;
-    this.actionError = null;
-
-    this.adminService.getAllUsers()
-      .pipe(finalize(() => {
-        this.loading = false;
-        this.refreshing = false;
-        this.cdr.detectChanges();
-      }))
-      .subscribe({
-        next: (data) => {
-          this.users = data;
-          this.cdr.detectChanges();
-        },
-        error: (err: unknown) => {
-          console.error('Error loading users', err);
-          this.error = this.getErrorMessage(err, 'Failed to load users. Please verify your connection.');
-          this.cdr.detectChanges();
-        }
-      });
-  }
-
-  trackByUserId(index: number, user: UserWithRolesDto): string {
-    return user.id;
-  }
-
-  get filteredUsers(): UserWithRolesDto[] {
-    const term = this.searchTerm.trim().toLowerCase();
-
-    return this.users.filter((user) => {
+  filteredUsers = computed(() => {
+    const term = this.searchTerm().trim().toLowerCase();
+    return this.users().filter((user) => {
       const primaryRole = this.getPrimaryRole(user);
       const matchesSearch =
         !term ||
@@ -78,30 +34,43 @@ export class UserManagementComponent implements OnInit {
         user.email.toLowerCase().includes(term) ||
         (user.userName ?? '').toLowerCase().includes(term);
 
-      const matchesRole = this.roleFilter === 'all' || primaryRole === this.roleFilter;
+      const matchesRole = this.roleFilter() === 'all' || primaryRole === this.roleFilter();
       const matchesStatus =
-        this.statusFilter === 'all' ||
-        (this.statusFilter === 'active' && !user.isDeleted) ||
-        (this.statusFilter === 'blocked' && user.isDeleted);
+        this.statusFilter() === 'all' ||
+        (this.statusFilter() === 'active' && !user.isDeleted) ||
+        (this.statusFilter() === 'blocked' && user.isDeleted);
 
       return matchesSearch && matchesRole && matchesStatus;
     });
+  });
+
+  adminCount = computed(() => this.users().filter((u) => this.getPrimaryRole(u) === 'Admin').length);
+  sellerCount = computed(() => this.users().filter((u) => this.getPrimaryRole(u) === 'Seller').length);
+  userCount = computed(() => this.users().filter((u) => this.getPrimaryRole(u) === 'User').length);
+  blockedCount = computed(() => this.users().filter((u) => u.isDeleted).length);
+
+  constructor(private adminService: AdminService) {}
+
+  ngOnInit(): void {
+    this.loadUsers();
   }
 
-  get adminCount(): number {
-    return this.users.filter((user) => this.getPrimaryRole(user) === 'Admin').length;
+  loadUsers(): void {
+    this.loading.set(true);
+    this.adminService.getAllUsers().subscribe({
+      next: (data) => {
+        this.users.set(data);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        console.error(err);
+        this.loading.set(false);
+      }
+    });
   }
 
-  get sellerCount(): number {
-    return this.users.filter((user) => this.getPrimaryRole(user) === 'Seller').length;
-  }
-
-  get userCount(): number {
-    return this.users.filter((user) => this.getPrimaryRole(user) === 'User').length;
-  }
-
-  get blockedCount(): number {
-    return this.users.filter((user) => user.isDeleted).length;
+  trackByUserId(index: number, user: UserWithRolesDto): string {
+    return user.id;
   }
 
   getPrimaryRole(user: UserWithRolesDto): AdminRole {
@@ -116,27 +85,23 @@ export class UserManagementComponent implements OnInit {
   toggleBlockStatus(user: UserWithRolesDto): void {
     const wasDeleted = user.isDeleted;
     const action = wasDeleted ? 'reactivate' : 'block';
-    
+
     if (!window.confirm(`Are you sure you want to ${action} user ${user.fullName}?`)) return;
 
     user.isDeleted = !wasDeleted;
-    this.actionError = null;
-    this.actionSuccess = null;
+    this.actionSuccess.set(null);
 
-    const request = wasDeleted ? 
-      this.adminService.reactivateUser(user.id) : 
-      this.adminService.blockUser(user.id);
+    const request = wasDeleted
+      ? this.adminService.reactivateUser(user.id)
+      : this.adminService.blockUser(user.id);
 
     request.subscribe({
       next: () => {
-        this.actionSuccess = `${user.fullName} has been ${wasDeleted ? 'reactivated' : 'blocked'}.`;
-        this.cdr.detectChanges();
+        this.actionSuccess.set(`${user.fullName} has been ${wasDeleted ? 'reactivated' : 'blocked'}.`);
       },
-      error: (err: unknown) => {
+      error: (err) => {
         user.isDeleted = wasDeleted;
-        this.actionError = this.getErrorMessage(err, `Failed to ${action} user.`);
         console.error(err);
-        this.cdr.detectChanges();
       }
     });
   }
@@ -144,106 +109,54 @@ export class UserManagementComponent implements OnInit {
   onRoleChange(newRole: AdminRole, user: UserWithRolesDto): void {
     const currentRole = this.getPrimaryRole(user);
     if (!newRole || newRole === currentRole) return;
-    
-    if (!window.confirm(`Change role of ${user.fullName} to ${newRole}?`)) {
-      return;
-    }
+
+    if (!window.confirm(`Change role of ${user.fullName} to ${newRole}?`)) return;
 
     const previousRoles = [...user.roles];
     user.roles = [newRole];
-    this.actionError = null;
-    this.actionSuccess = null;
+    this.actionSuccess.set(null);
 
     this.adminService.updateUserRole(user.id, { role: newRole }).subscribe({
       next: () => {
-         this.actionSuccess = `${user.fullName}'s role was updated to ${newRole}.`;
-         this.cdr.detectChanges();
+        this.actionSuccess.set(`${user.fullName}'s role was updated to ${newRole}.`);
       },
-      error: (err: unknown) => {
-         user.roles = previousRoles;
-         this.actionError = this.getErrorMessage(err, 'Failed to update role.');
-         console.error(err);
-         this.cdr.detectChanges();
+      error: (err) => {
+        user.roles = previousRoles;
+        console.error(err);
       }
     });
   }
 
   createAdmin(): void {
-    if (this.submitting) {
-      return;
-    }
+    if (this.submitting()) return;
 
-    if (!this.newAdmin.fullName.trim() || !this.newAdmin.email.trim() || !this.newAdmin.password.trim()) {
-       this.actionError = 'Please fill in all required fields.';
-       return;
-    }
+    const admin = this.newAdmin();
+    if (!admin.fullName.trim() || !admin.email.trim() || !admin.password.trim()) return;
 
-    this.submitting = true;
-    this.actionError = null;
-    this.actionSuccess = null;
+    this.submitting.set(true);
+    this.actionSuccess.set(null);
 
-    this.adminService.createAdmin(this.newAdmin)
-      .pipe(finalize(() => {
-        this.submitting = false;
-        this.cdr.detectChanges();
-      }))
-      .subscribe({
+    this.adminService.createAdmin(admin).subscribe({
       next: () => {
-        this.actionSuccess = 'Admin created successfully.';
-        this.showCreateModal = false;
-        this.newAdmin = this.createEmptyAdmin();
+        this.actionSuccess.set('Admin created successfully.');
+        this.submitting.set(false);
+        this.showCreateModal.set(false);
+        this.newAdmin.set(this.createEmptyAdmin());
         this.loadUsers();
-        this.cdr.detectChanges();
       },
-      error: (err: unknown) => {
-        this.actionError = this.getErrorMessage(err, 'Error creating admin.');
+      error: (err) => {
         console.error(err);
-        this.cdr.detectChanges();
+        this.submitting.set(false);
       }
     });
   }
 
   closeCreateModal(): void {
-    this.showCreateModal = false;
-    this.newAdmin = this.createEmptyAdmin();
+    this.showCreateModal.set(false);
+    this.newAdmin.set(this.createEmptyAdmin());
   }
 
   private createEmptyAdmin(): RegisterDto {
     return { fullName: '', email: '', password: '', address: '' };
-  }
-
-  private getErrorMessage(error: unknown, fallback: string): string {
-    if (typeof error !== 'object' || error === null) {
-      return fallback;
-    }
-
-    const maybeHttpError = error as {
-      error?: { message?: string; errors?: Record<string, string[] | string> } | string;
-      message?: string;
-    };
-
-    if (typeof maybeHttpError.error === 'string' && maybeHttpError.error.trim()) {
-      return maybeHttpError.error;
-    }
-
-    if (typeof maybeHttpError.error === 'object' && maybeHttpError.error !== null) {
-      if (maybeHttpError.error.message?.trim()) {
-        return maybeHttpError.error.message;
-      }
-
-      const validationMessage = Object.values(maybeHttpError.error.errors ?? {})
-        .flatMap((value) => Array.isArray(value) ? value : [value])
-        .find((value) => typeof value === 'string' && value.trim());
-
-      if (validationMessage) {
-        return validationMessage;
-      }
-    }
-
-    if (maybeHttpError.message?.trim()) {
-      return maybeHttpError.message;
-    }
-
-    return fallback;
   }
 }

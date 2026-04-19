@@ -10,18 +10,18 @@ import { AuthService } from '../../services/auth.service';
   imports: [CommonModule, FormsModule, RouterModule],
   template: `
     <div class="auth-container d-flex align-items-center justify-content-center py-5">
-      <div class="auth-card p-5 merchant-card max-w-xl w-100 position-relative z-1">
+      <div class="auth-card p-5 merchant-card max-w-xl w-100 position-relative z-1 transition-all">
         <div class="text-center mb-5">
-          <h2 class="h3 fw-bold mb-2">Create Account</h2>
-          <p class="text-secondary small">Join the elite network of artisans and curators</p>
+          <h2 class="h3 fw-bold mb-2 text-theme-primary">Create Account</h2>
+          <p class="text-theme-variant small">Join the elite network of artisans and curators</p>
         </div>
 
         <form (ngSubmit)="onRegister()" #regForm="ngForm">
           <div class="row g-4 mb-4">
             <div class="col-md-6">
-              <label class="form-label text-secondary small fw-bold uppercase ls-wider mb-2">Full Name</label>
-<input type="text"  class="form-control merchant-input"  [class.is-invalid]="name.invalid && name.touched" name="name" #name="ngModel" [(ngModel)]="user.name"
-   required minlength="3" pattern="^[a-zA-Z ]+$" placeholder="John Doe">
+              <label class="form-label text-theme-variant small fw-bold uppercase ls-wider mb-2">Full Name</label>
+<input type="text"  class="form-control merchant-input bg-theme-variant border-theme text-theme-primary"  [class.is-invalid]="name.invalid && name.touched" name="name" #name="ngModel" [(ngModel)]="user.name"
+    required minlength="3" pattern="^[a-zA-Z ]+$" placeholder="John Doe">
     @if (name.touched && name.invalid) {
                 <div class="invalid-feedback">
                   @if (name.errors?.['required']) {
@@ -38,8 +38,8 @@ import { AuthService } from '../../services/auth.service';
                  
                          </div>
             <div class="col-md-6">
-              <label class="form-label text-secondary small fw-bold uppercase ls-wider mb-2">Email Address</label>
-<input type="email" class="form-control merchant-input" [class.is-invalid]="email.invalid && email.touched" name="email"  #email="ngModel" [(ngModel)]="user.email"
+              <label class="form-label text-theme-variant small fw-bold uppercase ls-wider mb-2">Email Address</label>
+<input type="email" class="form-control merchant-input bg-theme-variant border-theme text-theme-primary" [class.is-invalid]="email.invalid && email.touched" name="email"  #email="ngModel" [(ngModel)]="user.email"
                 required
                 email
                 placeholder="name@company.com">   
@@ -55,10 +55,10 @@ import { AuthService } from '../../services/auth.service';
               }      
                  </div>
              <div class="col-md-6">
-              <label class="form-label text-secondary small fw-bold uppercase ls-wider mb-2">Address</label>
+              <label class="form-label text-theme-variant small fw-bold uppercase ls-wider mb-2">Address</label>
 <input
                 type="text"
-                class="form-control merchant-input"
+                class="form-control merchant-input bg-theme-variant border-theme text-theme-primary"
                 [class.is-invalid]="address.invalid && address.touched"
                 name="address"
                 #address="ngModel"
@@ -81,7 +81,7 @@ import { AuthService } from '../../services/auth.service';
           </div>
 
           <div class="mb-4">
-            <label class="form-label text-secondary small fw-bold uppercase ls-wider mb-3">I want to join as a:</label>
+            <label class="form-label text-theme-variant small fw-bold uppercase ls-wider mb-3">I want to join as a:</label>
             <div class="row g-3">
               <div class="col-6">
                 <div class="role-card p-3 text-center cursor-pointer border rounded-3 transition-all"
@@ -89,7 +89,7 @@ import { AuthService } from '../../services/auth.service';
                      (click)="user.role = 'User'">
                   <span class="material-symbols-outlined mb-2 fs-2">shopping_bag</span>
                   <div class="fw-bold small">Customer</div>
-                  <div class="text-secondary-variant x-small">Browse & Buy</div>
+                  <div class="text-on-surface-variant x-small">Browse & Buy</div>
                 </div>
               </div>
               <div class="col-6">
@@ -98,17 +98,17 @@ import { AuthService } from '../../services/auth.service';
                      (click)="user.role = 'Seller'">
                   <span class="material-symbols-outlined mb-2 fs-2">storefront</span>
                   <div class="fw-bold small">Seller</div>
-                  <div class="text-secondary-variant x-small">Curation & Sales</div>
+                  <div class="text-on-surface-variant x-small">Curation & Sales</div>
                 </div>
               </div>
             </div>
           </div>
 
           <div class="mb-5">
-            <label class="form-label text-secondary small fw-bold uppercase ls-wider mb-2">Password</label>
+            <label class="form-label text-theme-variant small fw-bold uppercase ls-wider mb-2">Password</label>
 <input
               type="password"
-              class="form-control merchant-input"
+              class="form-control merchant-input bg-theme-variant border-theme text-theme-primary"
               [class.is-invalid]="password.invalid && password.touched"
               name="password"
               #password="ngModel"
@@ -139,9 +139,9 @@ import { AuthService } from '../../services/auth.service';
             Create Account
           </button>
 
-          <p class="text-center small text-secondary mb-0">
+          <p class="text-center small text-theme-variant mb-0">
             Already have an account?
-            <a routerLink="/login" class="text-primary fw-bold text-decoration-none hover-secondary">Sign In</a>
+            <a routerLink="/login" class="text-theme-primary fw-bold text-decoration-none hover-secondary transition-all">Sign In</a>
           </p>
         </form>
           @if(errorMessage){
@@ -157,26 +157,25 @@ import { AuthService } from '../../services/auth.service';
   `,
   styles: [`
     .auth-container { min-height: 100vh; background-color: var(--background); position: relative; }
-    .auth-card { z-index: 1; border: 1px solid rgba(0,0,0,0.05); }
+    .auth-card { z-index: 1; border: 1px solid var(--outline-variant); background: var(--surface); }
     .max-w-xl { max-width: 600px; }
     .ls-wider { letter-spacing: 0.05em; }
     .merchant-input {
-      background-color: var(--surface-container-low);
-      border: 1px solid transparent;
       padding: 0.75rem 1rem;
       border-radius: 8px;
     }
     .merchant-input:focus {
-      background-color: white;
+      background-color: var(--surface-container-high);
       border-color: var(--secondary);
       box-shadow: none;
     }
-    .role-card { background: white; border-color: rgba(0,0,0,0.05) !important; }
+    .role-card { background: var(--surface); border-color: var(--outline-variant) !important; color: var(--on-surface); }
     .role-card:hover { border-color: var(--secondary) !important; background: var(--surface-container-low); }
     .role-card.active { border-color: var(--secondary) !important; background: var(--secondary-container); color: var(--on-secondary-container); box-shadow: 0 4px 12px rgba(0, 99, 151, 0.1); }
     .x-small { font-size: 0.65rem; }
-    .text-secondary-variant { color: var(--on-surface-variant); }
+    .text-on-surface-variant { color: var(--on-surface-variant); }
     .absolute-fill { position: absolute; inset: 0; }
+  `]nset: 0; }
   `]
 })
 export class RegisterComponent {

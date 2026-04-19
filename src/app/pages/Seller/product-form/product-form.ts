@@ -13,14 +13,15 @@ import { CategoryService } from '../../../services/category-service';
 export class ProductForm implements OnInit {
   model = signal<any>({});
   isEditMode = signal(false);
-  isLoading = signal(false);
+  loading = signal(false);
+  isSubmitting = signal(false);
   selectedFile = signal<File | null>(null);
   currentImageUrl = signal<string | null>(null);
   baseUrl = 'http://localhost:5118/images/products/';
   categories = signal<any[]>([]);
-  imageError: string | null = null;
+  imageError = signal<string | null>(null);
 
-  isSubmitDisabled = computed(() => this.isLoading() || !!this.imageError);
+  isSubmitDisabled = computed(() => this.loading() || this.isSubmitting() || !!this.imageError());
 
   get name() { return this.model().name; }
   set name(val: string) { this.model.update(m => ({ ...m, name: val })); }
@@ -44,37 +45,43 @@ export class ProductForm implements OnInit {
     private router: Router
   ) {}
 
-  ngOnInit() {
-    this.categoryService.getAll().subscribe({
-      next: (res) => {
-        this.categories.set(res);
-      }
-    });
+  ngOnInit(): void {
+    this.loadCategories();
 
     const id = this.route.snapshot.paramMap.get('id');
-
     if (id) {
       this.isEditMode.set(true);
-      this.isLoading.set(true);
-
-      this.productService.getById(+id).subscribe({
-        next: (res) => {
-          this.model.set(res);
-          this.currentImageUrl.set(
-            res.image ? this.baseUrl + res.image : null
-          );
-          this.isLoading.set(false);
-        },
-        error: () => this.isLoading.set(false)
-      });
+      this.loadProduct(+id);
     }
+  }
+
+  loadCategories(): void {
+    this.categoryService.getAll().subscribe({
+      next: (res) => this.categories.set(res),
+      error: (err) => console.error(err)
+    });
+  }
+
+  loadProduct(id: number): void {
+    this.loading.set(true);
+    this.productService.getById(id).subscribe({
+      next: (res) => {
+        this.model.set(res);
+        this.currentImageUrl.set(res.image ? this.baseUrl + res.image : null);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        console.error(err);
+        this.loading.set(false);
+      }
+    });
   }
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
 
-    this.imageError = null;
+    this.imageError.set(null);
 
     if (!file) return;
 
@@ -82,13 +89,13 @@ export class ProductForm implements OnInit {
     const maxSizeBytes = 5 * 1024 * 1024;
 
     if (!allowedTypes.includes(file.type)) {
-      this.imageError = 'Invalid file type. Please upload a JPG, PNG, WEBP, or GIF image.';
+      this.imageError.set('Invalid file type. Please upload a JPG, PNG, WEBP, or GIF image.');
       input.value = '';
       return;
     }
 
     if (file.size > maxSizeBytes) {
-      this.imageError = 'File is too large. Maximum allowed size is 5 MB.';
+      this.imageError.set('File is too large. Maximum allowed size is 5 MB.');
       input.value = '';
       return;
     }
@@ -102,8 +109,10 @@ export class ProductForm implements OnInit {
     reader.readAsDataURL(file);
   }
 
-  submit() {
+  submit(): void {
     const current = this.model();
+
+    this.isSubmitting.set(true);
 
     const formData = new FormData();
     formData.append('name', current.name);
@@ -113,9 +122,7 @@ export class ProductForm implements OnInit {
     formData.append('categoryId', current.categoryId);
 
     const file = this.selectedFile();
-    if (file) {
-      formData.append('image', file);
-    }
+    if (file) formData.append('image', file);
 
     const request = this.isEditMode()
       ? this.productService.update(current.id, formData)
@@ -126,12 +133,10 @@ export class ProductForm implements OnInit {
         this.router.navigate(['/seller/products']);
       },
       error: (err) => {
-        console.log(err);
+        console.error(err);
+        this.isSubmitting.set(false);
         if (err.status === 401) {
-          alert('❌ You must login first');
           this.router.navigate(['/login']);
-        } else {
-          alert('❌ Something went wrong');
         }
       }
     });

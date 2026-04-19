@@ -47,6 +47,7 @@ import { RouterLink } from '@angular/router';
 export class TrendingProductsComponent implements OnInit {
 
   products = signal<IProduct[]>([]);
+  loading = signal(false);
 
   readonly imageBaseUrl = 'http://localhost:5118';
 
@@ -64,12 +65,19 @@ export class TrendingProductsComponent implements OnInit {
   constructor(private dataService: ProductService) {}
 
   ngOnInit(): void {
+    this.loadProducts();
+  }
+
+  loadProducts(): void {
+    this.loading.set(true);
     this.dataService.getAll().subscribe({
       next: (res: IProduct[]) => {
         this.products.set(res.slice(0, 4));
+        this.loading.set(false);
       },
       error: (err) => {
-        console.error('Failed to load trending products', err);
+        console.error(err);
+        this.loading.set(false);
       }
     });
   }
@@ -93,4 +101,4 @@ export class TrendingProductsComponent implements OnInit {
       image.src = this.fallbackImage;
     }
   }
-}
+}

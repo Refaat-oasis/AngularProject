@@ -1,8 +1,7 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { finalize } from 'rxjs';
 import { AdminProduct } from '../../../models/admin-product.models';
 import { AdminProductsService } from '../../../services/admin-products.service';
 import { CategoryService } from '../../../services/category-service';
@@ -16,13 +15,12 @@ import { Icategory } from '../../../models/icategory';
   styleUrl: './products-management.component.css'
 })
 export class ProductsManagementComponent implements OnInit {
-  products: AdminProduct[] = [];
-  categories: Icategory[] = [];
-  searchTerm = '';
-  statusFilter: 'all' | 'active' | 'deleted' = 'all';
-  loading = false;
-  error: string | null = null;
-  feedback: string | null = null;
+  products = signal<AdminProduct[]>([]);
+  categories = signal<Icategory[]>([]);
+  searchTerm = signal('');
+  statusFilter = signal<'all' | 'active' | 'deleted'>('all');
+  loading = signal(false);
+  feedback = signal<string | null>(null);
   readonly imageBaseUrl = 'http://localhost:5118';
   readonly fallbackImage =
     'data:image/svg+xml;utf8,' +
@@ -35,59 +33,9 @@ export class ProductsManagementComponent implements OnInit {
       '</svg>'
     );
 
-  constructor(
-    private adminProductsService: AdminProductsService,
-    private categoryService: CategoryService,
-    private cdr: ChangeDetectorRef
-  ) {}
-
-  ngOnInit(): void {
-    this.loadCategories();
-    this.loadProducts();
-  }
-
-  loadProducts(): void {
-    this.loading = true;
-    this.error = null;
-
-    this.adminProductsService.getAllForAdmin()
-      .pipe(finalize(() => {
-        this.loading = false;
-        this.cdr.detectChanges();
-      }))
-      .subscribe({
-        next: (products) => {
-          this.products = products;
-          this.cdr.detectChanges();
-        },
-        error: (error: unknown) => {
-          console.error(error);
-          this.error = 'Failed to load products.';
-          this.cdr.detectChanges();
-        }
-      });
-  }
-
-  trackByProductId(index: number, product: AdminProduct): number {
-    return product.id;
-  }
-
-  loadCategories(): void {
-    this.categoryService.getAll().subscribe({
-      next: (categories) => {
-        this.categories = categories;
-        this.cdr.detectChanges();
-      },
-      error: (error: unknown) => {
-        console.error(error);
-      }
-    });
-  }
-
-  get filteredProducts(): AdminProduct[] {
-    const term = this.searchTerm.trim().toLowerCase();
-
-    return this.products.filter((product) => {
+  filteredProducts = computed(() => {
+    const term = this.searchTerm().trim().toLowerCase();
+    return this.products().filter((product) => {
       const matchesSearch =
         !term ||
         product.name.toLowerCase().includes(term) ||
@@ -96,92 +44,98 @@ export class ProductsManagementComponent implements OnInit {
 
       const isDeleted = !!product.isDeleted;
       const matchesStatus =
-        this.statusFilter === 'all' ||
-        (this.statusFilter === 'active' && !isDeleted) ||
-        (this.statusFilter === 'deleted' && isDeleted);
+        this.statusFilter() === 'all' ||
+        (this.statusFilter() === 'active' && !isDeleted) ||
+        (this.statusFilter() === 'deleted' && isDeleted);
 
       return matchesSearch && matchesStatus;
     });
+  });
+
+  activeCount = computed(() => this.products().filter((p) => !p.isDeleted).length);
+  deletedCount = computed(() => this.products().filter((p) => !!p.isDeleted).length);
+  totalStock = computed(() => this.filteredProducts().reduce((sum, p) => sum + p.stock, 0));
+
+  constructor(
+    private adminProductsService: AdminProductsService,
+    private categoryService: CategoryService
+  ) {}
+
+  ngOnInit(): void {
+    this.loadCategories();
+    this.loadProducts();
   }
 
-  get activeCount(): number {
-    return this.products.filter((product) => !product.isDeleted).length;
+  loadProducts(): void {
+    this.loading.set(true);
+    this.adminProductsService.getAllForAdmin().subscribe({
+      next: (products) => {
+        this.products.set(products);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        console.error(err);
+        this.loading.set(false);
+      }
+    });
   }
 
-  get deletedCount(): number {
-    return this.products.filter((product) => !!product.isDeleted).length;
+  loadCategories(): void {
+    this.categoryService.getAll().subscribe({
+      next: (categories) => this.categories.set(categories),
+      error: (err) => console.error(err)
+    });
   }
 
-  get totalStock(): number {
-    return this.filteredProducts.reduce((sum, product) => sum + product.stock, 0);
+  trackByProductId(index: number, product: AdminProduct): number {
+    return product.id;
   }
 
   getCategoryName(categoryId: number): string {
-    return this.categories.find((category) => category.id === categoryId)?.name ?? `#${categoryId}`;
+    return this.categories().find((c) => c.id === categoryId)?.name ?? `#${categoryId}`;
   }
 
   deleteProduct(product: AdminProduct): void {
-    if (!window.confirm(`Delete ${product.name}?`)) {
-      return;
-    }
-
-    this.feedback = null;
+    if (!window.confirm(`Delete ${product.name}?`)) return;
+    this.feedback.set(null);
     this.adminProductsService.delete(product.id).subscribe({
       next: () => {
-        this.products = this.products.map((item) =>
-          item.id === product.id ? { ...item, isDeleted: true } : item
+        this.products.update((list) =>
+          list.map((item) => item.id === product.id ? { ...item, isDeleted: true } : item)
         );
-        this.feedback = `${product.name} was deleted successfully.`;
-        this.cdr.detectChanges();
+        this.feedback.set(`${product.name} was deleted successfully.`);
       },
-      error: (error: unknown) => {
-        console.error(error);
-        this.error = 'Failed to delete product.';
-        this.cdr.detectChanges();
-      }
+      error: (err) => console.error(err)
     });
   }
 
   reactivateProduct(product: AdminProduct): void {
-    this.feedback = null;
-    this.error = null;
-
+    this.feedback.set(null);
     this.adminProductsService.reactivate(product.id).subscribe({
       next: (response) => {
-        this.products = this.products.map((item) =>
-          item.id === product.id
-            ? { ...item, isDeleted: response.product?.isDeleted ?? false }
-            : item
+        this.products.update((list) =>
+          list.map((item) =>
+            item.id === product.id
+              ? { ...item, isDeleted: response.product?.isDeleted ?? false }
+              : item
+          )
         );
-        this.feedback = response.message || `${product.name} was reactivated successfully.`;
-        this.cdr.detectChanges();
+        this.feedback.set(response.message || `${product.name} was reactivated successfully.`);
       },
-      error: (error: unknown) => {
-        console.error(error);
-        this.error = 'Failed to reactivate product.';
-        this.cdr.detectChanges();
-      }
+      error: (err) => console.error(err)
     });
   }
 
   getImageUrl(path: string): string {
-    if (!path) {
-      return this.fallbackImage;
-    }
-
-    if (path.startsWith('data:image') || path.startsWith('http')) {
-      return path;
-    }
-
+    if (!path) return this.fallbackImage;
+    if (path.startsWith('data:image') || path.startsWith('http')) return path;
     return path.startsWith('/') ? `${this.imageBaseUrl}${path}` : `${this.imageBaseUrl}/${path}`;
   }
 
   useFallbackImage(event: Event): void {
     const image = event.target as HTMLImageElement | null;
-    if (!image || image.src === this.fallbackImage) {
-      return;
-    }
-
+    if (!image || image.src === this.fallbackImage) return;
     image.src = this.fallbackImage;
   }
 }
+

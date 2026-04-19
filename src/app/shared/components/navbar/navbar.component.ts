@@ -1,10 +1,12 @@
-import { Component, input } from '@angular/core';
+import { Component, input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 import { FormsModule } from '@angular/forms';
 import { debounceTime, Subject } from 'rxjs';
 import { CartService } from '../../../services/cart.service';
+import { ThemeService } from '../../../services/theme.service';
+
 @Component({
   selector: 'app-navbar',
   standalone: true,
@@ -13,70 +15,63 @@ import { CartService } from '../../../services/cart.service';
     <header class="w-full z-50 glass-header" [class.fixed]="fixed()" [class.top-0]="fixed()">
       <div class="container-fluid px-6 py-3 d-flex align-items-center justify-content-between">
         <div class="d-flex align-items-center gap-5">
-          <a routerLink="/" class="text-xl font-bold tracking-tighter text-dark text-decoration-none">
+          <button (click)="navigateTo('/')" class="btn btn-link p-0 text-xl font-bold tracking-tighter text-theme text-decoration-none border-0">
             Architectural Merchant
-          </a>
-          <nav class="d-none d-md-flex align-items-center gap-4 text-sm font-medium">
-            <a routerLink="/" class="text-dark text-decoration-none hover-secondary transition-colors" routerLinkActive="text-secondary border-bottom border-2 border-secondary">Shop</a>
-            <a routerLink="/vendors" class="text-secondary-variant text-decoration-none hover-secondary transition-colors">Vendors</a>
-            <a routerLink="/help" class="text-secondary-variant text-decoration-none hover-secondary transition-colors">Help</a>
-          </nav>
+          </button>
         </div>
 
-        <div class="d-flex align-items-center gap-4">
-          <div class="d-none d-lg-flex align-items-center bg-light px-3 py-1.5 rounded-pill border-light focus-within-border">
-            <span class="material-symbols-outlined text-secondary fs-5 me-2">search</span>
-          <input type="text"
-  class="bg-transparent border-0 outline-none text-sm w-48"
-  placeholder="Search..."
-  [(ngModel)]="searchTerm"
-  (ngModelChange)="onSearchChange($event)" />
-          </div>
+        <div class="d-flex align-items-center gap-3">
+          <button (click)="themeService.toggleTheme()" class="btn btn-link p-0 text-theme scale-hover border-0" title="Toggle Theme">
+            <span class="material-symbols-outlined">
+              {{ themeService.isDark() ? 'light_mode' : 'dark_mode' }}
+            </span>
+          </button>
+          
+          <button class="btn btn-link p-0 text-theme scale-hover position-relative border-0" (click)="navigateTo('/cart')" title="Shopping Cart">
+            <span class="material-symbols-outlined">shopping_cart</span>
+            <span *ngIf="(cartService.cartCount$ | async) as count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">
+              {{ count }}
+            </span>
+          </button>
 
-          <div class="d-flex align-items-center gap-3">
-            <button class="btn btn-link p-0 text-dark scale-hover">
-              <span class="material-symbols-outlined">favorite</span>
+          <ng-container *ngIf="authService.isLoggedIn(); else loginBtn">
+            <button class="btn btn-link p-0 text-theme scale-hover border-0" (click)="navigateTo('/orders')" title="My Orders">
+              <span class="material-symbols-outlined">receipt_long</span>
             </button>
-            <button class="btn btn-link p-0 text-dark scale-hover position-relative" routerLink="/cart">
-              <span class="material-symbols-outlined">shopping_cart</span>
-              <span *ngIf="(cartService.cartCount$ | async) as count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">
-                {{ count }}
-              </span>
+            
+            <button *ngIf="showDashboardIcon" class="btn btn-link p-0 text-theme scale-hover border-0" (click)="navigateTo(dashboardLink)" title="Dashboard">
+              <span class="material-symbols-outlined">dashboard</span>
             </button>
+            
+            <button class="btn btn-link p-0 text-theme scale-hover border-0" (click)="logout()" title="Logout">
+              <span class="material-symbols-outlined">logout</span>
+            </button>
+          </ng-container>
 
-            <ng-container *ngIf="authService.isLoggedIn(); else loginBtn">
-              <button *ngIf="showDashboardIcon" class="btn btn-link p-0 text-dark scale-hover" [routerLink]="dashboardLink">
-                <span class="material-symbols-outlined">dashboard</span>
-              </button>
-              <button class="btn btn-link p-0 text-dark scale-hover" (click)="logout()">
-                <span class="material-symbols-outlined">logout</span>
-              </button>
-            </ng-container>
-
-            <ng-template #loginBtn>
-              <button class="btn btn-link p-0 text-dark scale-hover" routerLink="/login">
-                <span class="material-symbols-outlined">person</span>
-              </button>
-            </ng-template>
-          </div>
+          <ng-template #loginBtn>
+            <button class="btn btn-link p-0 text-theme scale-hover border-0" (click)="navigateTo('/login')" title="Login">
+              <span class="material-symbols-outlined">person</span>
+            </button>
+          </ng-template>
         </div>
       </div>
     </header>
   `,
   styles: [`
-    .text-secondary-variant { color: var(--on-surface-variant); }
-    .hover-secondary:hover { color: var(--secondary) !important; }
-    .transition-colors { transition: var(--transition-smooth); }
+    .text-theme { color: var(--on-surface); }
     .scale-hover:hover { transform: scale(1.1); transition: transform 0.2s; }
-    .focus-within-border:focus-within { border: 1px solid var(--secondary) !important; }
     header { height: 72px; }
-    .glass-header { z-index: 1040; background-color: rgba(255,255,255,0.9); }
+    .glass-header { z-index: 1040; position: sticky; top: 0; background: var(--glass-bg); backdrop-filter: blur(8px); border-bottom: 1px solid var(--outline-variant); }
+    .btn-link { text-decoration: none; display: flex; align-items: center; }
   `]
 })
 export class NavbarComponent {
   readonly fixed = input(true);
   searchTerm: string = '';
   searchSubject = new Subject<string>();
+  
+  public themeService = inject(ThemeService);
+
   constructor(
     public authService: AuthService,
     private router: Router,
@@ -91,6 +86,14 @@ export class NavbarComponent {
     });
   }
 
+  navigateTo(path: string) {
+    this.router.navigate([path]);
+  }
+
+  isActive(path: string): boolean {
+    return this.router.url === path;
+  }
+
   get dashboardLink(): string {
     const role = this.authService.getUserRole();
     if (role === 'Admin') return '/admin';
@@ -99,20 +102,19 @@ export class NavbarComponent {
   }
 
   get showDashboardIcon(): boolean {
-    return this.authService.getUserRole() === 'Admin';
+    const role = this.authService.getUserRole();
+    return role === 'Admin' || role === 'Seller';
   }
-// onSearch() {
-//   if (this.searchTerm.trim()) {
-//     this.router.navigate(['/products'], {
-//       queryParams: { search: this.searchTerm }
-//     });
-//   }}
+
   onSearchChange(value: string) {
-  this.searchSubject.next(value);
-}
+    this.searchSubject.next(value);
+  }
+
   logout() {
     this.authService.logout();
-    window.location.reload();
+    this.router.navigate(['/login']).then(() => {
+      window.location.reload();
+    });
   }
 }
 

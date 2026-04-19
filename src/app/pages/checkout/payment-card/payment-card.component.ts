@@ -44,21 +44,22 @@ export class PaymentCardComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     });
 
-    // Initialize Stripe
-    this.stripe = Stripe('pk_test_TYooMQauvdEDq54NiTphI7jx');
+    // Initialize Stripe with the correct Public Key
+    this.stripe = Stripe('pk_test_51TMrasCe2J7orNbpe6W7cRWJTACgtclgKIW1id8aAUowvX8XGCl8fLGNms5UUIhOOLbqycdZkEZEXp06eYjX7hU900HyEcV9zH');
     this.elements = this.stripe.elements();
   }
 
   ngAfterViewInit() {
-    // Custom styling for Stripe Elements
+    // Custom styling for Stripe Elements (Modern/Premium look)
     const style = {
       base: {
-        color: '#041627',
+        color: 'var(--on-surface)',
         fontFamily: 'Inter, sans-serif',
         fontSmoothing: 'antialiased',
         fontSize: '16px',
+        background: 'transparent',
         '::placeholder': {
-          color: '#44474C'
+          color: 'var(--on-surface-variant)'
         }
       },
       invalid: {
@@ -67,7 +68,10 @@ export class PaymentCardComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     };
 
-    this.card = this.elements.create('card', { style: style, hidePostalCode: true });
+    this.card = this.elements.create('card', { 
+      style: style, 
+      hidePostalCode: true,
+    });
     this.card.mount('#card-element');
 
     this.card.on('change', (event: any) => {
@@ -88,11 +92,13 @@ export class PaymentCardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.isProcessing = true;
     this.errorMsg = '';
 
+    // Step 1: Create a token via Stripe.js using the card element
     this.stripe.createToken(this.card, { name: this.cardholderName }).then((result: any) => {
       if (result.error) {
         this.errorMsg = result.error.message;
         this.isProcessing = false;
       } else {
+        // Step 2: Send the token to the backend
         this.processWithBackend(result.token);
       }
     });
@@ -109,13 +115,17 @@ export class PaymentCardComponent implements OnInit, AfterViewInit, OnDestroy {
     };
 
     this.paymentService.processPayment(payload).subscribe({
-      next: () => {
+      next: (res) => {
         this.isProcessing = false;
-        // Payment success - Clear cart and redirect
-        this.cartService.clearCart(); 
-        this.router.navigate(['/checkout/order-confirmation'], { 
-          queryParams: { orderId: this.orderId } 
-        });
+        if (res.success) {
+          // Payment success - Clear cart and redirect
+          this.cartService.clearCart(); 
+          this.router.navigate(['/checkout/order-confirmation'], { 
+            queryParams: { orderId: this.orderId } 
+          });
+        } else {
+          this.errorMsg = res.message || 'Payment processing failed.';
+        }
       },
       error: (err) => {
         this.isProcessing = false;

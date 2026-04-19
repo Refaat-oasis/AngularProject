@@ -3,11 +3,11 @@
 }
 
 .form-card {
-  background: #fff;
-  border-radius: 14px;
-  padding: 24px;
-  box-shadow: 0 8px 24px rgba(15, 52, 96, 0.08);
-  border: 1px solid #edf2f7;
+  background: var(--surface);
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: var(--shadow-ambient);
+  border: 1px solid var(--outline-variant);
 }
 
 .header-row {
@@ -20,17 +20,23 @@
 
 .header-row h2 {
   margin: 0;
+  color: var(--on-surface);
 }
 
 .header-row p {
   margin: 6px 0 0;
-  color: #718096;
+  color: var(--on-surface-variant);
 }
 
 .back-link {
-  color: #0f3460;
+  color: var(--primary);
   text-decoration: none;
   font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.back-link:hover {
+  color: var(--secondary);
 }
 
 .grid {
@@ -48,41 +54,53 @@
 
 .field label {
   font-weight: 600;
-  color: #2d3748;
+  color: var(--on-surface);
 }
 
 .field input,
 .field textarea,
 .field select {
-  border: 1px solid #cbd5e0;
-  border-radius: 10px;
+  border: 1px solid var(--outline-variant);
+  border-radius: 12px;
   padding: 12px 14px;
   font: inherit;
+  background: var(--surface-container-lowest);
+  color: var(--on-surface);
+}
+
+.field input:focus,
+.field textarea:focus,
+.field select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-container);
 }
 
 .field small {
-  color: #718096;
+  color: var(--on-surface-variant);
 }
 
 .error-text,
 .error-box {
-  color: #c53030;
+  color: var(--error);
 }
 
 .error-box {
   padding: 12px 14px;
-  background: #fff5f5;
-  border: 1px solid #feb2b2;
-  border-radius: 10px;
+  background: var(--error-container);
+  border: 1px solid var(--error);
+  border-radius: 12px;
   margin-bottom: 16px;
+  color: var(--on-error-container);
 }
 
 .preview {
   width: 180px;
   height: 180px;
-  border-radius: 12px;
+  border-radius: 16px;
   overflow: hidden;
-  border: 1px solid #edf2f7;
+  border: 1px solid var(--outline-variant);
+  background: var(--surface-container-low);
 }
 
 .preview img {
@@ -94,7 +112,7 @@
 .loading-state {
   padding: 40px 0;
   text-align: center;
-  color: #718096;
+  color: var(--on-surface-variant);
 }
 
 .actions {
@@ -106,27 +124,38 @@
 
 .btn {
   border: none;
-  border-radius: 10px;
-  padding: 10px 16px;
+  border-radius: 12px;
+  padding: 12px 20px;
   text-decoration: none;
   font-weight: 600;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .btn-primary {
-  background: #0f3460;
-  color: #fff;
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--primary-container);
+  color: var(--on-primary-container);
 }
 
 .btn-secondary {
-  background: #edf2f7;
-  color: #1a202c;
+  background: var(--surface-container-low);
+  color: var(--on-surface);
+}
+
+.btn-secondary:hover {
+  background: var(--surface-container-high);
 }
 
 @media (max-width: 768px) {
   .header-row,
   .actions {
     flex-direction: column;
+    align-items: stretch;
   }
 
   .grid {

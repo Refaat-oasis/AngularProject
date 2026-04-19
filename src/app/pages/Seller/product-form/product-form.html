@@ -1,198 +1,180 @@
+<div class="page-wrapper container py-5">
+  <div class="merchant-card p-4 p-lg-5 shadow-sm border-theme bg-theme-surface rounded-4 max-w-3xl mx-auto">
 
-<div class="container mt-5">
-  <div class="card shadow p-4 rounded-4">
-
-    <h4 class="mb-4">
-      {{ isEditMode() ? 'Edit Product' : 'Create Product' }}
-    </h4>
+    <div class="text-center mb-5">
+      <h2 class="h3 fw-bold mb-2 text-theme-primary">
+        {{ isEditMode() ? 'Edit Product' : 'Create Product' }}
+      </h2>
+      <p class="text-theme-variant small">Manage your item details for the architectural showcase</p>
+    </div>
 
     @if (isLoading()) {
-      <div class="text-center py-4">
-        <div class="spinner-border text-dark" role="status">
+      <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
           <span class="visually-hidden">Loading...</span>
         </div>
-        <p class="mt-2 text-muted">Loading product data...</p>
+        <p class="mt-3 text-theme-variant">Loading product data...</p>
       </div>
     }
 
     @if (!isLoading()) {
-      <form (ngSubmit)="submit()" #form="ngForm">
+      <form (ngSubmit)="submit()" #form="ngForm" class="space-y-4">
 
-      
-        <div class="mb-3">
-          <label class="form-label fw-semibold">Name</label>
-          <input type="text" class="form-control"
+        <div class="mb-4">
+          <label class="form-label text-theme-variant small fw-bold uppercase ls-wider mb-2">Item Name</label>
+          <input type="text" class="form-control merchant-input bg-theme-variant border-theme text-theme-primary"
                  [(ngModel)]="name"
                  name="name"
                  #nameRef="ngModel"
                  required
                  minlength="3"
                  maxlength="100"
-                 pattern="^[a-zA-Z0-9 _\-\.]+$" />
+                 placeholder="e.g. Italian Marble Finishes" />
 
           @if (nameRef.invalid && nameRef.touched) {
-            @if (nameRef.errors?.['required']) {
-              <small class="text-danger d-block">Name is required.</small>
-            }
-            @if (nameRef.errors?.['minlength']) {
-              <small class="text-danger d-block">Name must be at least 3 characters.</small>
-            }
-            @if (nameRef.errors?.['maxlength']) {
-              <small class="text-danger d-block">Name cannot exceed 100 characters.</small>
-            }
-            @if (nameRef.errors?.['pattern']) {
-              <small class="text-danger d-block">Name can only contain letters, numbers, spaces, hyphens, underscores, and dots.</small>
-            }
+            <div class="mt-2">
+              @if (nameRef.errors?.['required']) {
+                <small class="text-danger d-block">Name is required.</small>
+              }
+              @if (nameRef.errors?.['minlength']) {
+                <small class="text-danger d-block">Name must be at least 3 characters.</small>
+              }
+              @if (nameRef.errors?.['pattern']) {
+                <small class="text-danger d-block">Name contains invalid characters.</small>
+              }
+            </div>
           }
         </div>
 
- 
-        <div class="mb-3">
-          <label class="form-label fw-semibold">Description</label>
-          <textarea class="form-control"
+        <div class="mb-4">
+          <label class="form-label text-theme-variant small fw-bold uppercase ls-wider mb-2">Description</label>
+          <textarea class="form-control merchant-input bg-theme-variant border-theme text-theme-primary"
                     [(ngModel)]="description"
                     name="description"
                     #descRef="ngModel"
                     required
                     minlength="10"
                     maxlength="1000"
-                    rows="4"></textarea>
+                    rows="5"
+                    placeholder="Describe the material, origin, and application..."></textarea>
 
-          <div class="d-flex justify-content-between align-items-start mt-1">
+          <div class="d-flex justify-content-between align-items-start mt-2">
             <div>
               @if (descRef.invalid && descRef.touched) {
                 @if (descRef.errors?.['required']) {
                   <small class="text-danger d-block">Description is required.</small>
                 }
                 @if (descRef.errors?.['minlength']) {
-                  <small class="text-danger d-block">Description must be at least 10 characters.</small>
-                }
-                @if (descRef.errors?.['maxlength']) {
-                  <small class="text-danger d-block">Description cannot exceed 1000 characters.</small>
+                  <small class="text-danger d-block">Min 10 characters.</small>
                 }
               }
             </div>
-            <small class="text-muted ms-2 text-nowrap">
+            <small class="text-theme-variant opacity-50 ms-2">
               {{ description?.length || 0 }} / 1000
             </small>
           </div>
         </div>
 
-    
-        <div class="mb-3">
-          <label class="form-label fw-semibold">Price</label>
-          <div class="input-group">
-            <span class="input-group-text">$</span>
-            <input type="number" class="form-control"
-                   [(ngModel)]="price"
-                   name="price"
-                   #priceRef="ngModel"
-                   required
-                   min="0.01"
-                   max="999999"
-                   step="0.01" />
+        <div class="row g-4 mb-4">
+          <div class="col-md-6">
+            <label class="form-label text-theme-variant small fw-bold uppercase ls-wider mb-2">Price (USD)</label>
+            <div class="input-group">
+              <span class="input-group-text bg-theme-variant border-theme text-theme-variant border-end-0">$</span>
+              <input type="number" class="form-control merchant-input bg-theme-variant border-theme text-theme-primary border-start-0 ps-0"
+                     [(ngModel)]="price"
+                     name="price"
+                     #priceRef="ngModel"
+                     required
+                     min="0.01" />
+            </div>
+            @if (priceRef.invalid && priceRef.touched) {
+               <small class="text-danger d-block mt-2">Valid price is required.</small>
+            }
           </div>
 
-          @if (priceRef.invalid && priceRef.touched) {
-            @if (priceRef.errors?.['required']) {
-              <small class="text-danger d-block">Price is required.</small>
+          <div class="col-md-6">
+            <label class="form-label text-theme-variant small fw-bold uppercase ls-wider mb-2">Available Stock</label>
+            <input type="number" class="form-control merchant-input bg-theme-variant border-theme text-theme-primary"
+                   [(ngModel)]="stock"
+                   name="stock"
+                   #stockRef="ngModel"
+                   required
+                   min="0" />
+            @if (stockRef.invalid && stockRef.touched) {
+               <small class="text-danger d-block mt-2">Stock amount is required.</small>
             }
-            @if (priceRef.errors?.['min']) {
-              <small class="text-danger d-block">Price must be greater than 0.</small>
-            }
-            @if (priceRef.errors?.['max']) {
-              <small class="text-danger d-block">Price cannot exceed $999,999.</small>
-            }
-          }
+          </div>
         </div>
 
-   
-        <div class="mb-3">
-          <label class="form-label fw-semibold">Stock</label>
-          <input type="number" class="form-control"
-                 [(ngModel)]="stock"
-                 name="stock"
-                 #stockRef="ngModel"
-                 required
-                 min="0"
-                 max="999999"
-                 step="1" />
-
-          @if (stockRef.invalid && stockRef.touched) {
-            @if (stockRef.errors?.['required']) {
-              <small class="text-danger d-block">Stock is required.</small>
-            }
-            @if (stockRef.errors?.['min']) {
-              <small class="text-danger d-block">Stock must be 0 or greater.</small>
-            }
-            @if (stockRef.errors?.['max']) {
-              <small class="text-danger d-block">Stock cannot exceed 999,999 units.</small>
-            }
-          }
-        </div>
-
-     
-        <div class="mb-3">
-          <label class="form-label fw-semibold">Category</label>
-
-          <select class="form-select"
+        <div class="mb-4">
+          <label class="form-label text-theme-variant small fw-bold uppercase ls-wider mb-2">Collection Category</label>
+          <select class="form-select merchant-input bg-theme-variant border-theme text-theme-primary"
                   [(ngModel)]="categoryId"
                   name="categoryId"
                   #catRef="ngModel"
                   required>
-
             <option value="">Select Category</option>
-
             @for (cat of categories(); track cat.id) {
               <option [value]="cat.id">{{ cat.name }}</option>
             }
           </select>
-
           @if (catRef.invalid && catRef.touched) {
-            @if (catRef.errors?.['required']) {
-              <small class="text-danger d-block">Please select a category.</small>
+            <small class="text-danger d-block mt-2">Please select a category.</small>
+          }
+        </div>
+
+        <div class="mb-5">
+          <label class="form-label text-theme-variant small fw-bold uppercase ls-wider mb-2">Visual Showcase</label>
+
+          <div class="d-flex flex-column gap-3 p-4 rounded-4 bg-theme-variant border border-theme border-dashed">
+            @if (isEditMode() && currentImageUrl()) {
+              <div class="mb-2 text-center">
+                <p class="text-theme-variant small mb-2">Current Visual Representation</p>
+                <img [src]="currentImageUrl()" alt="Current product"
+                     class="rounded-3 shadow-sm"
+                     style="max-height: 200px; width: 100%; object-fit: cover; max-width: 300px;" />
+              </div>
             }
-          }
-        </div>
 
-    
-        <div class="mb-3">
-          <label class="form-label fw-semibold">Product Image</label>
-
-          @if (isEditMode() && currentImageUrl()) {
-            <div class="mb-2">
-              <p class="text-muted small mb-1">Current Image:</p>
-              <img [src]="currentImageUrl()" alt="Current product image"
-                   class="img-thumbnail"
-                   style="max-height: 150px; object-fit: cover;" />
+            <div class="upload-btn-wrapper w-100">
+               <input type="file" 
+                      class="form-control merchant-input bg-theme-surface border-theme text-theme-variant"
+                      accept="image/*"
+                      (change)="onFileSelected($event)" />
             </div>
-          }
 
-          <input type="file" class="form-control"
-                 accept="image/jpeg,image/png,image/webp,image/gif"
-                 (change)="onFileSelected($event)" />
-
-          @if (imageError) {
-            <small class="text-danger d-block">{{ imageError }}</small>
-          }
-
-          @if (isEditMode()) {
-            <small class="text-muted d-block mt-1">Leave empty to keep the existing image.</small>
-          }
-
-          <small class="text-muted d-block">
-            Accepted formats: JPG, PNG, WEBP, GIF &mdash; Max size: 5 MB.
-          </small>
+            @if (imageError) {
+              <small class="text-danger">{{ imageError }}</small>
+            }
+            
+            <p class="text-theme-variant small mb-0 opacity-75">
+              <span class="material-symbols-outlined fs-6 align-middle me-1">info</span>
+              JPG, PNG, WEBP &mdash; Max 5MB. @if (isEditMode()) { Leave empty to retain current visual. }
+            </p>
+          </div>
         </div>
 
-     
-        <button type="submit" class="btn btn-dark w-100 mt-2"
-                [disabled]="isSubmitDisabled()">
-          {{ isEditMode() ? 'Update Product' : 'Create Product' }}
-        </button>
+        <div class="d-flex gap-3">
+           <button type="button" class="btn btn-outline-secondary flex-grow-1 py-3 px-4 rounded-3" (click)="goBack()">
+             Discard
+           </button>
+           <button type="submit" class="btn btn-primary-merchant flex-grow-2 w-100 py-3 rounded-3"
+                   [disabled]="isSubmitDisabled()">
+             {{ isEditMode() ? 'Save Changes' : 'Publish Product' }}
+           </button>
+        </div>
 
       </form>
     }
 
   </div>
 </div>
+
+<style>
+  .max-w-3xl { max-width: 800px; }
+  .ls-wider { letter-spacing: 0.05em; }
+  .merchant-input { padding: 0.8rem 1.2rem; border-radius: 10px; font-size: 0.95rem; }
+  .merchant-input:focus { background-color: var(--surface-container-high); border-color: var(--secondary); box-shadow: none; }
+  .border-dashed { border-style: dashed !important; }
+  .flex-grow-2 { flex-grow: 2; }
+</style>

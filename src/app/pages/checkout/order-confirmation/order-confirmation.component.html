@@ -1,16 +1,18 @@
 <div class="page-wrapper container px-lg-5 pt-5 mt-5">
-  <div class="text-center py-5 merchant-card border-0 shadow-lg py-5 px-4 max-w-lg mx-auto bg-white rounded-lg mt-5">
+  <div class="text-center py-5 merchant-card border-0 shadow-lg px-4 mx-auto bg-theme-surface rounded-lg mt-5" style="max-width: 550px;">
     <div class="success-icon mb-4">
         <span class="material-symbols-outlined text-success" style="font-size: 6rem; font-variation-settings: 'FILL' 1;">check_circle</span>
     </div>
     
-    <h2 class="h3 fw-bold mb-3 font-headline">Order Confirmed</h2>
-    <p class="text-secondary mb-2">Thank you for your purchase.</p>
-    <p class="text-secondary mb-4 small">Your order <strong class="text-primary">#{{ orderId }}</strong> has been placed successfully and is being processed.</p>
+    <h2 class="h3 fw-bold mb-3 font-headline text-theme-primary">Order Confirmed!</h2>
+    <p class="text-theme-variant mb-2">Thank you for your purchase. We've received your order.</p>
+    <p class="text-theme-variant mb-5 small">Your order <strong class="text-primary">#{{ orderId }}</strong> has been placed successfully and is being processed for delivery.</p>
     
-    <div class="d-flex flex-column gap-3 mt-5">
+    <div class="d-flex flex-column gap-3 mt-4">
       <button class="btn btn-primary-merchant py-3 fw-bold rounded-md shadow-sm" routerLink="/">Continue Shopping</button>
-      <a routerLink="/orders" class="text-secondary small fw-medium text-decoration-none hover-underline">View Order History</a>
+      <button class="btn btn-link text-theme-variant small fw-medium text-decoration-none" routerLink="/orders">
+        View Order History
+      </button>
     </div>
   </div>
 </div>

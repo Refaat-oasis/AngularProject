@@ -25,16 +25,15 @@ export class AdminProductFormComponent implements OnInit {
     image: ''
   });
   isEditMode = signal(false);
-  isLoading = signal(false);
+  loading = signal(false);
   isSubmitting = signal(false);
   selectedFile = signal<File | null>(null);
   currentImageUrl = signal<string | null>(null);
   categories = signal<Icategory[]>([]);
-  imageError: string | null = null;
-  error: string | null = null;
+  imageError = signal<string | null>(null);
   readonly imageBaseUrl = 'http://localhost:5118';
 
-  isSubmitDisabled = computed(() => this.isLoading() || this.isSubmitting() || !!this.imageError);
+  isSubmitDisabled = computed(() => this.loading() || this.isSubmitting() || !!this.imageError());
 
   get name(): string { return this.model().name; }
   set name(value: string) { this.model.update((m) => ({ ...m, name: value })); }
@@ -59,22 +58,25 @@ export class AdminProductFormComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.categoryService.getAll().subscribe({
-      next: (categories) => this.categories.set(categories),
-      error: () => {
-        this.error = 'Failed to load categories.';
-      }
-    });
+    this.loadCategories();
 
     const id = this.route.snapshot.paramMap.get('id');
-    if (!id) {
-      return;
+    if (id) {
+      this.isEditMode.set(true);
+      this.loadProduct(+id);
     }
+  }
 
-    this.isEditMode.set(true);
-    this.isLoading.set(true);
+  loadCategories(): void {
+    this.categoryService.getAll().subscribe({
+      next: (categories) => this.categories.set(categories),
+      error: (err) => console.error(err)
+    });
+  }
 
-    this.adminProductsService.getById(+id).subscribe({
+  loadProduct(id: number): void {
+    this.loading.set(true);
+    this.adminProductsService.getById(id).subscribe({
       next: (product) => {
         this.model.set({
           id: product.id,
@@ -86,12 +88,11 @@ export class AdminProductFormComponent implements OnInit {
           image: product.image
         });
         this.currentImageUrl.set(this.getImageUrl(product.image));
-        this.isLoading.set(false);
+        this.loading.set(false);
       },
-      error: (error: unknown) => {
-        console.error(error);
-        this.error = 'Failed to load product details.';
-        this.isLoading.set(false);
+      error: (err) => {
+        console.error(err);
+        this.loading.set(false);
       }
     });
   }
@@ -99,7 +100,7 @@ export class AdminProductFormComponent implements OnInit {
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0] ?? null;
-    this.imageError = null;
+    this.imageError.set(null);
 
     if (!file) {
       this.selectedFile.set(null);
@@ -108,13 +109,13 @@ export class AdminProductFormComponent implements OnInit {
 
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
     if (!allowedTypes.includes(file.type)) {
-      this.imageError = 'Please upload JPG, PNG, WEBP, or GIF images only.';
+      this.imageError.set('Please upload JPG, PNG, WEBP, or GIF images only.');
       input.value = '';
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      this.imageError = 'Image size must be 5 MB or less.';
+      this.imageError.set('Image size must be 5 MB or less.');
       input.value = '';
       return;
     }
@@ -125,13 +126,9 @@ export class AdminProductFormComponent implements OnInit {
 
   submit(): void {
     const current = this.model();
-    if (!current.categoryId) {
-      this.error = 'Please choose a category.';
-      return;
-    }
+    if (!current.categoryId) return;
 
     this.isSubmitting.set(true);
-    this.error = null;
 
     const formData = new FormData();
     formData.append('name', current.name);
@@ -141,9 +138,7 @@ export class AdminProductFormComponent implements OnInit {
     formData.append('categoryId', String(current.categoryId));
 
     const file = this.selectedFile();
-    if (file) {
-      formData.append('image', file);
-    }
+    if (file) formData.append('image', file);
 
     const request: Observable<unknown> = this.isEditMode()
       ? this.adminProductsService.update(current.id, formData)
@@ -153,19 +148,15 @@ export class AdminProductFormComponent implements OnInit {
       next: () => {
         this.router.navigate(['/admin/products']);
       },
-      error: (error: unknown) => {
-        console.error(error);
-        this.error = 'Failed to save product.';
+      error: (err) => {
+        console.error(err);
         this.isSubmitting.set(false);
       }
     });
   }
 
   private getImageUrl(path: string): string | null {
-    if (!path) {
-      return null;
-    }
-
+    if (!path) return null;
     return path.startsWith('http') ? path : `${this.imageBaseUrl}${path}`;
   }
 }
