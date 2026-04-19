@@ -69,7 +69,7 @@ export class AuthService {
     return !!this.getToken();
   }
 
-  getUserRole(): string {
+  getUserRole(): string | string[] {
     let token = this.getToken();
     if (!token) return '';
     if (token.startsWith('Bearer ')) token = token.substring(7);

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MockDataService, Product } from '../../../../services/mock-data.service';
+import { IProduct } from '../../../../models/iproduct';
+import { ProductService } from '../../../../services/product-service';
 
 @Component({
   selector: 'app-trending-products',
@@ -10,11 +11,22 @@ import { MockDataService, Product } from '../../../../services/mock-data.service
   styleUrl: './trending-products.component.css'
 })
 export class TrendingProductsComponent implements OnInit {
-  products: Product[] = [];
 
-  constructor(private dataService: MockDataService) {}
+  products: IProduct[] = [];
+  baseUrl: string = 'https://localhost:5118';
+
+  constructor(private dataService: ProductService) { }
 
   ngOnInit(): void {
-    this.dataService.getTrendingProducts().subscribe((prods: Product[]) => this.products = prods);
+    this.dataService.getAll().subscribe((res: IProduct[]) => {
+
+      this.products = res.slice(0, 4).map(p => ({
+        ...p,
+        image: this.baseUrl + p.image
+      }));
+
+      console.log(this.products);
+      console.log("products loaded successfully");
+    });
   }
 }

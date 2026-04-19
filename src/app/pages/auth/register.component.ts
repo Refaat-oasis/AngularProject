@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -129,6 +129,7 @@ import { AuthService } from '../../services/auth.service';
                     Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.
                   </div>
                 }
+              
               </div>
             }
             
@@ -143,9 +144,11 @@ import { AuthService } from '../../services/auth.service';
             <a routerLink="/login" class="text-primary fw-bold text-decoration-none hover-secondary">Sign In</a>
           </p>
         </form>
+          @if(errorMessage){
+                  <div class="alert alert-danger mb-3">{{ errorMessage }}</div>
+                }
       </div>
 
-      <!-- Decorative Background -->
       <div class="absolute-fill z-0 opacity-5">
         <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuApvu3N6znghCVmlY_mIms9CkY20UDAZ2dw9KO9lTxedRX9qfuN2Ec1d2LNBMIMYdX-h6zw-QZjWYNJTdWK6PsnODjW317GbDUY2bcrJi323Z02ELhD4o33M1cDG9jUgKRmwUrTIzqAcob1y1xNLmissd9iNqN_D1fRfmT0dFLuQnqfIpdOWvoFqIbylJBXqbokAq6viBL-SZG5y4EaAMbHoLaLhKWXHFodbne6J9p_ffQV1Qk5F5JEGtve_zH09CH8Obd0t3MDsiA"
              class="w-100 h-100 object-fit-cover" alt="Background">
@@ -178,16 +181,42 @@ import { AuthService } from '../../services/auth.service';
 })
 export class RegisterComponent {
   user = { name: '', email: '', password: '', address: '', role: '' };
-
-  constructor(private authService: AuthService, private router: Router) {}
+  errorMessage = '';
+  constructor(private authService: AuthService, private router: Router, private cdr: ChangeDetectorRef, private zone: NgZone) { }
 
   onRegister() {
+    this.errorMessage = '';
+
     this.authService.register(this.user).subscribe({
       next: () => this.router.navigate(['/login']),
       error: (err) => {
         console.error('Registration failed', err);
-        alert('Registration failed. Please check your input and try again.');
+
+        if (err.status === 400) {
+          if (typeof err.error === 'string') {
+            this.errorMessage = err.error;
+          }
+          else if (err.error?.message) {
+            this.errorMessage = err.error.message;
+          }
+          else {
+            this.errorMessage = 'This email is already registered.';
+          }
+        } else {
+          this.errorMessage = 'Something went wrong. Please try again later.';
+        }
+        this.zone.run(() => {
+
+
+          this.cdr.detectChanges();
+        });
       }
+
+
+
+
+
     });
+
   }
 }

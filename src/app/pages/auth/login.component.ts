@@ -21,7 +21,7 @@ import { jwtDecode } from 'jwt-decode';
         <form (ngSubmit)="onLogin(loginForm)" #loginForm="ngForm" class="space-y-4">
           <div class="mb-4">
             <label class="form-label text-secondary small fw-bold uppercase ls-wider mb-2">Email Address</label>
- <input 
+ <input
   type="email"
   class="form-control merchant-input"
 [class.is-invalid]="(email.invalid && ( loginForm.submitted)) || emailNotFound"
@@ -42,7 +42,7 @@ import { jwtDecode } from 'jwt-decode';
     }
   </div>
 }
-  
+
   @if (emailNotFound) {
               <div class="invalid-feedback d-block">
                 This email is not registered.
@@ -98,12 +98,12 @@ import { jwtDecode } from 'jwt-decode';
           </p>
         </form>
       </div>
-    
+
       <div class="absolute-fill z-0 opacity-5">
         <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBg8eznBxWEst4fedRGoMHxIBmaMutdvTaHqRDItwCyfFP5t-FFAB29qcMhg1E_GT68Z6ZhKPAkqNYCrc5GExszF8uRsxxh4usyG-hIeN8bsbIo7cokNQ9kdVIeUTByxfIIlRwtbg_hXhK4toV2UEWCcAk4v5cknbMhqVXCLmSV8A75LgzlW42jRNfS2MDxrYHjO-OhD3zkbR03yCUAaLJzlsZX6wqczQIV_rFTZi2L8H8yMAIQSt6tQDfRLhXtOlV17KYcBVVVFE"
              class="w-100 h-100 object-fit-cover" alt="Background">
       </div>
-      
+
     </div>
   `,
   styles: [`
@@ -128,7 +128,7 @@ import { jwtDecode } from 'jwt-decode';
   `]
 })
 export class LoginComponent {
-  
+
 credentials = { email: '', password: '', rememberMe: false };
   emailNotFound = false;
   wrongPassword = false;
@@ -139,7 +139,7 @@ credentials = { email: '', password: '', rememberMe: false };
     this.wrongPassword = false;
   }
 
- 
+
 
 
 //aya
@@ -156,7 +156,7 @@ credentials = { email: '', password: '', rememberMe: false };
 //     if (role === 'Seller') {
 //       this.router.navigate(['/seller/products']);
 //     } else {
-//       this.router.navigate(['/']); 
+//       this.router.navigate(['/']);
 //     }
 
 //   });
@@ -173,7 +173,7 @@ credentials = { email: '', password: '', rememberMe: false };
 //   this.authService.login(this.credentials).subscribe({
 //  next: (res: any) => {
 
-  
+
 //           this.router.navigate(['/']);
 //     },
 
@@ -186,7 +186,7 @@ credentials = { email: '', password: '', rememberMe: false };
 
 //     this.cdr.detectChanges();
 //   });
-     
+
 //     }
 //   });
 // }
@@ -204,21 +204,29 @@ onLogin(form: NgForm) {
   this.authService.login(this.credentials).subscribe({
     next: (res: any) => {
 
-    
-      const token = res.token?.result;
-      if (token) {
+
+      const token = res.token?.result || res.token || res.result || res?.token || res;
+      if (token && typeof token === 'string') {
         localStorage.setItem('token', token);
+        
+        let decoded: any;
+        try { decoded = jwtDecode(token); console.log("Decoded Token:", decoded); } catch(e) {}
 
-        const decoded: any = jwtDecode(token);
-        const role = decoded.role;
+        const userRole = this.authService.getUserRole();
+        const rolesArray = Array.isArray(userRole) ? userRole : [userRole];
 
-      
-        if (role === 'Seller') {
-          this.router.navigate(['/seller/products']);
+        console.log("FINAL PARSED ROLE ARRAY:", rolesArray);
+
+        if (rolesArray.includes('Seller')) {
+          this.router.navigate(['/seller/products']).then(success => {
+            console.log("Navigation to /seller/products result:", success);
+          });
         } else {
+          console.warn("User does not have Seller role. Redirecting home. Roles found:", rolesArray);
           this.router.navigate(['/']);
         }
       } else {
+        console.error("Token could not be extracted correctly. Raw res:", res);
         // fallback لو مفيش توكن
         this.router.navigate(['/']);
       }
