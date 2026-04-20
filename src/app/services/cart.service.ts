@@ -22,6 +22,13 @@ export class CartService {
     this.loadCart();
   }
 
+  private buildProductImage(product: any): string {
+    const imagePath = product?.image ?? product?.imageUrl ?? '';
+    if (!imagePath) return '';
+    if (imagePath.startsWith('http') || imagePath.startsWith('data:image')) return imagePath;
+    return imagePath.startsWith('/') ? `${environment.baseUrl}${imagePath}` : `${environment.baseUrl}/${imagePath}`;
+  }
+
   loadCart() {
     if (this.authService.isLoggedIn()) {
       this.http.get<CartItemResponse[]>(this.baseUrl).subscribe({
@@ -61,7 +68,7 @@ export class CartService {
             id: Date.now(), // fake id
             productId: product.id,
             productName: product.name,
-            productImage: product.imageUrl,
+            productImage: this.buildProductImage(product),
             productPrice: product.price,
             quantity: quantity,
             subtotal: product.price * quantity

@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Icategory } from '../models/icategory';
+import { ICategory } from '../models/icategory';
 import { environment } from '../environment';
-
 
 @Injectable({ providedIn: 'root' })
 export class CategoryService {
@@ -11,10 +10,11 @@ export class CategoryService {
 
   constructor(private http: HttpClient) {}
 
-  getAll(): Observable<Icategory[]> {
-    return this.http.get<Icategory[]>(this.baseUrl);
+  getAll(): Observable<ICategory[]> {
+    return this.http.get<ICategory[]>(this.baseUrl);
   }
-  getByCategory(id: number) {
-  return this.http.get<any>(`${this.baseUrl}/${id}/products`);
-}
+
+  getByCategory(id: number): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/${id}/products`);
+  }
 }

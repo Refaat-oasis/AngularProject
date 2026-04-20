@@ -11,7 +11,7 @@ import { environment } from '../../../environment';
   templateUrl: './product-form.html',
   styleUrl: './product-form.css',
 })
-export class ProductForm implements OnInit {
+export class ProductFormComponent implements OnInit {
   model = signal<any>({});
   isEditMode = signal(false);
   loading = signal(false);

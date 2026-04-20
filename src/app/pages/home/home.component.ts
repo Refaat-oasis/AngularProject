@@ -3,8 +3,7 @@ import { CommonModule } from '@angular/common';
 import { HeroComponent } from './components/hero/hero.component';
 import { FeaturedCategoriesComponent } from './components/featured-categories/featured-categories.component';
 import { TrendingProductsComponent } from './components/trending-products/trending-products.component';
-import { ArtisansComponent } from './components/artisans/artisans.component';
-import { NewsletterComponent } from './components/newsletter/newsletter.component';
+import { SocialFeedComponent } from './components/social-feed/social-feed.component';
 
 @Component({
   selector: 'app-home',
@@ -14,8 +13,7 @@ import { NewsletterComponent } from './components/newsletter/newsletter.componen
     HeroComponent,
     FeaturedCategoriesComponent,
     TrendingProductsComponent,
-    ArtisansComponent,
-    NewsletterComponent,
+    SocialFeedComponent,
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'

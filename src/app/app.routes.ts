@@ -1,84 +1,60 @@
 import { Routes } from '@angular/router';
-import { HomeComponent } from './pages/home/home.component';
-
-import { LoginComponent } from './pages/auth/login.component';
-import { RegisterComponent } from './pages/auth/register.component';
-import { CartComponent } from './pages/cart/cart.component';
-import { CheckoutPaymentComponent } from './pages/checkout/checkout-payment/checkout-payment.component';
-import { PaymentCardComponent } from './pages/checkout/payment-card/payment-card.component';
-import { OrderConfirmationComponent } from './pages/checkout/order-confirmation/order-confirmation.component';
 import { AuthGuard } from './services/auth.guard';
-import { Products } from './pages/products/products';
-import { ProductDetails } from './pages/product-details/product-details';
-import { Reviews } from './pages/reviews/reviews';
-import { Rating } from './pages/rating/rating';
-import { ProductForm } from './pages/Seller/product-form/product-form';
-import { ProductsList } from './pages/Seller/products-list/products-list';
-import { SellerLayoutComponent } from './pages/Seller/seller-layout-component/seller-layout-component';
-import { ForgotPasswordComponent } from './pages/auth/Forgot password components/forgot-password/forgot-password';
-import { ResetPasswordComponent } from './pages/auth/Forgot password components/reset-password/reset-password';
-import { UserLayout } from './pages/user-layout/user-layout';
-import { AdminLayoutComponent } from './pages/admin/admin-layout/admin-layout.component';
-import { UserManagementComponent } from './pages/admin/user-management/user-management.component';
-import { ProductsManagementComponent } from './pages/admin/products-management/products-management.component';
-import { AdminProductFormComponent } from './pages/admin/admin-product-form/admin-product-form.component';
-import { CategoriesManagementComponent } from './pages/admin/categories-management/categories-management.component';
-import { OrdersManagementComponent } from './pages/admin/orders-management/orders-management.component';
-
-import { MyOrdersComponent } from './pages/my-orders/my-orders.component';
 
 export const routes: Routes = [
   {
     path: '',
-    component: UserLayout,
+    loadComponent: () => import('./pages/user-layout/user-layout').then(m => m.UserLayoutComponent),
     children: [
-      { path: '', component: HomeComponent },
-      { path: 'products', component: Products },
+      { path: '', loadComponent: () => import('./pages/home/home.component').then(m => m.HomeComponent) },
+      { path: 'products', loadComponent: () => import('./pages/products/products').then(m => m.ProductsComponent) },
       {
-        path: 'product/:id', component: ProductDetails,
+        path: 'product/:id',
+        loadComponent: () => import('./pages/product-details/product-details').then(m => m.ProductDetailsComponent),
         children: [
-          { path: 'reviews', component: Reviews },
-          { path: 'rating', component: Rating }
+          { path: 'reviews', loadComponent: () => import('./pages/reviews/reviews').then(m => m.ReviewsComponent) },
+          { path: 'rating', loadComponent: () => import('./pages/rating/rating').then(m => m.RatingComponent) }
         ]
       },
-      { path: 'cart', component: CartComponent },
-      { path: 'checkout', component: CheckoutPaymentComponent },
-      { path: 'checkout/payment-card', component: PaymentCardComponent },
-      { path: 'checkout/order-confirmation', component: OrderConfirmationComponent },
-      { path: 'orders', component: MyOrdersComponent, canActivate: [AuthGuard] },
-      { path: 'login', component: LoginComponent },
-      { path: 'register', component: RegisterComponent },
-      { path: 'forgot-password', component: ForgotPasswordComponent },
-      { path: 'reset-password', component: ResetPasswordComponent },
+      { path: 'cart', loadComponent: () => import('./pages/cart/cart.component').then(m => m.CartComponent) },
+      { path: 'checkout', loadComponent: () => import('./pages/checkout/checkout-payment/checkout-payment.component').then(m => m.CheckoutPaymentComponent) },
+      { path: 'checkout/payment-card', loadComponent: () => import('./pages/checkout/payment-card/payment-card.component').then(m => m.PaymentCardComponent) },
+      { path: 'checkout/order-confirmation', loadComponent: () => import('./pages/checkout/order-confirmation/order-confirmation.component').then(m => m.OrderConfirmationComponent) },
+      { path: 'orders', loadComponent: () => import('./pages/my-orders/my-orders.component').then(m => m.MyOrdersComponent), canActivate: [AuthGuard] },
+      { path: 'login', loadComponent: () => import('./pages/auth/login.component').then(m => m.LoginComponent) },
+      { path: 'register', loadComponent: () => import('./pages/auth/register.component').then(m => m.RegisterComponent) },
+      { path: 'forgot-password', loadComponent: () => import('./pages/auth/Forgot password components/forgot-password/forgot-password').then(m => m.ForgotPasswordComponent) },
+      { path: 'reset-password', loadComponent: () => import('./pages/auth/Forgot password components/reset-password/reset-password').then(m => m.ResetPasswordComponent) },
     ]
   }
   ,
   {
     path: 'seller',
-    component: SellerLayoutComponent,
+    loadComponent: () => import('./pages/Seller/seller-layout-component/seller-layout-component').then(m => m.SellerLayoutComponent),
     canActivate: [AuthGuard],
     data: { role: 'Seller' },
     children: [
-      { path: 'products', component: ProductsList },
-      { path: 'products/create', component: ProductForm },
-      { path: 'products/edit/:id', component: ProductForm },
+      { path: '', redirectTo: 'products', pathMatch: 'full' },
+      { path: 'products', loadComponent: () => import('./pages/Seller/products-list/products-list').then(m => m.ProductsListComponent) },
+      { path: 'products/create', loadComponent: () => import('./pages/Seller/product-form/product-form').then(m => m.ProductFormComponent) },
+      { path: 'products/edit/:id', loadComponent: () => import('./pages/Seller/product-form/product-form').then(m => m.ProductFormComponent) },
     ]
   },
   {
     path: 'admin',
-    component: AdminLayoutComponent,
+    loadComponent: () => import('./pages/admin/admin-layout/admin-layout.component').then(m => m.AdminLayoutComponent),
     canActivate: [AuthGuard],
     data: { role: 'Admin' },
     children: [
-      { path: 'users', component: UserManagementComponent },
-      { path: 'products', component: ProductsManagementComponent },
-      { path: 'products/create', component: AdminProductFormComponent },
-      { path: 'products/edit/:id', component: AdminProductFormComponent },
-      { path: 'categories', component: CategoriesManagementComponent },
-      { path: 'orders', component: OrdersManagementComponent },
+      { path: 'users', loadComponent: () => import('./pages/admin/user-management/user-management.component').then(m => m.UserManagementComponent) },
+      { path: 'products', loadComponent: () => import('./pages/admin/products-management/products-management.component').then(m => m.ProductsManagementComponent) },
+      { path: 'products/create', loadComponent: () => import('./pages/admin/admin-product-form/admin-product-form.component').then(m => m.AdminProductFormComponent) },
+      { path: 'products/edit/:id', loadComponent: () => import('./pages/admin/admin-product-form/admin-product-form.component').then(m => m.AdminProductFormComponent) },
+      { path: 'categories', loadComponent: () => import('./pages/admin/categories-management/categories-management.component').then(m => m.CategoriesManagementComponent) },
+      { path: 'orders', loadComponent: () => import('./pages/admin/orders-management/orders-management.component').then(m => m.OrdersManagementComponent) },
       { path: '', redirectTo: 'users', pathMatch: 'full' }
     ]
   },
-  { path: '**', redirectTo: '' }
+  { path: '**', loadComponent: () => import('./pages/not-found/not-found.component').then(m => m.NotFoundComponent) }
 ];
 

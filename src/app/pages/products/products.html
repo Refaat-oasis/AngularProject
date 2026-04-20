@@ -9,7 +9,8 @@
             @for (cat of categories(); track cat.id) {
               <li>
                 <button
-                  class="btn btn-link p-0 text-theme-variant text-decoration-none d-flex justify-content-between w-100 hover-secondary transition-all border-0"
+                  class="pill-filter w-100 border-0 text-start"
+                  [class.active]="selectedCategoryId === cat.id"
                   (click)="loadCategoryProducts(cat.id)"
                 >
                   {{ cat.name }}
@@ -23,6 +24,33 @@
 
 
     <main class="col-lg-9">
+
+      <section class="mobile-filter-card d-lg-none mb-4 p-4 bg-theme-surface rounded-4 shadow-sm">
+        <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
+          <div>
+            <h2 class="h6 fw-bold mb-1 text-theme-primary">Browse by Category</h2>
+            <p class="text-theme-variant small mb-0">Refine the collection on smaller screens.</p>
+          </div>
+          @if (selectedCategoryId !== null) {
+            <button type="button" class="btn btn-link p-0 text-decoration-none text-theme-primary fw-semibold" (click)="clearCategoryFilter()">
+              Clear
+            </button>
+          }
+        </div>
+
+        <label for="mobile-category-filter" class="form-label small fw-bold text-theme-variant">Category</label>
+        <select
+          id="mobile-category-filter"
+          class="form-select"
+          [ngModel]="selectedCategoryId ?? ''"
+          (ngModelChange)="onCategorySelect($event)"
+        >
+          <option value="">All Categories</option>
+          @for (cat of categories(); track cat.id) {
+            <option [value]="cat.id">{{ cat.name }}</option>
+          }
+        </select>
+      </section>
 
       @if (loading()) {
         <div class="d-flex justify-content-center align-items-center" style="min-height: 300px;">
@@ -39,27 +67,45 @@
             The Collection
             <span class="text-theme-variant small fw-normal ms-2">({{ products().length }} items)</span>
           </h1>
+          @if (selectedCategoryId !== null) {
+            <button type="button" class="btn btn-link text-decoration-none text-theme-primary fw-semibold p-0 d-none d-lg-inline" (click)="clearCategoryFilter()">
+              Clear Category
+            </button>
+          }
         </div>
 
         <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
           @for (product of products(); track product.id) {
             <div class="col">
-              <div class="merchant-card h-100 p-0 border-0 overflow-hidden shadow-sm transition-all"
+              <div class="product-card h-100 p-0 border-0 shadow-sm transition-all"
                 [routerLink]="['/product', product.id]"
                  style="cursor: pointer;"  >
-                <div class="overflow-hidden bg-theme-variant" style="aspect-ratio: 5/6;">
+                <div class="img-wrapper aspect-portrait bg-theme-variant">
                   <img
                     [src]="getImageUrl(product.image)"
                     [alt]="product.name"
-                    class="w-100 h-100 object-fit-cover transition-transform hover-scale"
+                    class="w-100 h-100 object-fit-cover hover-zoom"
                     (error)="useFallbackImage($event)"
                   >
+                  <!-- Quick actions -->
+                  <div class="quick-action-overlay d-flex justify-content-between align-items-center">
+                    <span class="text-white small fw-bold font-editorial tracking-wider">VIEW DETAILS</span>
+                    <button class="btn btn-light rounded-circle shadow-sm quick-action-btn" style="width: 44px; height: 44px; padding: 0;" (click)="$event.stopPropagation(); cartService.addToCart(product.id, 1)" [attr.aria-label]="'Add ' + product.name + ' to cart'">
+                      <span class="material-symbols-outlined fs-5" style="line-height: 40px;">shopping_bag</span>
+                    </button>
+                  </div>
                 </div>
-                <div class="p-3">
-                  <h4 class="h6 fw-bold text-theme-primary mb-1">{{ product.name }}</h4>
-                  <p class="text-theme-variant small mb-2 line-clamp-1">{{ product.description }}</p>
-                  <p class="fw-bold mb-1 text-theme-primary">{{ product.price | currency }}</p>
-                  <span class="badge bg-theme-variant text-theme-primary border-theme">Stock: {{ product.stock }}</span>
+                <div class="p-4 pt-3">
+                  <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h4 class="h6 fw-bold text-theme-primary mb-0 pe-2">{{ product.name }}</h4>
+                    <p class="fw-bold mb-0 text-theme-primary ds-price">{{ product.price | currency }}</p>
+                  </div>
+                  <p class="text-theme-variant small mb-3 line-clamp-1 opacity-75">{{ product.description }}</p>
+                  @if (product.stock <= 5 && product.stock > 0) {
+                     <span class="badge bg-error-container text-on-error-container border-0 rounded-pill px-2 py-1" style="font-size: 0.65rem;">Only {{ product.stock }} left</span>
+                  } @else {
+                     <span class="badge bg-secondary-container text-on-secondary-container border-0 rounded-pill px-2 py-1" style="font-size: 0.65rem;" *ngIf="product.stock > 0">In Stock</span>
+                  }
                 </div>
               </div>
             </div>
@@ -68,8 +114,10 @@
       }
 
       @if (isReady() && !hasProducts()) {
-        <div class="text-center text-theme-variant py-5">
-          <p>No products found.</p>
+        <div class="text-center text-theme-variant py-5 px-4 bg-theme-surface rounded-4 shadow-sm">
+          <h2 class="h5 fw-bold text-theme-primary mb-2">No products match this view</h2>
+          <p class="mb-3">Try another category or clear your current filters to see more of the collection.</p>
+          <button type="button" class="btn btn-primary-merchant px-4" (click)="clearCategoryFilter()">Show All Products</button>
         </div>
       }
 

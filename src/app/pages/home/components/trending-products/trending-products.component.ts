@@ -4,6 +4,7 @@ import { IProduct } from '../../../../models/iproduct';
 import { ProductService } from '../../../../services/product-service';
 import { RouterLink } from '@angular/router';
 import { environment } from '../../../../environment';
+import { CartService } from '../../../../services/cart.service';
 
 @Component({
   selector: 'app-trending-products',
@@ -30,7 +31,7 @@ export class TrendingProductsComponent implements OnInit {
       '</svg>'
     );
 
-  constructor(private dataService: ProductService) {}
+  constructor(private dataService: ProductService, public cartService: CartService) {}
 
   ngOnInit(): void {
     this.loadProducts();

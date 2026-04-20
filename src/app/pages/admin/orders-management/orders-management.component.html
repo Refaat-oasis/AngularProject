@@ -81,12 +81,12 @@
   } @else if (orders().length === 0) {
     <div class="empty-state">
       <h3>No orders yet</h3>
-      <p>The admin orders API returned an empty list.</p>
+      <p>Orders will appear here as soon as customers start checking out.</p>
     </div>
   } @else if (filteredOrders().length === 0) {
     <div class="empty-state">
       <h3>No matching orders</h3>
-      <p>Try changing the search text or selected status.</p>
+      <p>No orders match the current filters. Adjust the status or search terms to find a different set.</p>
     </div>
   } @else {
     <div class="table-shell">

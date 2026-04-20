@@ -12,17 +12,18 @@ import { CheckoutRequest, CartItemResponse } from '../../../models/interfaces';
   standalone: true,
   imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule],
   templateUrl: './checkout-payment.component.html',
-  styleUrls: ['./checkout-payment.component.css']
+  styleUrl: './checkout-payment.component.css'
 })
 export class CheckoutPaymentComponent implements OnInit {
   cartItems: CartItemResponse[] = [];
   subtotal: number = 0;
-  shippingCost = 150;
+  shippingCost = 0;
   
   shippingForm: FormGroup;
   selectedPayment: string = 'CashOnDelivery';
   isProcessing = false;
   errorMsg = '';
+  submitted = false;
 
   paymentMethods = [
     { value: 'CreditCard', label: 'Credit Card', icon: 'credit_card', desc: 'Secure payment via Stripe. Supports Visa, MasterCard, and Amex.' },
@@ -52,6 +53,7 @@ export class CheckoutPaymentComponent implements OnInit {
     this.cartService.cartItems$.subscribe(items => {
       this.cartItems = items;
       this.subtotal = this.cartService.getCartTotal();
+      this.shippingCost = this.subtotal > 50 ? 0 : 9.99;
       if (this.cartItems.length === 0) {
         this.router.navigate(['/cart']);
       }
@@ -63,6 +65,9 @@ export class CheckoutPaymentComponent implements OnInit {
   }
 
   submitOrder() {
+    this.submitted = true;
+    this.shippingForm.markAllAsTouched();
+
     if (this.shippingForm.invalid) {
       this.errorMsg = 'Please complete all required shipping fields.';
       return;
@@ -115,5 +120,10 @@ export class CheckoutPaymentComponent implements OnInit {
       // For logged in users, we reload the cart from the server (which should be empty now)
       this.cartService.loadCart();
     }
+  }
+
+  isFieldInvalid(controlName: string): boolean {
+    const control = this.shippingForm.get(controlName);
+    return !!control && control.invalid && (control.touched || this.submitted);
   }
 }

@@ -6,7 +6,7 @@ import { Component ,Input} from '@angular/core';
   templateUrl: './reviews.html',
   styleUrl: './reviews.css',
 })
-export class Reviews {
+export class ReviewsComponent {
     @Input() reviews: any[] = [];
     
 }

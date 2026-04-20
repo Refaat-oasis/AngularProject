@@ -1,12 +1,3 @@
-// import { Component } from '@angular/core';
-
-// @Component({
-//   selector: 'app-forgot-password',
-//   imports: [],
-//   templateUrl: './forgot-password.html',
-//   styleUrl: './forgot-password.css',
-// })
-// export class ForgotPassword {}
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -22,6 +13,7 @@ export class ForgotPasswordComponent {
   form: FormGroup;
   submitted = false;
   loading = false;
+  errorMessage = '';
 
   constructor(private fb: FormBuilder, private authService: AuthService) {
     this.form = this.fb.group({
@@ -33,6 +25,7 @@ export class ForgotPasswordComponent {
     if (this.form.invalid) return;
 
     this.loading = true;
+    this.errorMessage = '';
 
     this.authService.forgotPassword(this.form.value.email).subscribe({
       next: () => {
@@ -40,6 +33,7 @@ export class ForgotPasswordComponent {
         this.loading = false;
       },
       error: () => {
+        this.errorMessage = 'Something went wrong. Please check your email and try again.';
         this.loading = false;
       }
     });

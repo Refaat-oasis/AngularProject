@@ -22,7 +22,8 @@
         <form (submit)="handlePayment(); $event.preventDefault()" id="payment-form">
           <div class="col-12 mb-4">
             <label class="form-label small fw-bold text-theme-variant">Cardholder Name</label>
-            <input type="text" class="form-control" [(ngModel)]="cardholderName" name="cardholderName" placeholder="Full name as on card">
+            <input type="text" class="form-control" [(ngModel)]="cardholderName" name="cardholderName" placeholder="Full name as on card" (blur)="cardholderTouched = true">
+            <small *ngIf="showCardholderError" class="text-danger d-block mt-2">Enter the cardholder name exactly as it appears on the card.</small>
           </div>
           <div class="col-12 mb-4">
             <label class="form-label small fw-bold text-theme-variant">Card Information</label>

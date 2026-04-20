@@ -8,8 +8,7 @@ import { environment } from '../environment';
   providedIn: 'root',
 })
 export class ProductService {
-
-private apiUrl = `${environment.apiUrl}/products`;
+  private apiUrl = `${environment.apiUrl}/products`;
 
   constructor(private http: HttpClient) {}
 
@@ -19,26 +18,25 @@ private apiUrl = `${environment.apiUrl}/products`;
 
   getById(id: number): Observable<IProduct> {
     return this.http.get<IProduct>(`${this.apiUrl}/${id}`);
-}
-search(term: string) {
-  return this.http.get<any[]>(
-    `${this.apiUrl}/search?term=${term}`
-  );
-}
-getMyProducts() {
-  return this.http.get<any[]>(`${this.apiUrl}/my-products`);
-}
+  }
 
+  search(term: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/search?term=${term}`);
+  }
 
-create(data: FormData) {
-  return this.http.post(this.apiUrl, data);
-}
+  getMyProducts(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/my-products`);
+  }
 
-update(id: number, data: FormData) {
-  return this.http.put(`${this.apiUrl}/${id}`, data);
-}
+  create(data: FormData): Observable<any> {
+    return this.http.post(this.apiUrl, data);
+  }
 
-delete(id: number) {
-  return this.http.delete(`${this.apiUrl}/${id}`);
-}
+  update(id: number, data: FormData): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${id}`, data);
+  }
+
+  delete(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`);
+  }
 }

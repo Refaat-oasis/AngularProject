@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { PaymentService } from '../../../services/payment.service';
 import { CartService } from '../../../services/cart.service';
 import { PaymentRequest } from '../../../models/interfaces';
+import { environment } from '../../../environment';
 
 declare var Stripe: any;
 
@@ -13,7 +14,7 @@ declare var Stripe: any;
   standalone: true,
   imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './payment-card.component.html',
-  styleUrls: ['./payment-card.component.css']
+  styleUrl: './payment-card.component.css'
 })
 export class PaymentCardComponent implements OnInit, AfterViewInit, OnDestroy {
   stripe: any;
@@ -26,6 +27,7 @@ export class PaymentCardComponent implements OnInit, AfterViewInit, OnDestroy {
   
   isProcessing = false;
   errorMsg = '';
+  cardholderTouched = false;
 
   constructor(
     private router: Router,
@@ -45,7 +47,7 @@ export class PaymentCardComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
     // Initialize Stripe with the correct Public Key
-    this.stripe = Stripe('pk_test_51TMrasCe2J7orNbpe6W7cRWJTACgtclgKIW1id8aAUowvX8XGCl8fLGNms5UUIhOOLbqycdZkEZEXp06eYjX7hU900HyEcV9zH');
+    this.stripe = Stripe(environment.stripePublishableKey);
     this.elements = this.stripe.elements();
   }
 
@@ -84,6 +86,7 @@ export class PaymentCardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   handlePayment() {
+    this.cardholderTouched = true;
     if (!this.cardholderName) {
       this.errorMsg = 'Please enter the cardholder name.';
       return;
@@ -138,5 +141,9 @@ export class PaymentCardComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.card) {
       this.card.destroy();
     }
+  }
+
+  get showCardholderError(): boolean {
+    return this.cardholderTouched && !this.cardholderName.trim();
   }
 }

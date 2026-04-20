@@ -27,10 +27,12 @@
               <div class="col-md-6" *ngIf="!authService.isLoggedIn()">
                 <label class="form-label small fw-bold text-secondary">Full Name</label>
                 <input type="text" class="form-control" formControlName="guestName" placeholder="John Doe">
+                <small *ngIf="isFieldInvalid('guestName')" class="text-danger d-block mt-2">Enter your full name.</small>
               </div>
               <div class="col-md-6" *ngIf="!authService.isLoggedIn()">
                 <label class="form-label small fw-bold text-secondary">Email Address</label>
                 <input type="email" class="form-control" formControlName="guestEmail" placeholder="your@email.com">
+                <small *ngIf="isFieldInvalid('guestEmail')" class="text-danger d-block mt-2">Enter a valid email address.</small>
               </div>
               <div class="col-12" *ngIf="authService.isLoggedIn()">
                 <div class="alert alert-secondary d-flex align-items-center mb-0 border-0 rounded-md">
@@ -41,6 +43,7 @@
               <div class="col-12">
                 <label class="form-label small fw-bold text-secondary mt-2">Delivery Address</label>
                 <textarea class="form-control" formControlName="shippingAddress" rows="3" placeholder="Street, Building, City, Country"></textarea>
+                <small *ngIf="isFieldInvalid('shippingAddress')" class="text-danger d-block mt-2">Enter a delivery address.</small>
               </div>
             </div>
           </form>

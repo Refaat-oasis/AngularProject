@@ -1,25 +1,31 @@
-<section class="hero-section position-relative overflow-hidden d-flex align-items-center px-lg-5">
+<section class="hero-section position-relative overflow-hidden d-flex align-items-center" style="min-height: 90vh;">
   <div class="absolute-fill z-0">
-    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBg8eznBxWEst4fedRGoMHxIBmaMutdvTaHqRDItwCyfFP5t-FFAB29qcMhg1E_GT68Z6ZhKPAkqNYCrc5GExszF8uRsxxh4usyG-hIeN8bsbIo7cokNQ9kdVIeUTByxfIIlRwtbg_hXhK4toV2UEWCcAk4v5cknbMhqVXCLmSV8A75LgzlW42jRNfS2MDxrYHjO-OhD3zkbR03yCUAaLJzlsZX6wqczQIV_rFTZi2L8H8yMAIQSt6tQDfRLhXtOlV17KYcBVVVFE" 
+    <!-- Updated to a classic high-end fashion/lifestyle retail image -->
+    <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&q=80&w=2000" 
          alt="Hero Background" 
-         class="w-100 h-100 object-fit-cover opacity-90">
-    <div class="overlay-gradient"></div>
+         class="w-100 h-100 object-fit-cover"
+         style="filter: brightness(0.85);">
+    <div class="absolute-fill" style="background: linear-gradient(to right, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.1) 60%, transparent 100%);"></div>
   </div>
   
-  <div class="container position-relative z-1">
-    <div class="max-w-xl">
-      <span class="badge rounded-pill bg-light text-primary border-primary px-3 py-2 mb-4 fs-xs text-uppercase tracking-widest fw-bold">
-        Curated Spring Collection 2024
+  <div class="container-fluid px-lg-6 position-relative z-1" style="padding-left: 5vw;">
+    <div class="max-w-2xl py-5">
+      <span class="d-inline-block border border-light text-light px-3 py-1 mb-4 fs-xs text-uppercase tracking-widest fw-bold" style="letter-spacing: 0.2em;">
+        Mid-Season Sale Event
       </span>
-      <h1 class="text-hero-lg text-white mb-4">Structural Integrity<br>Meets Domestic Grace.</h1>
-      <p class="lead text-white-50 mb-5">
-        Discover a marketplace where architectural precision meets artisanal craftsmanship. Curating the world's finest architectural elements for the modern home.
+      <h1 class="font-editorial text-white mb-4" style="font-size: clamp(3.5rem, 8vw, 5.5rem);">
+        Elevate Your<br>Everyday Style.
+      </h1>
+      <p class="lead text-white-50 mb-5 max-w-lg" style="font-size: 1.125rem; font-weight: 300;">
+        Shop our curated collection of new arrivals. Up to 40% off premium selected items for a limited time exclusively online.
       </p>
-      <div class="d-flex align-items-center gap-4">
-        <button class="btn btn-primary-merchant" routerLink="/products">Explore Shop</button>
-        <button class="btn btn-link text-white text-decoration-none d-flex align-items-center gap-2 group">
-          View Lookbook
-          <span class="material-symbols-outlined transition-transform group-hover-translate-x">arrow_forward</span>
+      <div class="d-flex flex-wrap align-items-center gap-4">
+        <button class="btn btn-light px-5 py-3 rounded-0 text-uppercase tracking-widest fw-bold border-0" style="letter-spacing: 0.1em; font-size: 0.85rem;" routerLink="/products">
+          Explore Shop
+        </button>
+        <button class="btn btn-link text-white text-decoration-none d-flex align-items-center gap-2 group p-0 border-0" style="font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase;" routerLink="/products">
+          <span class="border-bottom border-light pb-1">New Arrivals</span>
+          <span class="material-symbols-outlined transition-transform group-hover-translate-x ms-2">arrow_forward</span>
         </button>
       </div>
     </div>

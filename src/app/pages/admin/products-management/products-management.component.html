@@ -74,12 +74,12 @@
   } @else if (products().length === 0) {
     <div class="empty-state">
       <h3>No products yet</h3>
-      <p>The products API returned an empty list.</p>
+      <p>Your catalog is empty. Add the first product to start building the storefront assortment.</p>
     </div>
   } @else if (filteredProducts().length === 0) {
     <div class="empty-state">
       <h3>No matching products</h3>
-      <p>Try clearing the search or switching the status filter.</p>
+      <p>No products match the current search and status filter. Clear a filter to broaden the view.</p>
     </div>
   } @else {
     <div class="products-grid">

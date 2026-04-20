@@ -13,7 +13,7 @@ import { environment } from '../../../environment';
   templateUrl: './products-list.html',
   styleUrl: './products-list.css',
 })
-export class ProductsList implements OnInit {
+export class ProductsListComponent implements OnInit {
 
   products = signal<IProduct[]>([]);
   loading = signal(false);

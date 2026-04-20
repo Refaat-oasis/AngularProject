@@ -5,7 +5,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Observable } from 'rxjs';
 import { CategoryService } from '../../../services/category-service';
 import { AdminProductsService } from '../../../services/admin-products.service';
-import { Icategory } from '../../../models/icategory';
+import { ICategory } from '../../../models/icategory';
 import { environment } from '../../../environment';
 
 @Component({
@@ -30,7 +30,7 @@ export class AdminProductFormComponent implements OnInit {
   isSubmitting = signal(false);
   selectedFile = signal<File | null>(null);
   currentImageUrl = signal<string | null>(null);
-  categories = signal<Icategory[]>([]);
+  categories = signal<ICategory[]>([]);
   imageError = signal<string | null>(null);
   error = signal<string | null>(null);
   readonly imageBaseUrl = environment.baseUrl;

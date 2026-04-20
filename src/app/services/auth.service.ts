@@ -7,7 +7,6 @@ import { environment } from '../environment';
   providedIn: 'root'
 })
 export class AuthService {
-  // Your API project is located at: C:\Users\ahta6\OneDrive\Desktop\.Net API & Angular project\ApiProject
   private baseUrl = `${environment.apiUrl}/Account`;
   loggedIn = signal<boolean>(!!(localStorage.getItem('token') || sessionStorage.getItem('token')));
 
@@ -16,7 +15,6 @@ export class AuthService {
   login(credentials: any): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/login`, credentials).pipe(
       tap((res) => {
-        console.log('LOGIN RESPONSE:', res);
         const rawToken = res.token?.result || res.token || res.result || res;
         this.saveAuthData(rawToken, credentials.rememberMe);
       })
@@ -27,11 +25,9 @@ export class AuthService {
     if (rememberMe) {
       localStorage.setItem('token', token);
       sessionStorage.removeItem('token');
-      console.log(token);
     } else {
       sessionStorage.setItem('token', token);
       localStorage.removeItem('token');
-      console.log(token);
     }
     this.loggedIn.set(true);
   }

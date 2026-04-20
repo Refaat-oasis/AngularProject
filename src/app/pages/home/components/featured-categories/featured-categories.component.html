@@ -1,37 +1,26 @@
-<section class="py-5 px-lg-5 container-fluid max-w-7xl">
-  <div class="d-flex justify-content-between align-items-end mb-5">
-    <div>
-      <h2 class="display-6 fw-bold mb-2 text-theme-primary">The Curation</h2>
-      <p class="text-theme-variant">Exceptional pieces, sorted by architectural intent.</p>
+<section class="py-5 mt-4">
+  <div class="container-fluid px-lg-6 max-w-7xl">
+    <div class="text-center mb-5 max-w-2xl mx-auto">
+      <h2 class="h3 fw-bold mb-0 text-theme-primary font-editorial tracking-wider text-uppercase">Curated Categories</h2>
     </div>
-    <button (click)="navigateToProducts()" class="btn btn-link p-0 text-theme-variant fw-semibold text-decoration-none border-bottom border-2 border-transparent hover-border-secondary transition-all">
-      Browse All Categories
-    </button>
-  </div>
-  
-  <div class="row g-4" style="height: 600px;">
-    <!-- Large Feature -->
-    @if (categories().length > 0) {
-      <div class="col-md-8 position-relative overflow-hidden rounded-4 cursor-pointer group card-item h-100">
-        <img [src]="categories()[0].imageUrl" class="w-100 h-100 object-fit-cover transition-transform group-hover-scale" [alt]="categories()[0].name">
-        <div class="overlay-dark"></div>
-        <div class="position-absolute bottom-0 start-0 p-5 text-white">
-          <h3 class="h2 mb-2">{{ categories()[0].name }}</h3>
-          <p class="text-white-50">{{ categories()[0].description }}</p>
-        </div>
+
+    @if (loading()) {
+      <div class="d-flex justify-content-center py-5">
+        <div class="spinner-border text-primary" role="status"></div>
       </div>
     }
-    
-    <!-- Small Vertical Stack -->
-    <div class="col-md-4 h-100 d-flex flex-column gap-4">
-      @for (cat of categories().slice(1, 3); track cat.id) {
-        <div class="position-relative overflow-hidden rounded-4 cursor-pointer group card-item flex-grow-1">
-          <img [src]="cat.imageUrl" class="w-100 h-100 object-fit-cover transition-transform group-hover-scale" [alt]="cat.name">
-          <div class="overlay-dark"></div>
-          <div class="position-absolute bottom-0 start-0 p-4 text-white">
-            <h3 class="h4 mb-1">{{ cat.name }}</h3>
-            <p class="text-white-50 small">{{ cat.description }}</p>
-          </div>
+
+    <div class="row row-cols-2 row-cols-md-4 row-cols-lg-6 justify-content-center g-4 text-center">
+      @for (cat of categories(); track cat.id) {
+        <div class="col">
+          <button type="button" class="category-trigger d-flex flex-column align-items-center group border-0 bg-transparent p-0 w-100" (click)="navigateToProducts(cat.id)" [attr.aria-label]="'Browse ' + cat.name + ' products'">
+            <div class="rounded-circle overflow-hidden mb-3 bg-surface-container-low transition-all group-hover-scale shadow-sm p-2 border border-theme" style="width: 140px; height: 140px;">
+              <img [src]="cat.imageUrl ? cat.imageUrl : 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&q=80&w=300'"
+                   class="w-100 h-100 object-fit-cover rounded-circle" [alt]="cat.name" style="filter: contrast(1.1);"
+                   (error)="useFallbackImage($event)">
+            </div>
+            <h5 class="h6 fw-bold text-theme-primary font-editorial tracking-wider uppercase mb-1">{{ cat.name }}</h5>
+          </button>
         </div>
       }
     </div>

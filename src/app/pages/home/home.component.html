@@ -1,7 +1,31 @@
 <main class="pt-3">
   <app-hero></app-hero>
-  <!-- <app-featured-categories></app-featured-categories> -->
+  <app-featured-categories></app-featured-categories>
   <app-trending-products></app-trending-products>
   <!-- <app-artisans></app-artisans> -->
-  <app-newsletter></app-newsletter>
+
+  <!-- E-commerce Trust Badges -->
+  <section class="py-5 bg-surface-container-low border-top border-theme">
+    <div class="container-fluid px-lg-5 max-w-7xl">
+      <div class="row row-cols-1 row-cols-md-3 g-4 text-center">
+        <div class="col px-4">
+          <span class="material-symbols-outlined fs-1 text-primary mb-3">lock</span>
+          <h4 class="h6 fw-bold text-theme-primary font-editorial tracking-wider uppercase mb-2">Secure Transactions</h4>
+          <p class="text-theme-variant small mb-0">End-to-end encrypted payments curated by Stripe.</p>
+        </div>
+        <div class="col px-4 border-md-start border-md-end border-theme">
+          <span class="material-symbols-outlined fs-1 text-primary mb-3">local_shipping</span>
+          <h4 class="h6 fw-bold text-theme-primary font-editorial tracking-wider uppercase mb-2">Free & Fast Shipping</h4>
+          <p class="text-theme-variant small mb-0">Complimentary delivery on all domestic orders over $50.</p>
+        </div>
+        <div class="col px-4">
+          <span class="material-symbols-outlined fs-1 text-primary mb-3">verified</span>
+          <h4 class="h6 fw-bold text-theme-primary font-editorial tracking-wider uppercase mb-2">Quality Guaranteed</h4>
+          <p class="text-theme-variant small mb-0">Every item is unconditionally guaranteed for 30 days.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <app-social-feed></app-social-feed>
 </main>

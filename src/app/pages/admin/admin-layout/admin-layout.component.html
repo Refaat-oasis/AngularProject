@@ -7,27 +7,27 @@
     </div>
     <nav class="nav-menu">
       <a routerLink="/admin/users" routerLinkActive="active" class="nav-item">
-        <span class="icon" aria-hidden="true">U</span>
+        <span class="material-symbols-outlined" aria-hidden="true">people</span>
         <span>Users</span>
       </a>
       <a routerLink="/admin/products" routerLinkActive="active" class="nav-item">
-        <span class="icon" aria-hidden="true">P</span>
+        <span class="material-symbols-outlined" aria-hidden="true">inventory_2</span>
         <span>Products</span>
       </a>
       <a routerLink="/admin/categories" routerLinkActive="active" class="nav-item">
-        <span class="icon" aria-hidden="true">C</span>
+        <span class="material-symbols-outlined" aria-hidden="true">category</span>
         <span>Categories</span>
       </a>
       <a routerLink="/admin/orders" routerLinkActive="active" class="nav-item">
-        <span class="icon" aria-hidden="true">O</span>
+        <span class="material-symbols-outlined" aria-hidden="true">shopping_bag</span>
         <span>Orders</span>
       </a>
     </nav>
   </aside>
   <main class="content">
     <header class="topbar">
-      <h1>Admin Dashboard</h1>
-      <p>Review users, update roles, and control account access.</p>
+      <h1>{{ pageTitle }}</h1>
+      <p>{{ pageDescription }}</p>
     </header>
     <div class="main-content">
       <router-outlet></router-outlet>

@@ -103,11 +103,11 @@
           <tbody>
             @if (users().length === 0) {
               <tr>
-                <td colspan="5" class="empty-state">No users were returned by the API.</td>
+                <td colspan="5" class="empty-state">No team members or shoppers have signed up yet.</td>
               </tr>
             } @else if (filteredUsers().length === 0) {
               <tr>
-                <td colspan="5" class="empty-state">No users match the current filters.</td>
+                <td colspan="5" class="empty-state">No users match the current search and filters.</td>
               </tr>
             } @else {
               @for (user of filteredUsers(); track trackByUserId($index, user)) {

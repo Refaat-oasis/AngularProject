@@ -1,12 +1,3 @@
-// import { Component } from '@angular/core';
-
-// @Component({
-//   selector: 'app-reset-password',
-//   imports: [],
-//   templateUrl: './reset-password.html',
-//   styleUrl: './reset-password.css',
-// })
-// export class ResetPassword {}
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -42,9 +33,6 @@ export class ResetPasswordComponent implements OnInit {
 ngOnInit() {
   this.email = this.route.snapshot.queryParams['email'];
   this.token = this.route.snapshot.queryParams['token'];
-
-  console.log('Email:', this.email);
-  console.log('Token:', this.token);
 }
 
   passwordMatchValidator(form: FormGroup) {

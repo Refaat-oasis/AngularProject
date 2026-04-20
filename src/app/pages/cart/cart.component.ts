@@ -67,7 +67,7 @@ import { Subscription } from 'rxjs';
         </div>
         
         <!-- Summary Area -->
-        <div class="col-lg-4">
+        <div class="col-lg-4" *ngIf="cartItems.length > 0">
           <div class="sticky-top" style="top: 100px;">
             <div class="merchant-card p-4 p-xl-5 bg-primary text-white border-0 shadow-lg">
               <h3 class="h5 fw-bold mb-4 font-headline border-bottom border-white border-opacity-10 pb-3">Acquisition Summary</h3>
@@ -124,7 +124,7 @@ import { Subscription } from 'rxjs';
 export class CartComponent implements OnInit, OnDestroy {
   cartItems: CartItemResponse[] = [];
   subtotal: number = 0;
-  shippingCost = 150;
+  shippingCost = 0;
   private sub: Subscription = new Subscription();
 
   constructor(private cartService: CartService) {}
@@ -133,6 +133,7 @@ export class CartComponent implements OnInit, OnDestroy {
     this.sub = this.cartService.cartItems$.subscribe(items => {
       this.cartItems = items;
       this.subtotal = this.cartService.getCartTotal();
+      this.shippingCost = this.subtotal > 50 ? 0 : 9.99;
     });
   }
 

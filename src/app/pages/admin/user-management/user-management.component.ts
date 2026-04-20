@@ -9,7 +9,7 @@ import { AdminRole, RegisterDto, UserWithRolesDto } from '../../../models/admin.
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './user-management.component.html',
-  styleUrls: ['./user-management.component.css']
+  styleUrl: './user-management.component.css'
 })
 export class UserManagementComponent implements OnInit {
   readonly availableRoles: AdminRole[] = ['User', 'Seller', 'Admin'];

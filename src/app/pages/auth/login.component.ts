@@ -12,234 +12,256 @@ import { jwtDecode } from 'jwt-decode';
   imports: [CommonModule, FormsModule, RouterModule],
   template: `
     <div class="auth-container d-flex align-items-center justify-content-center">
-      <div class="auth-card p-5 merchant-card max-w-md w-100 position-relative z-1 transition-all">
+      <!-- Ambient background glow -->
+      <div class="auth-bg-glow glow-1"></div>
+      <div class="auth-bg-glow glow-2"></div>
+
+      <div class="auth-card p-5 w-100 position-relative z-1">
+        <!-- Brand mark -->
         <div class="text-center mb-5">
-          <h2 class="h3 fw-bold mb-2 text-theme-primary">Welcome Back</h2>
-          <p class="text-theme-variant small">Sign in to your Merchant account</p>
+          <div class="brand-icon mx-auto mb-3">
+            <span class="material-symbols-outlined" style="font-size: 32px; font-variation-settings: 'FILL' 1;">shopping_bag</span>
+          </div>
+          <h2 class="h3 fw-bold mb-2">Welcome Back</h2>
+          <p class="subtitle small mb-0">Sign in to your NEXUS account</p>
         </div>
 
-        <form (ngSubmit)="onLogin(loginForm)" #loginForm="ngForm" class="space-y-4">
+        <form (ngSubmit)="onLogin(loginForm)" #loginForm="ngForm">
           <div class="mb-4">
-            <label class="form-label text-theme-variant small fw-bold uppercase ls-wider mb-2">Email Address</label>
- <input
-  type="email"
-  class="form-control merchant-input bg-theme-variant border-theme text-theme-primary"
-[class.is-invalid]="(email.invalid && ( loginForm.submitted)) || emailNotFound"
-  name="email"
-  #email="ngModel"
-  [(ngModel)]="credentials.email"
-  required
-  email
-  placeholder="name@company.com"
-  (input)="clearErrors()">
-              @if ((loginForm.submitted) && email.invalid) {
-  <div class="invalid-feedback d-block">
-    @if (email.errors?.['required']) {
-      <div>Email is required.</div>
-    }
-    @if (email.errors?.['email']) {
-      <div>Invalid email format.</div>
-    }
-  </div>
-}
-
-  @if (emailNotFound) {
-              <div class="invalid-feedback d-block">
-                This email is not registered.
+            <label class="form-label label-text small fw-bold mb-2">EMAIL ADDRESS</label>
+            <div class="input-wrap">
+              <span class="material-symbols-outlined input-icon">mail</span>
+              <input
+                type="email"
+                class="form-control auth-input"
+                [class.is-invalid]="(email.invalid && loginForm.submitted) || emailNotFound"
+                name="email"
+                #email="ngModel"
+                [(ngModel)]="credentials.email"
+                required
+                email
+                placeholder="name@company.com"
+                (input)="clearErrors()">
+            </div>
+            @if (loginForm.submitted && email.invalid) {
+              <div class="error-text mt-2">
+                @if (email.errors?.['required']) { <span>Email is required.</span> }
+                @if (email.errors?.['email']) { <span>Invalid email format.</span> }
               </div>
             }
-            </div>
-
-          <div class="mb-4">
-            <label class="form-label text-theme-variant small fw-bold uppercase ls-wider mb-2">Password</label>
-<input
-  type="password"
-  class="form-control merchant-input bg-theme-variant border-theme text-theme-primary"
-[class.is-invalid]="(password.invalid && (loginForm.submitted)) || wrongPassword"
-  name="password"
-  #password="ngModel"
-  [(ngModel)]="credentials.password"
-  required
-  placeholder="••••••••"
-  (input)="clearErrors()">
-
-@if ((loginForm.submitted) && password.invalid) {
-  <div class="invalid-feedback d-block">
-    @if (password.errors?.['required']) {
-      <div>Password is required.</div>
-    }
-  </div>
-}
-
-@if (wrongPassword) {
-
-  <div class="invalid-feedback d-block">
-    Incorrect password.
-  </div>
-}
-
-            </div>
-
-          <div class="d-flex justify-content-between align-items-center mb-5">
-            <div class="form-check">
-              <input type="checkbox" class="form-check-input" id="remember"   name="rememberMe" [(ngModel)]="credentials.rememberMe">
-              <label class="form-check-label small text-theme-variant" for="remember" >Remember me</label>
-            </div>
-            <a routerLink="/forgot-password" class="small text-theme-variant text-decoration-none hover-secondary transition-all">Forgot password?</a>
+            @if (emailNotFound) {
+              <div class="error-text mt-2">This email is not registered.</div>
+            }
           </div>
 
-          <button type="submit" class="btn btn-primary-merchant w-100 py-3 mb-4" >
-            Sign In
+          <div class="mb-4">
+            <label class="form-label label-text small fw-bold mb-2">PASSWORD</label>
+            <div class="input-wrap">
+              <span class="material-symbols-outlined input-icon">lock</span>
+              <input
+                type="password"
+                class="form-control auth-input"
+                [class.is-invalid]="(password.invalid && loginForm.submitted) || wrongPassword"
+                name="password"
+                #password="ngModel"
+                [(ngModel)]="credentials.password"
+                required
+                placeholder="••••••••"
+                (input)="clearErrors()">
+            </div>
+            @if (loginForm.submitted && password.invalid) {
+              <div class="error-text mt-2">
+                @if (password.errors?.['required']) { <span>Password is required.</span> }
+              </div>
+            }
+            @if (wrongPassword) {
+              <div class="error-text mt-2">Incorrect password.</div>
+            }
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="remember" name="rememberMe" [(ngModel)]="credentials.rememberMe">
+              <label class="form-check-label small subtitle" for="remember">Remember me</label>
+            </div>
+            <a routerLink="/forgot-password" class="small link-text text-decoration-none">Forgot password?</a>
+          </div>
+
+          <button type="submit" class="btn btn-auth-primary w-100 py-3 mb-4">
+            <span class="me-2">Sign In</span>
+            <span class="material-symbols-outlined" style="font-size: 18px;">arrow_forward</span>
           </button>
 
-          <p class="text-center small text-theme-variant mb-0">
+          <p class="text-center small subtitle mb-0">
             Don't have an account?
-            <a routerLink="/register" class="text-theme-primary fw-bold text-decoration-none hover-secondary transition-all">Create one</a>
+            <a routerLink="/register" class="link-text fw-bold text-decoration-none">Create one</a>
           </p>
         </form>
       </div>
-
-      <div class="absolute-fill z-0 opacity-5">
-        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBg8eznBxWEst4fedRGoMHxIBmaMutdvTaHqRDItwCyfFP5t-FFAB29qcMhg1E_GT68Z6ZhKPAkqNYCrc5GExszF8uRsxxh4usyG-hIeN8bsbIo7cokNQ9kdVIeUTByxfIIlRwtbg_hXhK4toV2UEWCcAk4v5cknbMhqVXCLmSV8A75LgzlW42jRNfS2MDxrYHjO-OhD3zkbR03yCUAaLJzlsZX6wqczQIV_rFTZi2L8H8yMAIQSt6tQDfRLhXtOlV17KYcBVVVFE"
-             class="w-100 h-100 object-fit-cover" alt="Background">
-      </div>
-
     </div>
   `,
   styles: [`
-    .auth-container { min-height: 100vh; background-color: var(--background); position: relative; }
-    .auth-card { z-index: 1; border: none !important; background: var(--surface); box-shadow: var(--shadow-elevated); }
-    .max-w-md { max-width: 450px; }
-    .ls-wider { letter-spacing: 0.05em; }
-    .merchant-input {
-      padding: 0.75rem 1rem;
-      border-radius: var(--radius-default);
-      border: none !important;
-      background-color: var(--surface-container-low);
+    .auth-container {
+      min-height: 100vh;
+      background: var(--background);
+      position: relative;
+      overflow: hidden;
     }
-    .merchant-input:focus {
-      background-color: var(--surface);
-      box-shadow: 0 0 0 4px rgba(4, 22, 39, 0.1) !important;
+    .auth-bg-glow {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.12;
+      pointer-events: none;
     }
-    .hover-secondary:hover { color: var(--secondary) !important; }
-    .absolute-fill { position: absolute; inset: 0; }
+    .glow-1 {
+      width: 600px; height: 600px;
+      background: var(--secondary);
+      top: -200px; left: -200px;
+    }
+    .glow-2 {
+      width: 500px; height: 500px;
+      background: var(--primary);
+      bottom: -150px; right: -150px;
+    }
+    .auth-card {
+      max-width: 440px;
+      z-index: 1;
+      border-radius: 20px;
+      background: var(--surface);
+      border: 1px solid var(--outline-variant);
+      box-shadow: var(--shadow-elevated);
+    }
+    .brand-icon {
+      width: 56px; height: 56px;
+      border-radius: 16px;
+      background: var(--primary);
+      color: var(--background);
+      display: flex; align-items: center; justify-content: center;
+    }
+    h2 { color: var(--on-surface); }
+    .subtitle { color: var(--on-surface-variant); }
+    .label-text {
+      color: var(--on-surface-variant);
+      letter-spacing: 0.08em;
+    }
+    .input-wrap {
+      position: relative;
+    }
+    .input-icon {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      font-size: 20px; color: var(--on-surface-variant); pointer-events: none; z-index: 1;
+    }
+    .auth-input {
+      padding-left: 44px !important;
+      background: var(--surface-container-low) !important;
+      border: 1px solid var(--outline-variant) !important;
+      border-radius: 12px !important;
+      color: var(--on-surface) !important;
+      font-size: 0.925rem;
+      transition: var(--transition-smooth);
+    }
+    .auth-input::placeholder { color: var(--on-surface-variant); opacity: 0.5; }
+    .auth-input:focus {
+      background: var(--surface) !important;
+      border-color: var(--secondary) !important;
+      box-shadow: 0 0 0 4px rgba(0, 99, 151, 0.15) !important;
+    }
+    .auth-input.is-invalid {
+      border-color: var(--error) !important;
+      box-shadow: 0 0 0 4px rgba(186, 26, 26, 0.1) !important;
+    }
+    .error-text {
+      color: var(--error);
+      font-size: 0.8rem;
+    }
+    .link-text {
+      color: var(--secondary);
+      transition: var(--transition-smooth);
+    }
+    .link-text:hover { color: var(--primary); }
+    .btn-auth-primary {
+      background: var(--primary);
+      color: var(--background);
+      border: none;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition-smooth);
+    }
+    .btn-auth-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+      background: var(--primary-container);
+      color: var(--on-surface);
+    }
+    .form-check-input {
+      border: 1px solid var(--outline-variant) !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+    }
+    .form-check-input:checked {
+      background-color: var(--secondary) !important;
+      border-color: var(--secondary) !important;
+    }
   `]
 })
 export class LoginComponent {
-
-credentials = { email: '', password: '', rememberMe: false };
+  credentials = { email: '', password: '', rememberMe: false };
   emailNotFound = false;
   wrongPassword = false;
-  constructor(private authService: AuthService, private router: Router,private cdr: ChangeDetectorRef,
-  private zone: NgZone) { }
+
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private cdr: ChangeDetectorRef,
+    private zone: NgZone
+  ) {}
+
   clearErrors() {
     this.emailNotFound = false;
     this.wrongPassword = false;
   }
 
+  onLogin(form: NgForm) {
+    this.clearErrors();
+    form.form.markAllAsTouched();
+    if (form.invalid) return;
 
+    localStorage.removeItem('token');
+    sessionStorage.removeItem('token');
 
+    this.authService.login(this.credentials).subscribe({
+      next: (res: any) => {
+        const token = res.token?.result || res.token || res.result || res?.token || res;
+        if (token && typeof token === 'string') {
+          localStorage.setItem('token', token);
+          let decoded: any;
+          try { decoded = jwtDecode(token); } catch (e) {}
 
-//aya
-// onLogin() {
-//   this.authService.login(this.credentials).subscribe((res) => {
+          const userRole = this.authService.getUserRole();
+          const rolesArray = Array.isArray(userRole) ? userRole : [userRole];
 
-//     const token = res.token.result;
-//     localStorage.setItem('token', token);
-
-//     const decoded: any = jwtDecode(token);
-
-//     const role = decoded.role;
-
-//     if (role === 'Seller') {
-//       this.router.navigate(['/seller/products']);
-//     } else {
-//       this.router.navigate(['/']);
-//     }
-
-//   });
-// }
-//basant
-// onLogin(form: NgForm) {
-
-//   this.clearErrors();
-//   form.form.markAllAsTouched();
-
-// if (form.invalid) return;
-//   localStorage.removeItem("token");
-//   sessionStorage.removeItem("token");
-//   this.authService.login(this.credentials).subscribe({
-//  next: (res: any) => {
-
-
-//           this.router.navigate(['/']);
-//     },
-
-//     error: (err) => {
-//       const mess = err.error?.message?.toLowerCase().trim() || '';
-
-//   this.zone.run(() => {
-//     this.emailNotFound = mess.includes('email');
-//     this.wrongPassword = mess.includes('password');
-
-//     this.cdr.detectChanges();
-//   });
-
-//     }
-//   });
-// }
-
-onLogin(form: NgForm) {
-
-  this.clearErrors();
-  form.form.markAllAsTouched();
-
-  if (form.invalid) return;
-
-  localStorage.removeItem("token");
-  sessionStorage.removeItem("token");
-
-  this.authService.login(this.credentials).subscribe({
-    next: (res: any) => {
-
-
-      const token = res.token?.result || res.token || res.result || res?.token || res;
-      if (token && typeof token === 'string') {
-        localStorage.setItem('token', token);
-        
-        let decoded: any;
-        try { decoded = jwtDecode(token); console.log("Decoded Token:", decoded); } catch(e) {}
-
-        const userRole = this.authService.getUserRole();
-        const rolesArray = Array.isArray(userRole) ? userRole : [userRole];
-
-        console.log("FINAL PARSED ROLE ARRAY:", rolesArray);
-
-        if (rolesArray.includes('Seller')) {
-          this.router.navigate(['/seller/products']).then(success => {
-            console.log("Navigation to /seller/products result:", success);
-          });
+          if (rolesArray.includes('Seller')) {
+            this.router.navigate(['/seller/products']);
+          } else {
+            this.router.navigate(['/']);
+          }
         } else {
-          console.warn("User does not have Seller role. Redirecting home. Roles found:", rolesArray);
           this.router.navigate(['/']);
         }
-      } else {
-        console.error("Token could not be extracted correctly. Raw res:", res);
-        // fallback لو مفيش توكن
-        this.router.navigate(['/']);
+      },
+      error: (err) => {
+        const mess = err.error?.message?.toLowerCase().trim() || '';
+        this.zone.run(() => {
+          this.emailNotFound = mess.includes('email');
+          this.wrongPassword = mess.includes('password');
+          this.cdr.detectChanges();
+        });
       }
-    },
-
-    error: (err) => {
-      const mess = err.error?.message?.toLowerCase().trim() || '';
-
-      this.zone.run(() => {
-        this.emailNotFound = mess.includes('email');
-        this.wrongPassword = mess.includes('password');
-
-        this.cdr.detectChanges();
-      });
-    }
-  });
-}
+    });
+  }
 }

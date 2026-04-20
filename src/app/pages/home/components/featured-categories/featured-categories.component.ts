@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MockDataService, Category } from '../../../../services/mock-data.service';
+import { CategoryService } from '../../../../services/category-service';
+import { ICategory } from '../../../../models/icategory';
 import { Router } from '@angular/router';
 
 @Component({
@@ -11,11 +12,25 @@ import { Router } from '@angular/router';
   styleUrl: './featured-categories.component.css'
 })
 export class FeaturedCategoriesComponent implements OnInit {
-  categories = signal<Category[]>([]);
+  categories = signal<ICategory[]>([]);
   loading = signal(false);
 
   private router = inject(Router);
-  private dataService = inject(MockDataService);
+  private categoryService = inject(CategoryService);
+
+  readonly fallbackImage = 
+    'data:image/svg+xml;utf8,' + 
+    encodeURIComponent(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 720">' +
+      '<rect width="600" height="720" fill="#f7fafc"/>' +
+      '<circle cx="300" cy="360" r="100" fill="#cbd5e0"/>' +
+      '<text x="300" y="520" text-anchor="middle" font-family="Arial, sans-serif" font-size="40" fill="#4a5568">NEXUS</text>' +
+      '</svg>'
+    );
+
+  useFallbackImage(event: any) {
+    event.target.src = this.fallbackImage;
+  }
 
   ngOnInit(): void {
     this.loadCategories();
@@ -23,9 +38,10 @@ export class FeaturedCategoriesComponent implements OnInit {
 
   loadCategories(): void {
     this.loading.set(true);
-    this.dataService.getCategories().subscribe({
-      next: (cats: Category[]) => {
-        this.categories.set(cats);
+    this.categoryService.getAll().subscribe({
+      next: (cats: ICategory[]) => {
+        // Take the first 6
+        this.categories.set(cats.slice(0, 6));
         this.loading.set(false);
       },
       error: (err) => {
@@ -35,7 +51,8 @@ export class FeaturedCategoriesComponent implements OnInit {
     });
   }
 
-  navigateToProducts(): void {
-    this.router.navigate(['/products']);
+  navigateToProducts(categoryId?: number): void {
+    const queryParams = categoryId ? { category: categoryId } : undefined;
+    this.router.navigate(['/products'], { queryParams });
   }
 }

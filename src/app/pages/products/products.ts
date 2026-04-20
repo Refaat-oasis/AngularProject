@@ -1,25 +1,28 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
-import { CurrencyPipe } from '@angular/common';
+import { CurrencyPipe, CommonModule } from '@angular/common';
 import { IProduct } from '../../models/iproduct';
 import { ProductService } from '../../services/product-service';
 import { RouterLink } from '@angular/router';
-import { Icategory } from '../../models/icategory';
+import { ICategory } from '../../models/icategory';
 import { CategoryService } from '../../services/category-service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { switchMap } from 'rxjs';
 import { environment } from '../../environment';
+import { CartService } from '../../services/cart.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-products',
-  imports: [CurrencyPipe, RouterLink],
+  imports: [CurrencyPipe, RouterLink, CommonModule, FormsModule],
   templateUrl: './products.html',
   styleUrl: './products.css',
 })
-export class Products implements OnInit {
+export class ProductsComponent implements OnInit {
 
   products = signal<IProduct[]>([]);
   loading = signal(false);
-  categories = signal<Icategory[]>([]);
+  categories = signal<ICategory[]>([]);
+  selectedCategoryId: number | null = null;
   readonly imageBaseUrl = environment.baseUrl;
   readonly fallbackImage =
     'data:image/svg+xml;utf8,' +
@@ -38,7 +41,9 @@ export class Products implements OnInit {
   constructor(
     private productService: ProductService,
     private categoryService: CategoryService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private router: Router,
+    public cartService: CartService
   ) {}
 
   ngOnInit(): void {
@@ -57,7 +62,13 @@ export class Products implements OnInit {
     this.route.queryParams.pipe(
       switchMap(params => {
         const search = params['search'];
+        const categoryId = Number(params['category']);
         this.loading.set(true);
+        if (Number.isFinite(categoryId) && categoryId > 0) {
+          this.selectedCategoryId = categoryId;
+          return this.categoryService.getByCategory(categoryId);
+        }
+        this.selectedCategoryId = null;
         if (search && search.trim() !== '') {
           return this.productService.search(search);
         }
@@ -65,7 +76,8 @@ export class Products implements OnInit {
       })
     ).subscribe({
       next: (data) => {
-        this.products.set(data);
+        const items = Array.isArray(data) ? data : data.products;
+        this.products.set(items ?? []);
         this.loading.set(false);
       },
       error: (err) => {
@@ -76,17 +88,27 @@ export class Products implements OnInit {
   }
 
   loadCategoryProducts(categoryId: number): void {
-    this.loading.set(true);
-    this.categoryService.getByCategory(categoryId).subscribe({
-      next: (data) => {
-        this.products.set(data.products);
-        this.loading.set(false);
-      },
-      error: (err) => {
-        console.error(err);
-        this.loading.set(false);
-      }
+    this.router.navigate(['/products'], {
+      queryParams: { category: categoryId },
+      queryParamsHandling: 'merge'
     });
+  }
+
+  clearCategoryFilter(): void {
+    this.selectedCategoryId = null;
+    this.router.navigate(['/products'], {
+      queryParams: { category: null },
+      queryParamsHandling: 'merge'
+    });
+  }
+
+  onCategorySelect(value: string): void {
+    const categoryId = Number(value);
+    if (categoryId > 0) {
+      this.loadCategoryProducts(categoryId);
+      return;
+    }
+    this.clearCategoryFilter();
   }
 
   getImageUrl(path: string | null | undefined): string {

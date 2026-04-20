@@ -39,7 +39,7 @@ import { finalize } from 'rxjs';
         <div class="order-list d-grid gap-4">
           @for (order of orders(); track order.id) {
             <div class="order-card card border-0 shadow-sm bg-theme-surface rounded-lg overflow-hidden transition-all hover-lift border-theme">
-              <div class="card-header bg-theme-surface border-bottom border-theme p-4 d-flex justify-content-between align-items-center">
+              <div class="card-header order-header bg-theme-surface border-bottom border-theme p-4 d-flex justify-content-between align-items-center">
                 <div>
                   <span class="text-theme-variant small fw-bold text-uppercase">Order #{{ order.id }}</span>
                   <div class="text-theme-primary small mt-1">{{ order.orderDate | date:'mediumDate' }}</div>
@@ -52,7 +52,7 @@ import { finalize } from 'rxjs';
               <div class="card-body p-4">
                 <div class="order-items mb-4">
                   @for (item of order.items; track item.productName) {
-                    <div class="order-item d-flex justify-content-between py-2 border-bottom border-theme last-border-none">
+                    <div class="order-item d-flex justify-content-between py-3 border-bottom border-theme last-border-none">
                       <div class="d-flex align-items-center gap-3">
                         <div class="item-info">
                           <div class="text-theme-primary fw-medium">{{ item.productName }}</div>
@@ -64,12 +64,12 @@ import { finalize } from 'rxjs';
                   }
                 </div>
 
-                <div class="d-flex justify-content-between align-items-end pt-2">
-                  <div class="shipping-info">
+                <div class="order-footer d-flex justify-content-between align-items-end pt-3 mt-2">
+                  <div class="shipping-info order-meta-card">
                     <div class="text-theme-variant small fw-bold text-uppercase mb-1">Shipping To</div>
                     <div class="text-theme-primary small">{{ order.shippingAddress }}</div>
                   </div>
-                  <div class="order-total text-end">
+                  <div class="order-total text-end order-meta-card">
                     <div class="text-theme-variant small">Total Amount</div>
                     <div class="text-primary h4 fw-bold mb-0">{{ order.total | currency }}</div>
                   </div>
@@ -82,6 +82,7 @@ import { finalize } from 'rxjs';
     </div>
   `,
   styles: [`
+    .page-wrapper { max-width: 1240px; }
     .hover-lift:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.1) !important; }
     .last-border-none:last-child { border-bottom: none !important; }
     .status-processing { background-color: var(--secondary-container); color: var(--on-secondary-container); }
@@ -89,6 +90,24 @@ import { finalize } from 'rxjs';
     .status-delivered { background-color: #E8F5E9; color: #2E7D32; }
     .status-cancelled { background-color: #FFEBEE; color: #C62828; }
     .border-theme { border-bottom: 1px solid var(--outline-variant); }
+    .order-card { border-radius: 26px !important; box-shadow: var(--shadow-ambient) !important; }
+    .order-header {
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.96), rgba(243,244,245,0.94)),
+        var(--surface) !important;
+    }
+    .order-item { align-items: center; }
+    .order-footer { gap: 16px; }
+    .order-meta-card {
+      padding: 1rem 1.1rem;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.78);
+      box-shadow: var(--shadow-ambient);
+    }
+    @media (max-width: 767px) {
+      .order-footer { flex-direction: column; align-items: stretch !important; }
+      .order-total { text-align: left !important; }
+    }
   `]
 })
 export class MyOrdersComponent implements OnInit {

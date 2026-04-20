@@ -5,7 +5,7 @@ import { RouterLink } from '@angular/router';
 import { AdminProduct } from '../../../models/admin-product.models';
 import { AdminProductsService } from '../../../services/admin-products.service';
 import { CategoryService } from '../../../services/category-service';
-import { Icategory } from '../../../models/icategory';
+import { ICategory } from '../../../models/icategory';
 import { environment } from '../../../environment';
 
 @Component({
@@ -17,7 +17,7 @@ import { environment } from '../../../environment';
 })
 export class ProductsManagementComponent implements OnInit {
   products = signal<AdminProduct[]>([]);
-  categories = signal<Icategory[]>([]);
+  categories = signal<ICategory[]>([]);
   searchTerm = signal('');
   statusFilter = signal<'all' | 'active' | 'deleted'>('all');
   loading = signal(false);

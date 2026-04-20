@@ -1,12 +1,21 @@
 <div class="reviews-container">
-
-  <h5 class="mb-3">Customer Reviews</h5>
+  @if (reviews.length === 0) {
+    <div class="review-empty-state">
+      <span class="material-symbols-outlined mb-2">forum</span>
+      <p class="text-theme-variant small mb-0 opacity-75">No reviews yet. Be the first to share your experience!</p>
+    </div>
+  }
 
   @for (review of reviews; track review.id) {
     <div class="review-card">
-
       <div class="review-header">
-        <strong>{{ review.userName }}</strong>
+        <div class="review-author">
+          <span class="review-avatar">{{ (review.userName || 'N').charAt(0) }}</span>
+          <div>
+            <strong>{{ review.userName }}</strong>
+            <small>Verified shopper</small>
+          </div>
+        </div>
       </div>
 
       <p class="review-text">
