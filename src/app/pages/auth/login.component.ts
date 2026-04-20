@@ -108,17 +108,18 @@ import { jwtDecode } from 'jwt-decode';
   `,
   styles: [`
     .auth-container { min-height: 100vh; background-color: var(--background); position: relative; }
-    .auth-card { z-index: 1; border: 1px solid var(--outline-variant); background: var(--surface); }
+    .auth-card { z-index: 1; border: none !important; background: var(--surface); box-shadow: var(--shadow-elevated); }
     .max-w-md { max-width: 450px; }
     .ls-wider { letter-spacing: 0.05em; }
     .merchant-input {
       padding: 0.75rem 1rem;
-      border-radius: 8px;
+      border-radius: var(--radius-default);
+      border: none !important;
+      background-color: var(--surface-container-low);
     }
     .merchant-input:focus {
-      background-color: var(--surface-container-high);
-      border-color: var(--secondary);
-      box-shadow: none;
+      background-color: var(--surface);
+      box-shadow: 0 0 0 4px rgba(4, 22, 39, 0.1) !important;
     }
     .hover-secondary:hover { color: var(--secondary) !important; }
     .absolute-fill { position: absolute; inset: 0; }

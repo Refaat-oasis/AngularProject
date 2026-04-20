@@ -6,6 +6,7 @@ import { AdminProduct } from '../../../models/admin-product.models';
 import { AdminProductsService } from '../../../services/admin-products.service';
 import { CategoryService } from '../../../services/category-service';
 import { Icategory } from '../../../models/icategory';
+import { environment } from '../../../environment';
 
 @Component({
   selector: 'app-products-management',
@@ -21,7 +22,8 @@ export class ProductsManagementComponent implements OnInit {
   statusFilter = signal<'all' | 'active' | 'deleted'>('all');
   loading = signal(false);
   feedback = signal<string | null>(null);
-  readonly imageBaseUrl = 'http://localhost:5118';
+  error = signal<string | null>(null);
+  readonly imageBaseUrl = environment.baseUrl;
   readonly fallbackImage =
     'data:image/svg+xml;utf8,' +
     encodeURIComponent(

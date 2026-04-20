@@ -8,7 +8,7 @@
       <p class="text-theme-variant small">Manage your item details for the architectural showcase</p>
     </div>
 
-    @if (isLoading()) {
+    @if (loading()) {
       <div class="text-center py-5">
         <div class="spinner-border text-primary" role="status">
           <span class="visually-hidden">Loading...</span>
@@ -17,7 +17,7 @@
       </div>
     }
 
-    @if (!isLoading()) {
+    @if (!loading()) {
       <form (ngSubmit)="submit()" #form="ngForm" class="space-y-4">
 
         <div class="mb-4">
@@ -143,8 +143,8 @@
                       (change)="onFileSelected($event)" />
             </div>
 
-            @if (imageError) {
-              <small class="text-danger">{{ imageError }}</small>
+            @if (imageError()) {
+              <small class="text-danger">{{ imageError() }}</small>
             }
             
             <p class="text-theme-variant small mb-0 opacity-75">

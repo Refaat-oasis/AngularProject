@@ -1,11 +1,13 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Observable } from 'rxjs';
 import {
   AdminCategory,
   AdminCategoryWithProducts
 } from '../../../models/admin-category.models';
 import { AdminCategoriesService } from '../../../services/admin-categories.service';
+import { environment } from '../../../environment';
 
 type DeleteMode = 'safe' | 'force';
 
@@ -23,6 +25,7 @@ export class CategoriesManagementComponent implements OnInit {
   submitting = signal(false);
   detailLoading = signal(false);
   success = signal<string | null>(null);
+  error = signal<string | null>(null);
 
   showFormModal = signal(false);
   editingCategoryId = signal<number | null>(null);
@@ -39,7 +42,7 @@ export class CategoriesManagementComponent implements OnInit {
   pendingDeleteCategory = signal<AdminCategory | null>(null);
   deleteMode = signal<DeleteMode>('safe');
 
-  readonly imageBaseUrl = 'http://localhost:5118';
+  readonly imageBaseUrl = environment.baseUrl;
   readonly fallbackImage =
     'data:image/svg+xml;utf8,' +
     encodeURIComponent(
@@ -143,7 +146,7 @@ export class CategoriesManagementComponent implements OnInit {
     if (file) formData.append('Image', file);
 
     const editId = this.editingCategoryId();
-    const request = editId === null
+    const request: Observable<any> = editId === null
       ? this.adminCategoriesService.create(formData)
       : this.adminCategoriesService.update(editId, formData);
 
@@ -154,7 +157,7 @@ export class CategoriesManagementComponent implements OnInit {
         this.closeFormModal();
         this.loadCategories();
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error(err);
         this.submitting.set(false);
       }
@@ -208,7 +211,7 @@ export class CategoriesManagementComponent implements OnInit {
     if (!category) return;
 
     const mode = this.deleteMode();
-    const request = mode === 'safe'
+    const request: Observable<any> = mode === 'safe'
       ? this.adminCategoriesService.delete(category.id)
       : this.adminCategoriesService.forceDelete(category.id);
 
@@ -222,7 +225,7 @@ export class CategoriesManagementComponent implements OnInit {
         this.closeDeleteModals();
         this.loadCategories();
       },
-      error: (err) => console.error(err)
+      error: (err: any) => console.error(err)
     });
   }
 

@@ -29,6 +29,7 @@ export class OrdersManagementComponent implements OnInit {
   statusFilter = signal<OrderStatusFilter>('all');
   loading = signal(false);
   success = signal<string | null>(null);
+  error = signal<string | null>(null);
   updatingOrderId = signal<number | null>(null);
 
   showDetailsModal = signal(false);

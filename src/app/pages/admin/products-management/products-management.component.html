@@ -11,105 +11,121 @@
     </div>
   </div>
 
-  <div class="stats-grid" *ngIf="!loading && products.length">
-    <article class="stat-card">
-      <span class="stat-label">Visible Products</span>
-      <strong>{{ activeCount }}</strong>
-      <small>Currently active in the catalog</small>
-    </article>
-    <article class="stat-card">
-      <span class="stat-label">Deleted Products</span>
-      <strong>{{ deletedCount }}</strong>
-      <small>Soft-deleted and restorable items</small>
-    </article>
-    <article class="stat-card">
-      <span class="stat-label">Filtered Results</span>
-      <strong>{{ filteredProducts.length }}</strong>
-      <small>Matching the current search and filter</small>
-    </article>
-    <article class="stat-card accent">
-      <span class="stat-label">Stock In View</span>
-      <strong>{{ totalStock }}</strong>
-      <small>Total units across filtered products</small>
-    </article>
-  </div>
-
-  <div *ngIf="error" class="message error">{{ error }}</div>
-  <div *ngIf="feedback" class="message success">{{ feedback }}</div>
-
-  <div class="toolbar-shell" *ngIf="!loading && products.length">
-    <div class="toolbar">
-      <label class="search-field">
-        <span>Search</span>
-        <input
-          type="text"
-          class="search-input"
-          [(ngModel)]="searchTerm"
-          placeholder="Find by name, description, or ID"
-        />
-      </label>
-
-      <label class="filter-field">
-        <span>Status</span>
-        <select class="filter-select" [(ngModel)]="statusFilter">
-          <option value="all">All Statuses</option>
-          <option value="active">Active</option>
-          <option value="deleted">Deleted</option>
-        </select>
-      </label>
+  @if (!loading() && products().length > 0) {
+    <div class="stats-grid">
+      <article class="stat-card">
+        <span class="stat-label">Visible Products</span>
+        <strong>{{ activeCount() }}</strong>
+        <small>Currently active in the catalog</small>
+      </article>
+      <article class="stat-card">
+        <span class="stat-label">Deleted Products</span>
+        <strong>{{ deletedCount() }}</strong>
+        <small>Soft-deleted and restorable items</small>
+      </article>
+      <article class="stat-card">
+        <span class="stat-label">Filtered Results</span>
+        <strong>{{ filteredProducts().length }}</strong>
+        <small>Matching the current search and filter</small>
+      </article>
+      <article class="stat-card accent">
+        <span class="stat-label">Stock In View</span>
+        <strong>{{ totalStock() }}</strong>
+        <small>Total units across filtered products</small>
+      </article>
     </div>
-  </div>
+  }
 
-  <div *ngIf="loading" class="loading-state">Loading products...</div>
+  @if (error()) {
+    <div class="message error">{{ error() }}</div>
+  }
+  @if (feedback()) {
+    <div class="message success">{{ feedback() }}</div>
+  }
 
-  <div *ngIf="!loading && !products.length" class="empty-state">
-    <h3>No products yet</h3>
-    <p>The products API returned an empty list.</p>
-  </div>
+  @if (!loading() && products().length > 0) {
+    <div class="toolbar-shell">
+      <div class="toolbar">
+        <label class="search-field">
+          <span>Search</span>
+          <input
+            type="text"
+            class="search-input"
+            [ngModel]="searchTerm()"
+            (ngModelChange)="searchTerm.set($event)"
+            placeholder="Find by name, description, or ID"
+          />
+        </label>
 
-  <div *ngIf="!loading && products.length && !filteredProducts.length" class="empty-state">
-    <h3>No matching products</h3>
-    <p>Try clearing the search or switching the status filter.</p>
-  </div>
-
-  <div *ngIf="!loading && filteredProducts.length" class="products-grid">
-    <article class="product-card" *ngFor="let product of filteredProducts; trackBy: trackByProductId">
-      <div class="image-wrap">
-        <img [src]="getImageUrl(product.image)" [alt]="product.name" (error)="useFallbackImage($event)" />
-        <span class="status" [class.deleted]="product.isDeleted">
-          {{ product.isDeleted ? 'Deleted' : 'Active' }}
-        </span>
+        <label class="filter-field">
+          <span>Status</span>
+          <select class="filter-select" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
+            <option value="all">All Statuses</option>
+            <option value="active">Active</option>
+            <option value="deleted">Deleted</option>
+          </select>
+        </label>
       </div>
+    </div>
+  }
 
-      <div class="content">
-        <div class="title-row">
-          <h3>{{ product.name }}</h3>
-          <span class="price-pill">{{ product.price | currency }}</span>
-        </div>
-
-        <p class="description">{{ product.description }}</p>
-
-        <div class="meta-grid">
-          <div class="meta-item">
-            <span class="meta-label">Stock</span>
-            <strong>{{ product.stock }}</strong>
+  @if (loading()) {
+    <div class="loading-state">Loading products...</div>
+  } @else if (products().length === 0) {
+    <div class="empty-state">
+      <h3>No products yet</h3>
+      <p>The products API returned an empty list.</p>
+    </div>
+  } @else if (filteredProducts().length === 0) {
+    <div class="empty-state">
+      <h3>No matching products</h3>
+      <p>Try clearing the search or switching the status filter.</p>
+    </div>
+  } @else {
+    <div class="products-grid">
+      @for (product of filteredProducts(); track trackByProductId($index, product)) {
+        <article class="product-card">
+          <div class="image-wrap">
+            <img [src]="getImageUrl(product.image)" [alt]="product.name" (error)="useFallbackImage($event)" />
+            <span class="status" [class.deleted]="product.isDeleted">
+              {{ product.isDeleted ? 'Deleted' : 'Active' }}
+            </span>
           </div>
-          <div class="meta-item category-meta">
-            <span class="meta-label">Category</span>
-            <strong>{{ getCategoryName(product.categoryId) }}</strong>
-          </div>
-          <div class="meta-item">
-            <span class="meta-label">Product ID</span>
-            <strong>#{{ product.id }}</strong>
-          </div>
-        </div>
 
-        <div class="actions">
-          <a [routerLink]="['/admin/products/edit', product.id]" class="btn btn-secondary">Edit</a>
-          <button *ngIf="!product.isDeleted" type="button" class="btn btn-danger" (click)="deleteProduct(product)">Delete</button>
-          <button *ngIf="product.isDeleted" type="button" class="btn btn-success" (click)="reactivateProduct(product)">Reactivate</button>
-        </div>
-      </div>
-    </article>
-  </div>
+          <div class="content">
+            <div class="title-row">
+              <h3>{{ product.name }}</h3>
+              <span class="price-pill">{{ product.price | currency }}</span>
+            </div>
+
+            <p class="description">{{ product.description }}</p>
+
+            <div class="meta-grid">
+              <div class="meta-item">
+                <span class="meta-label">Stock</span>
+                <strong>{{ product.stock }}</strong>
+              </div>
+              <div class="meta-item category-meta">
+                <span class="meta-label">Category</span>
+                <strong>{{ getCategoryName(product.categoryId) }}</strong>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">Product ID</span>
+                <strong>#{{ product.id }}</strong>
+              </div>
+            </div>
+
+            <div class="actions">
+              <a [routerLink]="['/admin/products/edit', product.id]" class="btn btn-secondary">Edit</a>
+              @if (!product.isDeleted) {
+                <button type="button" class="btn btn-danger" (click)="deleteProduct(product)">Delete</button>
+              } @else {
+                <button type="button" class="btn btn-success" (click)="reactivateProduct(product)">Reactivate</button>
+              }
+            </div>
+          </div>
+        </article>
+      }
+    </div>
+  }
 </section>

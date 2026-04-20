@@ -157,25 +157,26 @@ import { AuthService } from '../../services/auth.service';
   `,
   styles: [`
     .auth-container { min-height: 100vh; background-color: var(--background); position: relative; }
-    .auth-card { z-index: 1; border: 1px solid var(--outline-variant); background: var(--surface); }
+    .auth-card { z-index: 1; border: none !important; background: var(--surface); box-shadow: var(--shadow-elevated); }
     .max-w-xl { max-width: 600px; }
     .ls-wider { letter-spacing: 0.05em; }
     .merchant-input {
       padding: 0.75rem 1rem;
-      border-radius: 8px;
+      border-radius: var(--radius-default);
+      border: none !important;
+      background-color: var(--surface-container-low);
     }
     .merchant-input:focus {
-      background-color: var(--surface-container-high);
-      border-color: var(--secondary);
-      box-shadow: none;
+      background-color: var(--surface);
+      box-shadow: 0 0 0 4px rgba(4, 22, 39, 0.1) !important;
     }
-    .role-card { background: var(--surface); border-color: var(--outline-variant) !important; color: var(--on-surface); }
-    .role-card:hover { border-color: var(--secondary) !important; background: var(--surface-container-low); }
-    .role-card.active { border-color: var(--secondary) !important; background: var(--secondary-container); color: var(--on-secondary-container); box-shadow: 0 4px 12px rgba(0, 99, 151, 0.1); }
+    .role-card { background: var(--surface); border: none !important; color: var(--on-surface); box-shadow: var(--shadow-ambient); }
+    .role-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-elevated); background: var(--surface-container-low); }
+    .role-card.active { background: var(--primary); color: white; box-shadow: 0 10px 20px -5px var(--primary); }
+    .role-card.active .text-on-surface-variant { color: rgba(255,255,255,0.7); }
     .x-small { font-size: 0.65rem; }
-    .text-on-surface-variant { color: var(--on-surface-variant); }
+    .text-on-surface-variant { color: var(--on-surface-variant); transition: var(--transition-smooth); }
     .absolute-fill { position: absolute; inset: 0; }
-  `]nset: 0; }
   `]
 })
 export class RegisterComponent {

@@ -11,25 +11,29 @@
   
   <div class="row g-4" style="height: 600px;">
     <!-- Large Feature -->
-    <div class="col-md-8 position-relative overflow-hidden rounded-4 cursor-pointer group card-item h-100">
-      <img [src]="categories[0]?.imageUrl" class="w-100 h-100 object-fit-cover transition-transform group-hover-scale" alt="Category 1">
-      <div class="overlay-dark"></div>
-      <div class="position-absolute bottom-0 start-0 p-5 text-white">
-        <h3 class="h2 mb-2">{{ categories[0]?.name }}</h3>
-        <p class="text-white-50">{{ categories[0]?.description }}</p>
+    @if (categories().length > 0) {
+      <div class="col-md-8 position-relative overflow-hidden rounded-4 cursor-pointer group card-item h-100">
+        <img [src]="categories()[0].imageUrl" class="w-100 h-100 object-fit-cover transition-transform group-hover-scale" [alt]="categories()[0].name">
+        <div class="overlay-dark"></div>
+        <div class="position-absolute bottom-0 start-0 p-5 text-white">
+          <h3 class="h2 mb-2">{{ categories()[0].name }}</h3>
+          <p class="text-white-50">{{ categories()[0].description }}</p>
+        </div>
       </div>
-    </div>
+    }
     
     <!-- Small Vertical Stack -->
     <div class="col-md-4 h-100 d-flex flex-column gap-4">
-      <div class="position-relative overflow-hidden rounded-4 cursor-pointer group card-item flex-grow-1" *ngFor="let cat of categories.slice(1, 3)">
-        <img [src]="cat.imageUrl" class="w-100 h-100 object-fit-cover transition-transform group-hover-scale" [alt]="cat.name">
-        <div class="overlay-dark"></div>
-        <div class="position-absolute bottom-0 start-0 p-4 text-white">
-          <h3 class="h4 mb-1">{{ cat.name }}</h3>
-          <p class="text-white-50 small">{{ cat.description }}</p>
+      @for (cat of categories().slice(1, 3); track cat.id) {
+        <div class="position-relative overflow-hidden rounded-4 cursor-pointer group card-item flex-grow-1">
+          <img [src]="cat.imageUrl" class="w-100 h-100 object-fit-cover transition-transform group-hover-scale" [alt]="cat.name">
+          <div class="overlay-dark"></div>
+          <div class="position-absolute bottom-0 start-0 p-4 text-white">
+            <h3 class="h4 mb-1">{{ cat.name }}</h3>
+            <p class="text-white-50 small">{{ cat.description }}</p>
+          </div>
         </div>
-      </div>
+      }
     </div>
   </div>
 </section>

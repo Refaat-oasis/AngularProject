@@ -1,8 +1,7 @@
 
-
 import { Component, computed, OnInit, signal } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
-import { CurrencyPipe, DecimalPipe } from '@angular/common';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { CurrencyPipe } from '@angular/common';
 import { ProductService } from '../../services/product-service';
 import { IProduct } from '../../models/iproduct';
 import { Rating } from '../rating/rating';
@@ -12,10 +11,11 @@ import { AuthService } from '../../services/auth.service';
 import { CreateReviewDto } from '../../services/review-services';
 import { FormsModule } from '@angular/forms';
 import { CartService } from '../../services/cart.service';
+import { environment } from '../../environment';
 
 @Component({
   selector: 'app-product-details',
-  imports: [CurrencyPipe, RouterLink, Rating, Reviews, FormsModule, DecimalPipe],
+  imports: [CurrencyPipe, RouterLink, Rating, Reviews, FormsModule],
   templateUrl: './product-details.html',
   styleUrl: './product-details.css',
 })
@@ -37,6 +37,7 @@ export class ProductDetails implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
+    public router: Router,
     private productService: ProductService,
     private reviewService: ReviewService,
     public authService: AuthService,
@@ -62,7 +63,7 @@ export class ProductDetails implements OnInit {
     this.productService.getById(id).subscribe({
       next: (data) => {
         this.product.set(data);
-        this.selectedImage.set('http://localhost:5118' + data.image);
+        this.selectedImage.set(environment.baseUrl + data.image);
         this.loading.set(false);
       },
       error: (err) => {

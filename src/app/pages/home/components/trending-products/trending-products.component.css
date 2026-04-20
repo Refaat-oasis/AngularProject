@@ -2,12 +2,13 @@
 .aspect-5-6 { aspect-ratio: 4 / 5; }
 .nav-btn {
   width: 48px; height: 48px; 
-  border-radius: 50%; border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 50%; border: none !important;
   display: flex; align-items: center; justify-content: center;
-  background: transparent; color: var(--on-surface);
-  transition: all 0.3s;
+  background: var(--surface); color: var(--on-surface);
+  transition: var(--transition-smooth);
+  box-shadow: var(--shadow-ambient);
 }
-.nav-btn:hover { background: white; border-color: var(--secondary); color: var(--secondary); }
+.nav-btn:hover { background: var(--primary); color: white; transform: scale(1.1); box-shadow: var(--shadow-elevated); }
 .group-hover-scale { transition: transform 0.5s; }
 .merchant-card:hover .group-hover-scale { transform: scale(1.1); }
 .group-hover-opacity { opacity: 1 !important; transition: opacity 0.3s; }

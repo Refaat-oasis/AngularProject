@@ -1,9 +1,8 @@
 import { Component ,Input} from '@angular/core';
-import { Rating } from '../rating/rating';
 
 @Component({
   selector: 'app-reviews',
-  imports: [Rating],
+  imports: [],
   templateUrl: './reviews.html',
   styleUrl: './reviews.css',
 })

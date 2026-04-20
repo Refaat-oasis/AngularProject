@@ -3,12 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, map } from 'rxjs';
 import { CartItemResponse } from '../models/interfaces';
 import { AuthService } from './auth.service';
+import { environment } from '../environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CartService {
-  private baseUrl = 'http://localhost:5118/api/cart';
+  private baseUrl = `${environment.apiUrl}/cart`;
   
   private cartItemsSubject = new BehaviorSubject<CartItemResponse[]>([]);
   cartItems$ = this.cartItemsSubject.asObservable();
@@ -55,7 +56,7 @@ export class CartService {
         // to simplify for guests, we'd need minimal details. But since guest checkout
         // uses localStorage we simulate it:
         // Actually, for a fully working guest, let's just make a product API call to get details
-        this.http.get<any>(`http://localhost:5118/api/products/${productId}`).subscribe(product => {
+        this.http.get<any>(`${environment.apiUrl}/products/${productId}`).subscribe(product => {
           const newItem: CartItemResponse = {
             id: Date.now(), // fake id
             productId: product.id,
