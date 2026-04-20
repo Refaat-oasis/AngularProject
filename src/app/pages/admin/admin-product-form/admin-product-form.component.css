@@ -6,8 +6,8 @@
   background: var(--surface);
   border-radius: 20px;
   padding: 32px;
-  box-shadow: var(--shadow-ambient);
-  border: 1px solid var(--outline-variant);
+  box-shadow: var(--shadow-elevated);
+  border: none !important;
 }
 
 .header-row {
@@ -60,12 +60,13 @@
 .field input,
 .field textarea,
 .field select {
-  border: 1px solid var(--outline-variant);
+  border: none !important;
   border-radius: 12px;
   padding: 12px 14px;
   font: inherit;
-  background: var(--surface-container-lowest);
+  background: var(--surface-container-low);
   color: var(--on-surface);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05);
 }
 
 .field input:focus,
@@ -88,7 +89,7 @@
 .error-box {
   padding: 12px 14px;
   background: var(--error-container);
-  border: 1px solid var(--error);
+  border: none !important;
   border-radius: 12px;
   margin-bottom: 16px;
   color: var(--on-error-container);
@@ -99,8 +100,9 @@
   height: 180px;
   border-radius: 16px;
   overflow: hidden;
-  border: 1px solid var(--outline-variant);
+  border: none !important;
   background: var(--surface-container-low);
+  box-shadow: var(--shadow-ambient);
 }
 
 .preview img {

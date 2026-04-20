@@ -6,6 +6,7 @@ import { Observable } from 'rxjs';
 import { CategoryService } from '../../../services/category-service';
 import { AdminProductsService } from '../../../services/admin-products.service';
 import { Icategory } from '../../../models/icategory';
+import { environment } from '../../../environment';
 
 @Component({
   selector: 'app-admin-product-form',
@@ -31,7 +32,8 @@ export class AdminProductFormComponent implements OnInit {
   currentImageUrl = signal<string | null>(null);
   categories = signal<Icategory[]>([]);
   imageError = signal<string | null>(null);
-  readonly imageBaseUrl = 'http://localhost:5118';
+  error = signal<string | null>(null);
+  readonly imageBaseUrl = environment.baseUrl;
 
   isSubmitDisabled = computed(() => this.loading() || this.isSubmitting() || !!this.imageError());
 

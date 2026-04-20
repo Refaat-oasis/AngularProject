@@ -8,62 +8,84 @@
       <a routerLink="/admin/products" class="back-link">Back to Products</a>
     </div>
 
-    <div *ngIf="error" class="error-box">{{ error }}</div>
+    @if (error()) {
+      <div class="error-box">{{ error() }}</div>
+    }
 
-    <div *ngIf="isLoading()" class="loading-state">Loading product...</div>
-
-    <form *ngIf="!isLoading()" (ngSubmit)="submit()" #form="ngForm">
-      <div class="field">
-        <label for="name">Name</label>
-        <input id="name" type="text" [(ngModel)]="name" name="name" required minlength="3" maxlength="100" #nameRef="ngModel" />
-        <small *ngIf="nameRef.invalid && nameRef.touched">Name is required and must be at least 3 characters.</small>
-      </div>
-
-      <div class="field">
-        <label for="description">Description</label>
-        <textarea id="description" [(ngModel)]="description" name="description" required minlength="10" rows="5" #descRef="ngModel"></textarea>
-        <small *ngIf="descRef.invalid && descRef.touched">Description is required and must be at least 10 characters.</small>
-      </div>
-
-      <div class="grid">
+    @if (loading()) {
+      <div class="loading-state">Loading product...</div>
+    } @else {
+      <form (ngSubmit)="submit()" #form="ngForm">
         <div class="field">
-          <label for="price">Price</label>
-          <input id="price" type="number" [(ngModel)]="price" name="price" required min="0.01" step="0.01" #priceRef="ngModel" />
-          <small *ngIf="priceRef.invalid && priceRef.touched">Enter a valid price greater than 0.</small>
+          <label for="name">Name</label>
+          <input id="name" type="text" [(ngModel)]="name" name="name" required minlength="3" maxlength="100" #nameRef="ngModel" />
+          @if (nameRef.invalid && nameRef.touched) {
+            <small>Name is required and must be at least 3 characters.</small>
+          }
         </div>
 
         <div class="field">
-          <label for="stock">Stock</label>
-          <input id="stock" type="number" [(ngModel)]="stock" name="stock" required min="0" step="1" #stockRef="ngModel" />
-          <small *ngIf="stockRef.invalid && stockRef.touched">Enter a valid stock amount.</small>
+          <label for="description">Description</label>
+          <textarea id="description" [(ngModel)]="description" name="description" required minlength="10" rows="5" #descRef="ngModel"></textarea>
+          @if (descRef.invalid && descRef.touched) {
+            <small>Description is required and must be at least 10 characters.</small>
+          }
         </div>
-      </div>
 
-      <div class="field">
-        <label for="categoryId">Category</label>
-        <select id="categoryId" [(ngModel)]="categoryId" name="categoryId" required #categoryRef="ngModel">
-          <option [ngValue]="''">Select Category</option>
-          <option *ngFor="let category of categories()" [ngValue]="category.id">{{ category.name }}</option>
-        </select>
-        <small *ngIf="categoryRef.invalid && categoryRef.touched">Please choose a category.</small>
-      </div>
+        <div class="grid">
+          <div class="field">
+            <label for="price">Price</label>
+            <input id="price" type="number" [(ngModel)]="price" name="price" required min="0.01" step="0.01" #priceRef="ngModel" />
+            @if (priceRef.invalid && priceRef.touched) {
+              <small>Enter a valid price greater than 0.</small>
+            }
+          </div>
 
-      <div class="field">
-        <label for="image">Product Image</label>
-        <div *ngIf="currentImageUrl()" class="preview">
-          <img [src]="currentImageUrl()!" alt="Product preview" />
+          <div class="field">
+            <label for="stock">Stock</label>
+            <input id="stock" type="number" [(ngModel)]="stock" name="stock" required min="0" step="1" #stockRef="ngModel" />
+            @if (stockRef.invalid && stockRef.touched) {
+              <small>Enter a valid stock amount.</small>
+            }
+          </div>
         </div>
-        <input id="image" type="file" accept="image/jpeg,image/png,image/webp,image/gif" (change)="onFileSelected($event)" />
-        <small *ngIf="imageError" class="error-text">{{ imageError }}</small>
-        <small *ngIf="isEditMode()">Leave the image empty if you want to keep the current one.</small>
-      </div>
 
-      <div class="actions">
-        <a routerLink="/admin/products" class="btn btn-secondary">Cancel</a>
-        <button type="submit" class="btn btn-primary" [disabled]="form.invalid || isSubmitDisabled()">
-          {{ isSubmitting() ? 'Saving...' : (isEditMode() ? 'Update Product' : 'Create Product') }}
-        </button>
-      </div>
-    </form>
+        <div class="field">
+          <label for="categoryId">Category</label>
+          <select id="categoryId" [(ngModel)]="categoryId" name="categoryId" required #categoryRef="ngModel">
+            <option [ngValue]="''">Select Category</option>
+            @for (category of categories(); track category.id) {
+              <option [ngValue]="category.id">{{ category.name }}</option>
+            }
+          </select>
+          @if (categoryRef.invalid && categoryRef.touched) {
+            <small>Please choose a category.</small>
+          }
+        </div>
+
+        <div class="field">
+          <label for="image">Product Image</label>
+          @if (currentImageUrl()) {
+            <div class="preview">
+              <img [src]="currentImageUrl()!" alt="Product preview" />
+            </div>
+          }
+          <input id="image" type="file" accept="image/jpeg,image/png,image/webp,image/gif" (change)="onFileSelected($event)" />
+          @if (imageError()) {
+            <small class="error-text">{{ imageError() }}</small>
+          }
+          @if (isEditMode()) {
+            <small>Leave the image empty if you want to keep the current one.</small>
+          }
+        </div>
+
+        <div class="actions">
+          <a routerLink="/admin/products" class="btn btn-secondary">Cancel</a>
+          <button type="submit" class="btn btn-primary" [disabled]="form.invalid || isSubmitDisabled()">
+            {{ isSubmitting() ? 'Saving...' : (isEditMode() ? 'Update Product' : 'Create Product') }}
+          </button>
+        </div>
+      </form>
+    }
   </div>
 </section>

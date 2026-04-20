@@ -52,8 +52,8 @@
   padding: 18px 20px;
   border-radius: 20px;
   background: var(--surface-container-lowest);
-  border: 1px solid var(--outline-variant);
-  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.04);
+  border: none !important;
+  box-shadow: var(--shadow-ambient);
 }
 
 .stat-card strong {
@@ -90,8 +90,8 @@
   padding: 14px;
   border-radius: 22px;
   background: var(--glass-bg);
-  border: 1px solid var(--outline-variant);
-  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.04);
+  border: none !important;
+  box-shadow: var(--shadow-elevated);
   backdrop-filter: blur(12px);
 }
 
@@ -125,19 +125,20 @@
 .search-input,
 .filter-select,
 .status-select {
-  border: 1px solid var(--outline-variant);
+  border: none !important;
   border-radius: 14px;
   padding: 12px 14px;
   font: inherit;
   background: var(--surface);
   color: var(--on-surface);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05);
 }
 
 .table-shell {
   background: var(--surface-container-lowest);
-  border: 1px solid var(--outline-variant);
+  border: none !important;
   border-radius: 24px;
-  box-shadow: 0 14px 36px rgba(15, 23, 42, 0.04);
+  box-shadow: var(--shadow-ambient);
   overflow: hidden;
 }
 
@@ -263,13 +264,13 @@
 .message.error {
   background: var(--error-container);
   color: var(--on-error-container);
-  border: 1px solid var(--error);
+  border: none !important;
 }
 
 .message.success {
   background: #f0fff4;
   color: #276749;
-  border: 1px solid #9ae6b4;
+  border: none !important;
 }
 
 .loading-state,
@@ -279,7 +280,8 @@
   border-radius: 22px;
   text-align: center;
   color: var(--on-surface-variant);
-  border: 1px solid var(--outline-variant);
+  border: none !important;
+  box-shadow: var(--shadow-ambient);
 }
 
 .loading-state.compact {
@@ -320,7 +322,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 18px 24px;
-  border-bottom: 1px solid var(--outline-variant);
+  border-bottom: none !important;
 }
 
 .modal-header h3 {
@@ -354,7 +356,8 @@
   padding: 14px;
   border-radius: 16px;
   background: var(--surface-container-low);
-  border: 1px solid var(--outline-variant);
+  border: none !important;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.03);
 }
 
 .detail-card strong {
@@ -377,7 +380,7 @@
   padding: 16px;
   border-radius: 18px;
   background: var(--surface-container-low);
-  border: 1px solid var(--outline-variant);
+  border: none !important;
   margin-bottom: 18px;
 }
 
@@ -400,7 +403,7 @@
   padding: 14px;
   border-radius: 16px;
   background: var(--surface-container-low);
-  border: 1px solid var(--outline-variant);
+  border: none !important;
 }
 
 .item-row strong {

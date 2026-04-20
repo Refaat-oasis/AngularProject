@@ -2,15 +2,15 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import {
-  AdminCategory,
   AdminCategoryWithProducts
 } from '../models/admin-category.models';
+import { environment } from '../environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AdminCategoriesService {
-  private readonly baseUrl = 'http://localhost:5118/api/Categories';
+  private readonly baseUrl = `${environment.apiUrl}/Categories`;
 
   constructor(private http: HttpClient) {}
 

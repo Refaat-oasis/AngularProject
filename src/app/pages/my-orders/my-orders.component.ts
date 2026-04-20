@@ -3,6 +3,7 @@ import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { OrderService } from '../../services/order.service';
 import { OrderResponse } from '../../models/interfaces';
 import { Router } from '@angular/router';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-my-orders',
@@ -103,14 +104,19 @@ export class MyOrdersComponent implements OnInit {
 
   loadOrders(): void {
     this.loading.set(true);
-    this.orderService.getUserOrders().subscribe({
+    this.orderService.getUserOrders().pipe(
+      finalize(() => this.loading.set(false))
+    ).subscribe({
       next: (data) => {
-        this.orders.set(data.sort((a, b) => b.id - a.id));
-        this.loading.set(false);
+        if (data && Array.isArray(data)) {
+          this.orders.set([...data].sort((a, b) => b.id - a.id));
+        } else {
+          this.orders.set([]);
+        }
       },
       error: (err) => {
-        console.error(err);
-        this.loading.set(false);
+        console.error('Error loading orders:', err);
+        this.orders.set([]);
       }
     });
   }

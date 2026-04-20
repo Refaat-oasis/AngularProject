@@ -2,17 +2,15 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import {
-  AdminActionResponse,
-  RegisterDto,
-  UpdateRoleDto,
   UserWithRolesDto
 } from '../models/admin.models';
+import { environment } from '../environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AdminService {
-  private baseUrl = 'http://localhost:5118/api/Admin';
+  private baseUrl = `${environment.apiUrl}/Admin`;
 
   constructor(private http: HttpClient) { }
 

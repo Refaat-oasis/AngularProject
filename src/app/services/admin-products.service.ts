@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import { AdminProduct, ReactivateProductResponse } from '../models/admin-product.models';
+import { environment } from '../environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AdminProductsService {
-  private readonly baseUrl = 'http://localhost:5118/api/Products';
+  private readonly baseUrl = `${environment.apiUrl}/Products`;
 
   constructor(private http: HttpClient) {}
 

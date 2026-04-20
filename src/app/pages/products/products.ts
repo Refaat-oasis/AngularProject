@@ -7,6 +7,7 @@ import { Icategory } from '../../models/icategory';
 import { CategoryService } from '../../services/category-service';
 import { ActivatedRoute } from '@angular/router';
 import { switchMap } from 'rxjs';
+import { environment } from '../../environment';
 
 @Component({
   selector: 'app-products',
@@ -19,7 +20,7 @@ export class Products implements OnInit {
   products = signal<IProduct[]>([]);
   loading = signal(false);
   categories = signal<Icategory[]>([]);
-  readonly imageBaseUrl = 'http://localhost:5118';
+  readonly imageBaseUrl = environment.baseUrl;
   readonly fallbackImage =
     'data:image/svg+xml;utf8,' +
     encodeURIComponent(

@@ -7,181 +7,202 @@
     </div>
   </div>
 
-  <div class="stats-grid" *ngIf="!loading && orders.length">
-    <article class="stat-card">
-      <span class="stat-label">Orders In View</span>
-      <strong>{{ filteredOrders.length }}</strong>
-      <small>Matching the current search and filter</small>
-    </article>
-    <article class="stat-card">
-      <span class="stat-label">Processing</span>
-      <strong>{{ processingCount }}</strong>
-      <small>Orders awaiting fulfillment</small>
-    </article>
-    <article class="stat-card">
-      <span class="stat-label">Shipped</span>
-      <strong>{{ shippedCount }}</strong>
-      <small>Currently in transit</small>
-    </article>
-    <article class="stat-card">
-      <span class="stat-label">Delivered</span>
-      <strong>{{ deliveredCount }}</strong>
-      <small>Completed successfully</small>
-    </article>
-    <article class="stat-card">
-      <span class="stat-label">Cancelled</span>
-      <strong>{{ cancelledCount }}</strong>
-      <small>Removed from revenue totals</small>
-    </article>
-    <article class="stat-card accent">
-      <span class="stat-label">Revenue In View</span>
-      <strong>{{ totalRevenue | currency }}</strong>
-      <small>Total from filtered non-cancelled orders</small>
-    </article>
-  </div>
-
-  <div *ngIf="error" class="message error">{{ error }}</div>
-  <div *ngIf="success" class="message success">{{ success }}</div>
-
-  <div class="toolbar-shell" *ngIf="!loading && orders.length">
-    <div class="toolbar">
-      <label class="search-field">
-        <span>Search</span>
-        <input
-          type="text"
-          class="search-input"
-          [(ngModel)]="searchTerm"
-          placeholder="Find by order ID, address, payment, or product"
-        />
-      </label>
-
-      <label class="filter-field">
-        <span>Status</span>
-        <select class="filter-select" [(ngModel)]="statusFilter">
-          <option value="all">All Statuses</option>
-          <option *ngFor="let status of availableStatuses" [ngValue]="status">{{ status }}</option>
-        </select>
-      </label>
+  @if (!loading() && orders().length > 0) {
+    <div class="stats-grid">
+      <article class="stat-card">
+        <span class="stat-label">Orders In View</span>
+        <strong>{{ filteredOrders().length }}</strong>
+        <small>Matching the current search and filter</small>
+      </article>
+      <article class="stat-card">
+        <span class="stat-label">Processing</span>
+        <strong>{{ processingCount() }}</strong>
+        <small>Orders awaiting fulfillment</small>
+      </article>
+      <article class="stat-card">
+        <span class="stat-label">Shipped</span>
+        <strong>{{ shippedCount() }}</strong>
+        <small>Currently in transit</small>
+      </article>
+      <article class="stat-card">
+        <span class="stat-label">Delivered</span>
+        <strong>{{ deliveredCount() }}</strong>
+        <small>Completed successfully</small>
+      </article>
+      <article class="stat-card">
+        <span class="stat-label">Cancelled</span>
+        <strong>{{ cancelledCount() }}</strong>
+        <small>Removed from revenue totals</small>
+      </article>
+      <article class="stat-card accent">
+        <span class="stat-label">Revenue In View</span>
+        <strong>{{ totalRevenue() | currency }}</strong>
+        <small>Total from filtered non-cancelled orders</small>
+      </article>
     </div>
-  </div>
+  }
 
-  <div *ngIf="loading" class="loading-state">Loading orders...</div>
+  @if (error()) {
+    <div class="message error">{{ error() }}</div>
+  }
+  @if (success()) {
+    <div class="message success">{{ success() }}</div>
+  }
 
-  <div *ngIf="!loading && !orders.length" class="empty-state">
-    <h3>No orders yet</h3>
-    <p>The admin orders API returned an empty list.</p>
-  </div>
+  @if (!loading() && orders().length > 0) {
+    <div class="toolbar-shell">
+      <div class="toolbar">
+        <label class="search-field">
+          <span>Search</span>
+          <input
+            type="text"
+            class="search-input"
+            [ngModel]="searchTerm()"
+            (ngModelChange)="searchTerm.set($event)"
+            placeholder="Find by order ID, address, payment, or product"
+          />
+        </label>
 
-  <div *ngIf="!loading && orders.length && !filteredOrders.length" class="empty-state">
-    <h3>No matching orders</h3>
-    <p>Try changing the search text or selected status.</p>
-  </div>
-
-  <div class="table-shell" *ngIf="!loading && filteredOrders.length">
-    <div class="table-header">
-      <div>
-        <h3>Order Queue</h3>
-        <p>{{ filteredOrders.length }} orders match the current view.</p>
+        <label class="filter-field">
+          <span>Status</span>
+          <select class="filter-select" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
+            <option value="all">All Statuses</option>
+            @for (status of availableStatuses; track status) {
+              <option [ngValue]="status">{{ status }}</option>
+            }
+          </select>
+        </label>
       </div>
     </div>
+  }
 
-    <div class="table-container">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Order</th>
-            <th>Date</th>
-            <th>Total</th>
-            <th>Payment</th>
-            <th>Status</th>
-            <th>Items</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let order of filteredOrders; trackBy: trackByOrderId">
-            <td>
-              <div class="order-cell">
-                <strong>#{{ order.id }}</strong>
-                <small>{{ order.shippingAddress }}</small>
-              </div>
-            </td>
-            <td>{{ order.orderDate | date:'mediumDate' }}</td>
-            <td>{{ order.total | currency }}</td>
-            <td>{{ order.paymentMethod }}</td>
-            <td>
-              <span class="status-badge" [ngClass]="getStatusClass(order.status)">
-                {{ order.status }}
-              </span>
-            </td>
-            <td>{{ order.items.length }}</td>
-            <td>
-              <div class="actions">
-                <select
-                  class="status-select"
-                  [ngModel]="order.status"
-                  [disabled]="updatingOrderId === order.id"
-                  (ngModelChange)="updateStatus(order, $event)"
-                >
-                  <option *ngFor="let status of availableStatuses" [ngValue]="status">{{ status }}</option>
-                </select>
-                <button type="button" class="btn btn-secondary" (click)="openDetails(order)">Details</button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+  @if (loading()) {
+    <div class="loading-state">Loading orders...</div>
+  } @else if (orders().length === 0) {
+    <div class="empty-state">
+      <h3>No orders yet</h3>
+      <p>The admin orders API returned an empty list.</p>
     </div>
-  </div>
-
-  <div class="modal-overlay" *ngIf="showDetailsModal">
-    <div class="modal-content modal-wide">
-      <div class="modal-header">
-        <h3>Order {{ selectedOrder ? '#' + selectedOrder.id : 'Details' }}</h3>
-        <button class="close-btn" type="button" (click)="closeDetails()">&times;</button>
+  } @else if (filteredOrders().length === 0) {
+    <div class="empty-state">
+      <h3>No matching orders</h3>
+      <p>Try changing the search text or selected status.</p>
+    </div>
+  } @else {
+    <div class="table-shell">
+      <div class="table-header">
+        <div>
+          <h3>Order Queue</h3>
+          <p>{{ filteredOrders().length }} orders match the current view.</p>
+        </div>
       </div>
 
-      <div class="modal-body">
-        <div *ngIf="detailsLoading" class="loading-state compact">Loading order details...</div>
-
-        <ng-container *ngIf="!detailsLoading && selectedOrder">
-          <div class="detail-grid">
-            <article class="detail-card">
-              <span class="detail-label">Date</span>
-              <strong>{{ selectedOrder.orderDate | date:'medium' }}</strong>
-            </article>
-            <article class="detail-card">
-              <span class="detail-label">Status</span>
-              <strong>{{ selectedOrder.status }}</strong>
-            </article>
-            <article class="detail-card">
-              <span class="detail-label">Payment</span>
-              <strong>{{ selectedOrder.paymentMethod }}</strong>
-            </article>
-            <article class="detail-card accent">
-              <span class="detail-label">Total</span>
-              <strong>{{ selectedOrder.total | currency }}</strong>
-            </article>
-          </div>
-
-          <div class="shipping-box">
-            <span class="detail-label">Shipping Address</span>
-            <p>{{ selectedOrder.shippingAddress }}</p>
-          </div>
-
-          <div class="items-list">
-            <article class="item-row" *ngFor="let item of selectedOrder.items">
-              <div>
-                <strong>{{ item.productName }}</strong>
-                <small>Product ID: {{ item.productId }}</small>
-              </div>
-              <span>Qty {{ item.quantity }}</span>
-              <span>{{ item.price | currency }}</span>
-              <strong>{{ item.subtotal | currency }}</strong>
-            </article>
-          </div>
-        </ng-container>
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Order</th>
+              <th>Date</th>
+              <th>Total</th>
+              <th>Payment</th>
+              <th>Status</th>
+              <th>Items</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (order of filteredOrders(); track trackByOrderId($index, order)) {
+              <tr>
+                <td>
+                  <div class="order-cell">
+                    <strong>#{{ order.id }}</strong>
+                    <small>{{ order.shippingAddress }}</small>
+                  </div>
+                </td>
+                <td>{{ order.orderDate | date:'mediumDate' }}</td>
+                <td>{{ order.total | currency }}</td>
+                <td>{{ order.paymentMethod }}</td>
+                <td>
+                  <span class="status-badge" [ngClass]="getStatusClass(order.status)">
+                    {{ order.status }}
+                  </span>
+                </td>
+                <td>{{ order.items.length }}</td>
+                <td>
+                  <div class="actions">
+                    <select
+                      class="status-select"
+                      [ngModel]="order.status"
+                      [disabled]="updatingOrderId() === order.id"
+                      (ngModelChange)="updateStatus(order, $event)"
+                    >
+                      @for (status of availableStatuses; track status) {
+                        <option [ngValue]="status">{{ status }}</option>
+                      }
+                    </select>
+                    <button type="button" class="btn btn-secondary" (click)="openDetails(order)">Details</button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
       </div>
     </div>
-  </div>
+  }
+
+  @if (showDetailsModal()) {
+    <div class="modal-overlay">
+      <div class="modal-content modal-wide">
+        <div class="modal-header">
+          <h3>Order {{ selectedOrder() ? '#' + selectedOrder()!.id : 'Details' }}</h3>
+          <button class="close-btn" type="button" (click)="closeDetails()">&times;</button>
+        </div>
+
+        <div class="modal-body">
+          @if (detailsLoading()) {
+            <div class="loading-state compact">Loading order details...</div>
+          } @else if (selectedOrder()) {
+            <div class="detail-grid">
+              <article class="detail-card">
+                <span class="detail-label">Date</span>
+                <strong>{{ selectedOrder()!.orderDate | date:'medium' }}</strong>
+              </article>
+              <article class="detail-card">
+                <span class="detail-label">Status</span>
+                <strong>{{ selectedOrder()!.status }}</strong>
+              </article>
+              <article class="detail-card">
+                <span class="detail-label">Payment</span>
+                <strong>{{ selectedOrder()!.paymentMethod }}</strong>
+              </article>
+              <article class="detail-card accent">
+                <span class="detail-label">Total</span>
+                <strong>{{ selectedOrder()!.total | currency }}</strong>
+              </article>
+            </div>
+
+            <div class="shipping-box">
+              <span class="detail-label">Shipping Address</span>
+              <p>{{ selectedOrder()!.shippingAddress }}</p>
+            </div>
+
+            <div class="items-list">
+              @for (item of selectedOrder()!.items; track item.productId) {
+                <article class="item-row">
+                  <div>
+                    <strong>{{ item.productName }}</strong>
+                    <small>Product ID: {{ item.productId }}</small>
+                  </div>
+                  <span>Qty {{ item.quantity }}</span>
+                  <span>{{ item.price | currency }}</span>
+                  <strong>{{ item.subtotal | currency }}</strong>
+                </article>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
 </section>

@@ -2,12 +2,13 @@ import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
+import { environment } from '../environment';
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   // Your API project is located at: C:\Users\ahta6\OneDrive\Desktop\.Net API & Angular project\ApiProject
-  private baseUrl = 'http://localhost:5118/api/Account';
+  private baseUrl = `${environment.apiUrl}/Account`;
   loggedIn = signal<boolean>(!!(localStorage.getItem('token') || sessionStorage.getItem('token')));
 
   constructor(private http: HttpClient) {}

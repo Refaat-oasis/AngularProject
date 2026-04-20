@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AuthService } from './auth.service';
+import { environment } from '../environment';
 
 export interface ReviewDto {
   id: number;
@@ -17,7 +18,7 @@ export interface CreateReviewDto {
 }
 @Injectable({ providedIn: 'root' })
 export class ReviewService {
-  private apiUrl = 'http://localhost:5118/api/Reviews';
+  private apiUrl = `${environment.apiUrl}/Reviews`;
 
 
   

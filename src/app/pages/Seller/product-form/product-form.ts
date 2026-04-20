@@ -3,6 +3,7 @@ import { ProductService } from '../../../services/product-service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CategoryService } from '../../../services/category-service';
+import { environment } from '../../../environment';
 
 @Component({
   selector: 'app-product-form',
@@ -17,7 +18,7 @@ export class ProductForm implements OnInit {
   isSubmitting = signal(false);
   selectedFile = signal<File | null>(null);
   currentImageUrl = signal<string | null>(null);
-  baseUrl = 'http://localhost:5118/images/products/';
+  baseUrl = `${environment.baseUrl}/images/products/`;
   categories = signal<any[]>([]);
   imageError = signal<string | null>(null);
 
@@ -140,5 +141,9 @@ export class ProductForm implements OnInit {
         }
       }
     });
+  }
+
+  goBack(): void {
+    this.router.navigate(['/seller/products']);
   }
 }

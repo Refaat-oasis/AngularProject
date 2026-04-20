@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { IProduct } from '../../../models/iproduct';
 import { ProductService } from '../../../services/product-service';
+import { environment } from '../../../environment';
 
 
 @Component({
@@ -16,7 +17,7 @@ export class ProductsList implements OnInit {
 
   products = signal<IProduct[]>([]);
   loading = signal(false);
-  baseUrl = 'http://localhost:5118';
+  baseUrl = environment.baseUrl;
   selectedId!: number;
 
   public router = inject(Router);
