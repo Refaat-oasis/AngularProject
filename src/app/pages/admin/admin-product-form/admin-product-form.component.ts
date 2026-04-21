@@ -157,8 +157,9 @@ export class AdminProductFormComponent implements OnInit {
     });
   }
 
-  private getImageUrl(path: string): string | null {
+  private getImageUrl(path: string | null | undefined): string | null {
     if (!path) return null;
-    return path.startsWith('http') ? path : `${this.imageBaseUrl}${path}`;
+    if (path.startsWith('data:image') || path.startsWith('http')) return path;
+    return path.startsWith('/') ? `${this.imageBaseUrl}${path}` : `${this.imageBaseUrl}/${path}`;
   }
 }

@@ -68,7 +68,7 @@ export class ProductFormComponent implements OnInit {
     this.productService.getById(id).subscribe({
       next: (res) => {
         this.model.set(res);
-        this.currentImageUrl.set(res.image ? this.baseUrl + res.image : null);
+        this.currentImageUrl.set(this.getImageUrl(res.image));
         this.loading.set(false);
       },
       error: (err) => {
@@ -76,6 +76,12 @@ export class ProductFormComponent implements OnInit {
         this.loading.set(false);
       }
     });
+  }
+
+  getImageUrl(path: string | null | undefined): string | null {
+    if (!path) return null;
+    if (path.startsWith('data:image') || path.startsWith('http')) return path;
+    return path.startsWith('/') ? `${environment.baseUrl}${path}` : `${environment.baseUrl}/${path}`;
   }
 
   onFileSelected(event: Event): void {
