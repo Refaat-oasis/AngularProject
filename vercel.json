@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "http://architecture.runasp.net/api/$1"
+    }
+  ]
+}

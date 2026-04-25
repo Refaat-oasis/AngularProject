@@ -111,9 +111,14 @@ export class ProductsComponent implements OnInit {
     this.clearCategoryFilter();
   }
 
-  getImageUrl(path: string | null | undefined): string {
+  getImageUrl(product: IProduct | null | undefined): string {
+    if (!product) return this.fallbackImage;
+    const path = product.imageUrl || product.image;
     if (!path) return this.fallbackImage;
+    // Full external URL or data URI → use directly
     if (path.startsWith('data:image') || path.startsWith('http')) return path;
+    // Bare filename with no path separator (e.g. "product.jpg") → unresolvable
+    if (!path.includes('/')) return this.fallbackImage;
     return path.startsWith('/') ? `${this.imageBaseUrl}${path}` : `${this.imageBaseUrl}/${path}`;
   }
 

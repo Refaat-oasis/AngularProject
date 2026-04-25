@@ -8,4 +8,5 @@ export interface IProduct {
   categoryId: number;
   categoryName?: string;
   image: string;
+  imageUrl?: string;
 }

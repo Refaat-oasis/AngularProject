@@ -76,7 +76,7 @@ export class ProductDetailsComponent implements OnInit {
     this.loadAvgRating(id);
   }
 
-  getImageUrl(path: string | null | undefined): string {
+  getImageUrl(product: IProduct | null | undefined): string {
     const fallbackImage = 'data:image/svg+xml;utf8,' +
       encodeURIComponent(
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 720">' +
@@ -86,8 +86,12 @@ export class ProductDetailsComponent implements OnInit {
         '<text x="300" y="650" text-anchor="middle" font-family="Arial, sans-serif" font-size="30" fill="#4a5568">No Image</text>' +
         '</svg>'
       );
+    if (!product) return fallbackImage;
+    const path = product.imageUrl || product.image;
     if (!path) return fallbackImage;
     if (path.startsWith('data:image') || path.startsWith('http')) return path;
+    // Bare filename with no path separator (e.g. "product.jpg") → unresolvable
+    if (!path.includes('/')) return fallbackImage;
     return path.startsWith('/') ? `${environment.baseUrl}${path}` : `${environment.baseUrl}/${path}`;
   }
 
@@ -96,7 +100,7 @@ export class ProductDetailsComponent implements OnInit {
     this.productService.getById(id).subscribe({
       next: (data) => {
         this.product.set(data);
-        this.selectedImage.set(this.getImageUrl(data.image));
+        this.selectedImage.set(this.getImageUrl(data));
         this.loading.set(false);
       },
       error: (err) => {

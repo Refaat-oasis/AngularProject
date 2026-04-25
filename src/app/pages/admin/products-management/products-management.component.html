@@ -86,7 +86,7 @@
       @for (product of filteredProducts(); track trackByProductId($index, product)) {
         <article class="product-card">
           <div class="image-wrap">
-            <img [src]="getImageUrl(product.image)" [alt]="product.name" (error)="useFallbackImage($event)" />
+            <img [src]="getImageUrl(product)" [alt]="product.name" (error)="useFallbackImage($event)" />
             <span class="status" [class.deleted]="product.isDeleted">
               {{ product.isDeleted ? 'Deleted' : 'Active' }}
             </span>

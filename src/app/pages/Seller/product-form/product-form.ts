@@ -68,7 +68,7 @@ export class ProductFormComponent implements OnInit {
     this.productService.getById(id).subscribe({
       next: (res) => {
         this.model.set(res);
-        this.currentImageUrl.set(this.getImageUrl(res.image));
+        this.currentImageUrl.set(this.getImageUrl(res));
         this.loading.set(false);
       },
       error: (err) => {
@@ -78,9 +78,13 @@ export class ProductFormComponent implements OnInit {
     });
   }
 
-  getImageUrl(path: string | null | undefined): string | null {
+  getImageUrl(product: any): string | null {
+    if (!product) return null;
+    const path = product.imageUrl || product.image;
     if (!path) return null;
     if (path.startsWith('data:image') || path.startsWith('http')) return path;
+    // Bare filename with no path separator (e.g. "product.jpg") → unresolvable
+    if (!path.includes('/')) return null;
     return path.startsWith('/') ? `${environment.baseUrl}${path}` : `${environment.baseUrl}/${path}`;
   }
 

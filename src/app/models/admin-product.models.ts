@@ -6,6 +6,7 @@ export interface AdminProduct {
   stock: number;
   categoryId: number;
   image: string;
+  imageUrl?: string;
   isDeleted?: boolean;
 }
 

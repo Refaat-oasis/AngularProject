@@ -128,9 +128,13 @@ export class ProductsManagementComponent implements OnInit {
     });
   }
 
-  getImageUrl(path: string): string {
+  getImageUrl(product: AdminProduct | null | undefined): string {
+    if (!product) return this.fallbackImage;
+    const path = product.imageUrl || product.image;
     if (!path) return this.fallbackImage;
     if (path.startsWith('data:image') || path.startsWith('http')) return path;
+    // Bare filename with no path separator (e.g. "product.jpg") → unresolvable
+    if (!path.includes('/')) return this.fallbackImage;
     return path.startsWith('/') ? `${this.imageBaseUrl}${path}` : `${this.imageBaseUrl}/${path}`;
   }
 

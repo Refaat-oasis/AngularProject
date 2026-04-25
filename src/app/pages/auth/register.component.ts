@@ -116,12 +116,16 @@ import { AuthService } from '../../services/auth.service';
             <div class="input-wrap">
               <span class="material-symbols-outlined input-icon">lock</span>
               <input type="password"
-                class="form-control auth-input"
+                class="form-control auth-input auth-input-padded"
                 [class.is-invalid]="password.invalid && password.touched"
                 name="password" #password="ngModel" [(ngModel)]="user.password"
                 required minlength="6"
+                [type]="showPassword ? 'text' : 'password'"
                 pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@@$!%*?&])[A-Za-z\\d@@$!%*?&]{6,}$"
                 placeholder="••••••••">
+              <button type="button" class="toggle-pw-btn" (click)="showPassword = !showPassword" tabindex="-1" aria-label="Toggle password visibility">
+                <span class="material-symbols-outlined">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
+              </button>
             </div>
             @if (password.touched && password.invalid) {
               <div class="error-text mt-2">
@@ -201,8 +205,20 @@ import { AuthService } from '../../services/auth.service';
       position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
       font-size: 20px; color: var(--on-surface-variant); pointer-events: none; z-index: 1;
     }
+    .toggle-pw-btn {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; padding: 0; cursor: pointer;
+      color: var(--on-surface-variant); z-index: 2;
+      display: flex; align-items: center;
+      transition: color 0.2s;
+    }
+    .toggle-pw-btn:hover { color: var(--on-surface); }
+    .toggle-pw-btn .material-symbols-outlined { font-size: 20px; }
     .auth-input {
       padding-left: 44px !important;
+    }
+    .auth-input-padded {
+      padding-right: 44px !important;
       background: var(--surface-container-low) !important;
       border: 1px solid var(--outline-variant) !important;
       border-radius: 12px !important;
@@ -283,6 +299,7 @@ import { AuthService } from '../../services/auth.service';
 export class RegisterComponent {
   user = { name: '', email: '', password: '', address: '', role: 'User' };
   errorMessage = '';
+  showPassword = false;
 
   constructor(
     private authService: AuthService,

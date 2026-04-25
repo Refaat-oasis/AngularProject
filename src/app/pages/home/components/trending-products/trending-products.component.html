@@ -12,7 +12,7 @@
              style="cursor: pointer;">
           
           <div class="img-wrapper aspect-portrait bg-theme-variant">
-            <img [src]="getImageUrl(product.image)" class="w-100 h-100 object-fit-cover hover-zoom"
+            <img [src]="getImageUrl(product)" class="w-100 h-100 object-fit-cover hover-zoom"
                  [alt]="product.name" (error)="useFallbackImage($event)">
             
             <div class="quick-action-overlay d-flex justify-content-between align-items-center">

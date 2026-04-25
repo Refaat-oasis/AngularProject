@@ -23,7 +23,8 @@ export class AdminProductFormComponent implements OnInit {
     price: 0,
     stock: 0,
     categoryId: '' as number | '',
-    image: ''
+    image: '',
+    imageUrl: ''
   });
   isEditMode = signal(false);
   loading = signal(false);
@@ -87,9 +88,10 @@ export class AdminProductFormComponent implements OnInit {
           price: product.price,
           stock: product.stock,
           categoryId: product.categoryId,
-          image: product.image
+          image: product.image,
+          imageUrl: product.imageUrl || ''
         });
-        this.currentImageUrl.set(this.getImageUrl(product.image));
+        this.currentImageUrl.set(this.getImageUrl(product));
         this.loading.set(false);
       },
       error: (err) => {
@@ -157,9 +159,13 @@ export class AdminProductFormComponent implements OnInit {
     });
   }
 
-  private getImageUrl(path: string | null | undefined): string | null {
+  private getImageUrl(product: any): string | null {
+    if (!product) return null;
+    const path = product.imageUrl || product.image;
     if (!path) return null;
     if (path.startsWith('data:image') || path.startsWith('http')) return path;
+    // Bare filename with no path separator (e.g. "product.jpg") → unresolvable
+    if (!path.includes('/')) return null;
     return path.startsWith('/') ? `${this.imageBaseUrl}${path}` : `${this.imageBaseUrl}/${path}`;
   }
 }
