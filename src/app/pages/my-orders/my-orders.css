@@ -1,0 +1,71 @@
+.page-wrapper {
+  max-width: 1240px;
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1) !important;
+}
+
+.last-border-none:last-child {
+  border-bottom: none !important;
+}
+
+.status-processing {
+  background-color: var(--secondary-container);
+  color: var(--on-secondary-container);
+}
+
+.status-shipped {
+  background-color: var(--surface-container-low);
+  color: var(--secondary);
+}
+
+.status-delivered {
+  background-color: var(--success-container);
+  color: var(--on-success-container);
+}
+
+.status-cancelled {
+  background-color: var(--error-container);
+  color: var(--on-error-container);
+}
+
+.border-theme {
+  border-bottom: 1px solid var(--outline-variant);
+}
+
+.order-card {
+  border-radius: 26px !important;
+  box-shadow: var(--shadow-ambient) !important;
+}
+
+.order-header {
+  background: var(--surface-container-lowest) !important;
+}
+
+.order-item {
+  align-items: center;
+}
+
+.order-footer {
+  gap: 16px;
+}
+
+.order-meta-card {
+  padding: 1rem 1.1rem;
+  border-radius: 18px;
+  background: var(--surface-container-low);
+  box-shadow: var(--shadow-ambient);
+}
+
+@media (max-width: 767px) {
+  .order-footer {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+
+  .order-total {
+    text-align: left !important;
+  }
+}

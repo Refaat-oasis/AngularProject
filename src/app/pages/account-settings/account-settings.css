@@ -1,0 +1,57 @@
+.account-settings-page {
+  max-width: 1240px;
+}
+
+.settings-card {
+  height: 100%;
+  padding: 1.75rem;
+  border-radius: 28px;
+  background: var(--surface);
+  box-shadow: var(--shadow-ambient);
+}
+
+.card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  background: var(--surface-container-low);
+  color: var(--secondary);
+  font-size: 1.75rem;
+}
+
+.field-error {
+  margin-top: 0.45rem;
+  color: var(--error);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.field-hint {
+  margin-top: 0.45rem;
+  color: var(--on-surface-variant);
+  font-size: 0.875rem;
+}
+
+.alert {
+  border: none;
+  border-radius: 18px;
+}
+
+.alert-success {
+  background: var(--success-container);
+  color: var(--on-success-container);
+}
+
+.alert-danger {
+  background: var(--error-container);
+  color: var(--on-error-container);
+}
+
+@media (max-width: 767px) {
+  .settings-card {
+    padding: 1.25rem;
+  }
+}

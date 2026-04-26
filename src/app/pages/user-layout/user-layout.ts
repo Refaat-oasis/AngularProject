@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { FooterComponent } from '../../shared/components/footer/footer.component';
-import { NavbarComponent } from '../../shared/components/navbar/navbar.component';
+import { FooterComponent } from '../../shared/components/footer/footer';
+import { NavbarComponent } from '../../shared/components/navbar/navbar';
 
 import {RouterOutlet } from '@angular/router';
 

@@ -1,7 +1,7 @@
-
 import { Component, computed, OnInit, signal } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CurrencyPipe } from '@angular/common';
+import { finalize } from 'rxjs';
 import { ProductService } from '../../services/product-service';
 import { IProduct } from '../../models/iproduct';
 import { RatingComponent } from '../rating/rating';
@@ -12,6 +12,7 @@ import { CreateReviewDto } from '../../services/review-services';
 import { FormsModule } from '@angular/forms';
 import { CartService } from '../../services/cart.service';
 import { environment } from '../../environment';
+import { FavouritesService } from '../../services/favourites.service';
 
 @Component({
   selector: 'app-product-details',
@@ -20,7 +21,6 @@ import { environment } from '../../environment';
   styleUrl: './product-details.css',
 })
 export class ProductDetailsComponent implements OnInit {
-
   product = signal<IProduct | null>(null);
   loading = signal(false);
   avgRating = signal(0);
@@ -31,10 +31,16 @@ export class ProductDetailsComponent implements OnInit {
   reviewSuccess = signal(false);
   reviewError = signal('');
   showReviewForm = signal(false);
-  isAddedToCart = signal(false);
+  cartFeedback = signal<{ tone: 'success' | 'error'; message: string } | null>(null);
+  favouriteFeedback = signal('');
+  isAddingToCart = signal(false);
 
   roundedAvgRating = computed(() => Math.floor(this.avgRating()));
   selectedImage = signal('');
+  isFavourite = computed(() => {
+    const product = this.product();
+    return !!product && this.favouritesService.isFavourite(product.id);
+  });
 
   constructor(
     private route: ActivatedRoute,
@@ -42,11 +48,17 @@ export class ProductDetailsComponent implements OnInit {
     private productService: ProductService,
     private reviewService: ReviewService,
     public authService: AuthService,
-    private cartService: CartService
+    private cartService: CartService,
+    public favouritesService: FavouritesService
   ) {}
 
-  onImageError(event: any): void {
-    event.target.src =
+  onImageError(event: Event): void {
+    const image = event.target as HTMLImageElement | null;
+    if (!image) {
+      return;
+    }
+
+    image.src =
       'data:image/svg+xml;utf8,' +
       encodeURIComponent(
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 720">' +
@@ -59,14 +71,40 @@ export class ProductDetailsComponent implements OnInit {
   }
 
   addToCart(): void {
-    const prod = this.product();
-    if (prod) {
-      this.cartService.addToCart(prod.id, 1);
-      this.isAddedToCart.set(true);
-      setTimeout(() => {
-        this.isAddedToCart.set(false);
-      }, 3000);
+    const product = this.product();
+    if (!product) {
+      return;
     }
+
+    this.isAddingToCart.set(true);
+    this.cartFeedback.set(null);
+
+    this.cartService.addToCart(product.id, 1).pipe(
+      finalize(() => this.isAddingToCart.set(false))
+    ).subscribe({
+      next: () => {
+        this.cartFeedback.set({
+          tone: 'success',
+          message: 'Success! Added to your collection.'
+        });
+      },
+      error: (error) => {
+        this.cartFeedback.set({
+          tone: 'error',
+          message: error.error?.message || 'We could not add this product to your cart. Please try again.'
+        });
+      }
+    });
+  }
+
+  toggleFavourite(): void {
+    const product = this.product();
+    if (!product) {
+      return;
+    }
+
+    const isFavouriteNow = this.favouritesService.toggle(product);
+    this.favouriteFeedback.set(isFavouriteNow ? 'Saved to favourites.' : 'Removed from favourites.');
   }
 
   ngOnInit(): void {
@@ -77,7 +115,8 @@ export class ProductDetailsComponent implements OnInit {
   }
 
   getImageUrl(product: IProduct | null | undefined): string {
-    const fallbackImage = 'data:image/svg+xml;utf8,' +
+    const fallbackImage =
+      'data:image/svg+xml;utf8,' +
       encodeURIComponent(
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 720">' +
         '<rect width="600" height="720" fill="#f7fafc"/>' +
@@ -86,12 +125,24 @@ export class ProductDetailsComponent implements OnInit {
         '<text x="300" y="650" text-anchor="middle" font-family="Arial, sans-serif" font-size="30" fill="#4a5568">No Image</text>' +
         '</svg>'
       );
-    if (!product) return fallbackImage;
+
+    if (!product) {
+      return fallbackImage;
+    }
+
     const path = product.imageUrl || product.image;
-    if (!path) return fallbackImage;
-    if (path.startsWith('data:image') || path.startsWith('http')) return path;
-    // Bare filename with no path separator (e.g. "product.jpg") → unresolvable
-    if (!path.includes('/')) return fallbackImage;
+    if (!path) {
+      return fallbackImage;
+    }
+
+    if (path.startsWith('data:image') || path.startsWith('http')) {
+      return path;
+    }
+
+    if (!path.includes('/')) {
+      return fallbackImage;
+    }
+
     return path.startsWith('/') ? `${environment.baseUrl}${path}` : `${environment.baseUrl}/${path}`;
   }
 
@@ -101,6 +152,7 @@ export class ProductDetailsComponent implements OnInit {
       next: (data) => {
         this.product.set(data);
         this.selectedImage.set(this.getImageUrl(data));
+        this.cartFeedback.set(null);
         this.loading.set(false);
       },
       error: (err) => {
@@ -125,7 +177,7 @@ export class ProductDetailsComponent implements OnInit {
   }
 
   toggleReviewForm(): void {
-    this.showReviewForm.update(v => !v);
+    this.showReviewForm.update(value => !value);
   }
 
   submitReview(): void {
@@ -134,9 +186,11 @@ export class ProductDetailsComponent implements OnInit {
       comment: this.reviewComment,
       starRating: this.reviewRating
     };
+
     this.reviewSubmitting.set(true);
     this.reviewSuccess.set(false);
     this.reviewError.set('');
+
     this.reviewService.addReview(dto).subscribe({
       next: () => {
         this.reviewSuccess.set(true);

@@ -1,0 +1,89 @@
+.favourites-panel,
+.empty-favourites {
+  padding: 1.75rem;
+  border-radius: 28px;
+  background: var(--surface);
+  box-shadow: var(--shadow-ambient);
+}
+
+.favourite-card {
+  padding: 1.25rem;
+  border-radius: 24px;
+  background: var(--surface-container-low);
+  box-shadow: var(--shadow-ambient);
+}
+
+.image-frame {
+  display: block;
+  width: min(100%, 180px);
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: 22px;
+  background: var(--surface-container-lowest);
+}
+
+.favourite-title {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--on-surface);
+}
+
+.favourite-title:hover {
+  color: var(--secondary);
+}
+
+.favourite-price {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--on-surface);
+}
+
+.stock-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.in-stock {
+  background: var(--secondary-container);
+  color: var(--on-secondary-container);
+}
+
+.out-of-stock {
+  background: var(--error-container);
+  color: var(--on-error-container);
+}
+
+.empty-icon {
+  font-size: 3.5rem;
+  color: var(--secondary);
+}
+
+.alert {
+  border: none;
+  border-radius: 18px;
+  padding: 0.95rem 1rem;
+  font-weight: 600;
+}
+
+.alert-success {
+  background: var(--success-container);
+  color: var(--on-success-container);
+}
+
+.alert-danger {
+  background: var(--error-container);
+  color: var(--on-error-container);
+}
+
+@media (max-width: 991px) {
+  .image-frame {
+    width: 100%;
+    max-width: none;
+  }
+}

@@ -6,7 +6,7 @@ import { RouterLink } from '@angular/router';
 import { ICategory } from '../../models/icategory';
 import { CategoryService } from '../../services/category-service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { switchMap } from 'rxjs';
+import { finalize, switchMap } from 'rxjs';
 import { environment } from '../../environment';
 import { CartService } from '../../services/cart.service';
 import { FormsModule } from '@angular/forms';
@@ -37,6 +37,7 @@ export class ProductsComponent implements OnInit {
 
   hasProducts = computed(() => this.products().length > 0);
   isReady = computed(() => !this.loading());
+  addingProductId = signal<number | null>(null);
 
   constructor(
     private productService: ProductService,
@@ -126,6 +127,17 @@ export class ProductsComponent implements OnInit {
     const image = event.target as HTMLImageElement | null;
     if (!image || image.src === this.fallbackImage) return;
     image.src = this.fallbackImage;
+  }
+
+  addToCart(product: IProduct, event: Event): void {
+    event.stopPropagation();
+    this.addingProductId.set(product.id);
+
+    this.cartService.addToCart(product.id, 1).pipe(
+      finalize(() => this.addingProductId.set(null))
+    ).subscribe({
+      error: (error) => console.error('Failed to add product to cart', error)
+    });
   }
 }
 

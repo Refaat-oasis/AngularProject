@@ -1,0 +1,115 @@
+<div class="container py-5 mt-5 account-settings-page">
+  <header class="mb-4">
+    <p class="text-theme-variant text-uppercase fw-bold small mb-2">Account</p>
+    <h1 class="display-6 text-theme-primary mb-2">My Settings</h1>
+    <p class="text-theme-variant mb-0">Update your name, address, and password in one place.</p>
+  </header>
+
+  @if (loadingProfile()) {
+    <div class="settings-card text-center py-5">
+      <div class="spinner-border text-theme-variant" role="status">
+        <span class="visually-hidden">Loading account details</span>
+      </div>
+    </div>
+  } @else {
+    <div class="row g-4">
+      <div class="col-12 col-lg-7">
+        <section class="settings-card">
+          <div class="d-flex align-items-center gap-3 mb-4">
+            <span class="card-icon material-symbols-outlined">badge</span>
+            <div>
+              <h2 class="h4 text-theme-primary mb-1">Profile Details</h2>
+              <p class="text-theme-variant mb-0">Keep your public account information up to date.</p>
+            </div>
+          </div>
+
+          @if (profileMessage()) {
+            <div class="alert alert-success mb-3">{{ profileMessage() }}</div>
+          }
+
+          @if (profileError()) {
+            <div class="alert alert-danger mb-3">{{ profileError() }}</div>
+          }
+
+          <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" novalidate>
+            <div class="mb-3">
+              <label class="form-label text-theme-primary fw-semibold" for="fullName">Full Name</label>
+              <input id="fullName" type="text" class="form-control" formControlName="fullName">
+              @if (isProfileFieldInvalid('fullName')) {
+                <div class="field-error">Please enter a name between 2 and 100 characters.</div>
+              }
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label text-theme-primary fw-semibold" for="email">Email</label>
+              <input id="email" type="email" class="form-control" formControlName="email" readonly>
+              <div class="field-hint">Email changes are not available from this screen.</div>
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label text-theme-primary fw-semibold" for="address">Address</label>
+              <textarea id="address" rows="4" class="form-control" formControlName="address"></textarea>
+              @if (isProfileFieldInvalid('address')) {
+                <div class="field-error">Please enter an address between 5 and 250 characters.</div>
+              }
+            </div>
+
+            <button type="submit" class="btn btn-primary-merchant px-4" [disabled]="savingProfile()">
+              {{ savingProfile() ? 'Saving...' : 'Save Profile' }}
+            </button>
+          </form>
+        </section>
+      </div>
+
+      <div class="col-12 col-lg-5">
+        <section class="settings-card">
+          <div class="d-flex align-items-center gap-3 mb-4">
+            <span class="card-icon material-symbols-outlined">lock_reset</span>
+            <div>
+              <h2 class="h4 text-theme-primary mb-1">Change Password</h2>
+              <p class="text-theme-variant mb-0">Use your current password to set a new one securely.</p>
+            </div>
+          </div>
+
+          @if (passwordMessage()) {
+            <div class="alert alert-success mb-3">{{ passwordMessage() }}</div>
+          }
+
+          @if (passwordError()) {
+            <div class="alert alert-danger mb-3">{{ passwordError() }}</div>
+          }
+
+          <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" novalidate>
+            <div class="mb-3">
+              <label class="form-label text-theme-primary fw-semibold" for="currentPassword">Current Password</label>
+              <input id="currentPassword" type="password" class="form-control" formControlName="currentPassword">
+              @if (isPasswordFieldInvalid('currentPassword')) {
+                <div class="field-error">Please enter your current password.</div>
+              }
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label text-theme-primary fw-semibold" for="newPassword">New Password</label>
+              <input id="newPassword" type="password" class="form-control" formControlName="newPassword">
+              @if (isPasswordFieldInvalid('newPassword')) {
+                <div class="field-error">Your new password must be at least 6 characters long.</div>
+              }
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label text-theme-primary fw-semibold" for="confirmNewPassword">Confirm New Password</label>
+              <input id="confirmNewPassword" type="password" class="form-control" formControlName="confirmNewPassword">
+              @if (isPasswordFieldInvalid('confirmNewPassword')) {
+                <div class="field-error">Please confirm your new password.</div>
+              }
+            </div>
+
+            <button type="submit" class="btn btn-primary-merchant px-4" [disabled]="changingPassword()">
+              {{ changingPassword() ? 'Updating...' : 'Update Password' }}
+            </button>
+          </form>
+        </section>
+      </div>
+    </div>
+  }
+</div>

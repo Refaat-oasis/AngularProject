@@ -1,5 +1,4 @@
 <div class="container py-5 mt-5 product-detail-shell">
-
   @if (loading()) {
     <div class="d-flex justify-content-center align-items-center" style="min-height: 60vh;">
       <div class="spinner-border text-theme-variant" role="status"></div>
@@ -7,15 +6,15 @@
   }
 
   @if (!loading() && product()) {
-
-    <button (click)="router.navigate(['/products'])"
-       class="btn btn-link p-0 text-decoration-none text-theme-variant d-inline-flex align-items-center mb-4 small border-0 hover-secondary">
-      ← Back to products
+    <button
+      type="button"
+      (click)="router.navigate(['/products'])"
+      class="btn btn-link p-0 text-decoration-none text-theme-variant d-inline-flex align-items-center mb-4 small border-0 hover-secondary"
+    >
+      &larr; Back to products
     </button>
 
     <div class="row g-5 align-items-start">
-
-      <!-- Left Column: Gallery -->
       <div class="col-lg-7 pe-lg-5">
         <div class="bg-theme-variant w-100 overflow-hidden mb-4 detail-gallery-frame" style="aspect-ratio: 4/5;">
           <img
@@ -27,24 +26,23 @@
         </div>
       </div>
 
-      <!-- Right Column: Sticky Details -->
       <div class="col-lg-5 sticky-column">
         <div class="ps-lg-4">
-
           <span class="badge detail-kicker bg-theme-variant text-theme-primary border-theme mb-3 px-3 py-2 text-uppercase tracking-widest font-editorial">
             {{ product()!.categoryName || 'Curated Collection' }}
           </span>
 
-          <h2 class="font-editorial text-theme-primary mb-3 detail-title" style="font-size: 3rem; line-height: 1;">{{ product()!.name }}</h2>
+          <h2 class="font-editorial text-theme-primary mb-3 detail-title" style="font-size: 3rem; line-height: 1;">
+            {{ product()!.name }}
+          </h2>
 
           <h3 class="text-theme-primary fw-normal mb-4 fs-3">
-          {{ product()!.price | currency }}
-        </h3>
+            {{ product()!.price | currency }}
+          </h3>
 
-
-        <p class="text-theme-variant mb-4" style="line-height: 1.8;">
-          {{ product()!.description }}
-        </p>
+          <p class="text-theme-variant mb-4" style="line-height: 1.8;">
+            {{ product()!.description }}
+          </p>
 
           <div class="d-flex align-items-center gap-3 mb-4 detail-meta-row">
             <app-rating [rating]="roundedAvgRating()"></app-rating>
@@ -54,100 +52,132 @@
                 In Stock ({{ product()!.stock }} units)
               </span>
             } @else {
-              <span class="text-error fw-medium small">
-                Out of Stock
-              </span>
+              <span class="text-theme-error fw-medium small">Out of Stock</span>
             }
           </div>
 
+          <div class="d-flex flex-column gap-3 mb-5">
+            <div class="d-flex flex-column flex-sm-row gap-3">
+              <button
+                type="button"
+                class="btn btn-primary-merchant flex-grow-1 py-3 px-4 fw-bold font-editorial tracking-wider text-uppercase"
+                [disabled]="product()!.stock === 0 || isAddingToCart()"
+                (click)="addToCart()"
+              >
+                {{ isAddingToCart() ? 'Adding...' : 'Add to Cart' }}
+              </button>
 
-          <div class="d-flex gap-3 mb-5">
-            <button class="btn btn-primary-merchant flex-grow-1 py-3 px-4 rounded-0 fw-bold font-editorial tracking-wider text-uppercase"
-                    [disabled]="product()!.stock === 0"
-                    (click)="addToCart()">
-              Add to Cart
-            </button>
-            <button class="btn detail-utility-btn rounded-0 px-4 d-flex align-items-center justify-content-center border-0 bg-theme-variant" aria-label="Save to favorites">
-              <span class="material-symbols-outlined">favorite</span>
-            </button>
+              <button
+                type="button"
+                class="btn detail-utility-btn px-4 d-flex align-items-center justify-content-center gap-2 border-0 bg-theme-variant"
+                [class.active]="isFavourite()"
+                [attr.aria-pressed]="isFavourite()"
+                aria-label="Save to favourites"
+                (click)="toggleFavourite()"
+              >
+                <span class="material-symbols-outlined">{{ isFavourite() ? 'favorite' : 'favorite_border' }}</span>
+                <span>{{ isFavourite() ? 'Saved' : 'Add to Favourites' }}</span>
+              </button>
+            </div>
+
+            <div class="d-flex flex-wrap align-items-center gap-3">
+              <button
+                type="button"
+                class="btn btn-link p-0 text-decoration-none text-theme-primary fw-semibold border-0"
+                (click)="router.navigate(['/favourites'])"
+              >
+                View favourites ({{ favouritesService.favouritesCount() }})
+              </button>
+
+              @if (favouriteFeedback()) {
+                <span class="small text-theme-variant">{{ favouriteFeedback() }}</span>
+              }
+            </div>
           </div>
 
-        @if (isAddedToCart()) {
-          <div class="alert alert-success d-flex align-items-center mt-3 py-2 px-3 border-0 rounded-3 shadow-sm animation-fade-in" style="background-color: var(--secondary-container); color: var(--on-secondary-container);">
-            <span class="material-symbols-outlined fs-5 me-2">check_circle</span>
-            <span class="small fw-semibold">Success! Added to your collection.</span>
-          </div>
-        }
+          @if (cartFeedback()) {
+            <div
+              class="alert d-flex align-items-center mt-3 py-2 px-3 border-0 rounded-3 shadow-sm animation-fade-in"
+              [class.feedback-success]="cartFeedback()!.tone === 'success'"
+              [class.feedback-error]="cartFeedback()!.tone === 'error'"
+            >
+              <span class="material-symbols-outlined fs-5 me-2">check_circle</span>
+              <span class="small fw-semibold">{{ cartFeedback()!.message }}</span>
+            </div>
+          }
 
-
-        <!-- Add Review Section -->
-        @if (authService.isLoggedIn()) {
-          <div class="mt-5 border-theme overflow-hidden bg-theme-surface review-panel">
-            <button
-              class="w-100 btn btn-link d-flex justify-content-between align-items-center p-4 border-0 text-decoration-none text-theme-primary border-bottom border-theme"
-              (click)="toggleReviewForm()">
-              <span class="font-editorial tracking-wider uppercase fw-bold">Write a Review</span>
-              <span class="fs-5">
-                @if (showReviewForm()) {
-                  <span class="material-symbols-outlined">remove</span>
-                } @else {
-                  <span class="material-symbols-outlined">add</span>
-                }
-              </span>
-            </button>
-
-            @if (showReviewForm()) {
-              <div class="p-4 bg-theme-variant review-form-body">
-                @if (reviewSuccess()) {
-                  <div class="alert alert-success">Review submitted successfully!</div>
-                }
-                @if (reviewError()) {
-                  <div class="alert alert-danger">{{ reviewError() }}</div>
-                }
-                <div class="mb-3">
-                  <label class="form-label fw-semibold text-theme-primary">Rating</label>
-                  <select class="form-select bg-theme-surface border-theme text-theme-primary" [(ngModel)]="reviewRating">
-                    <option [value]="5">⭐⭐⭐⭐⭐ 5 - Excellent</option>
-                    <option [value]="4">⭐⭐⭐⭐ 4 - Good</option>
-                    <option [value]="3">⭐⭐⭐ 3 - Average</option>
-                    <option [value]="2">⭐⭐ 2 - Poor</option>
-                    <option [value]="1">⭐ 1 - Terrible</option>
-                  </select>
-                </div>
-                <div class="mb-3">
-                  <label class="form-label fw-semibold text-theme-primary">Comment</label>
-                  <textarea
-                    class="form-control bg-theme-surface border-theme text-theme-primary"
-                    rows="3"
-                    placeholder="Share your experience..."
-                    [(ngModel)]="reviewComment">
-                  </textarea>
-                </div>
-                <button
-                  class="btn btn-primary-merchant px-4 tracking-wider fw-bold rounded-0"
-                  (click)="submitReview()"
-                  [disabled]="reviewSubmitting() || !reviewComment.trim()">
-                  @if (reviewSubmitting()) {
-                    Submitting...
+          @if (authService.isLoggedIn()) {
+            <div class="mt-5 border-theme overflow-hidden bg-theme-surface review-panel">
+              <button
+                type="button"
+                class="w-100 btn btn-link d-flex justify-content-between align-items-center p-4 border-0 text-decoration-none text-theme-primary border-bottom border-theme"
+                (click)="toggleReviewForm()"
+              >
+                <span class="font-editorial tracking-wider uppercase fw-bold">Write a Review</span>
+                <span class="fs-5">
+                  @if (showReviewForm()) {
+                    <span class="material-symbols-outlined">remove</span>
                   } @else {
-                    Submit Review
+                    <span class="material-symbols-outlined">add</span>
                   }
-                </button>
-              </div>
-            }
-          </div>
-        } @else {
-          <div class="mt-4 p-4 border-theme text-center text-theme-variant bg-theme-variant sign-in-review-note">
-            <button (click)="router.navigate(['/login'])" class="btn btn-link p-0 text-theme-primary fw-semibold border-0 text-decoration-none">Sign in</button> to leave a review
-          </div>
-        }
+                </span>
+              </button>
 
-        <div class="mt-5 review-list-shell">
-          <h4 class="font-editorial mb-4 pb-2 border-bottom border-theme">Customer Reviews</h4>
-          <app-reviews [reviews]="reviews()"></app-reviews>
+              @if (showReviewForm()) {
+                <div class="p-4 bg-theme-variant review-form-body">
+                  @if (reviewSuccess()) {
+                    <div class="alert alert-success">Review submitted successfully!</div>
+                  }
+                  @if (reviewError()) {
+                    <div class="alert alert-danger">{{ reviewError() }}</div>
+                  }
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold text-theme-primary">Rating</label>
+                    <select class="form-select bg-theme-surface border-theme text-theme-primary" [(ngModel)]="reviewRating">
+                      <option [value]="5">5 - Excellent</option>
+                      <option [value]="4">4 - Good</option>
+                      <option [value]="3">3 - Average</option>
+                      <option [value]="2">2 - Poor</option>
+                      <option [value]="1">1 - Terrible</option>
+                    </select>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold text-theme-primary">Comment</label>
+                    <textarea
+                      class="form-control bg-theme-surface border-theme text-theme-primary"
+                      rows="3"
+                      placeholder="Share your experience..."
+                      [(ngModel)]="reviewComment"
+                    ></textarea>
+                  </div>
+                  <button
+                    type="button"
+                    class="btn btn-primary-merchant px-4 tracking-wider fw-bold"
+                    (click)="submitReview()"
+                    [disabled]="reviewSubmitting() || !reviewComment.trim()"
+                  >
+                    @if (reviewSubmitting()) {
+                      Submitting...
+                    } @else {
+                      Submit Review
+                    }
+                  </button>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="mt-4 p-4 border-theme text-center text-theme-variant bg-theme-variant sign-in-review-note">
+              <button type="button" (click)="router.navigate(['/login'])" class="btn btn-link p-0 text-theme-primary fw-semibold border-0 text-decoration-none">Sign in</button>
+              to leave a review
+            </div>
+          }
+
+          <div class="mt-5 review-list-shell">
+            <h4 class="font-editorial mb-4 pb-2 border-bottom border-theme">Customer Reviews</h4>
+            <app-reviews [reviews]="reviews()"></app-reviews>
+          </div>
         </div>
       </div>
-    </div>
     </div>
   }
 </div>
