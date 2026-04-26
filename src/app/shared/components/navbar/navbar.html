@@ -1,0 +1,85 @@
+<div class="promo-bar">
+  <span><span class="material-symbols-outlined fs-6 align-middle me-1">local_shipping</span> Free Shipping on Orders Over $50</span>
+  <span class="d-none d-md-inline opacity-50">|</span>
+  <span class="d-none d-md-inline"><span class="material-symbols-outlined fs-6 align-middle me-1">loyalty</span> Up to 50% Off Select Styles</span>
+</div>
+<header class="nav-header" [class.fixed]="fixed()" [class.top-0]="fixed()">
+  <div class="container-fluid px-3 px-md-4 d-flex align-items-center justify-content-between" style="height: 64px;">
+    <button (click)="navigateTo('/')" class="nav-brand">
+      <span class="material-symbols-outlined brand-bag" style="font-variation-settings: 'FILL' 1;">shopping_bag</span>
+      <span class="d-none d-md-inline brand-text">NEXUS</span>
+    </button>
+
+    <div class="d-none d-md-flex flex-grow-1 justify-content-center px-4" style="max-width: 480px;">
+      <div class="search-wrap">
+        <span class="material-symbols-outlined search-icon">search</span>
+        <input type="text" class="search-input"
+          placeholder="Search products..."
+          aria-label="Search products"
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="onSearchChange($event)">
+      </div>
+    </div>
+
+    <div class="d-flex align-items-center gap-1 gap-md-2">
+      <button (click)="themeService.toggleTheme()" class="nav-icon-btn" title="Toggle Theme" aria-label="Toggle theme">
+        <span class="material-symbols-outlined">
+          {{ themeService.isDark() ? 'light_mode' : 'dark_mode' }}
+        </span>
+      </button>
+
+      <button class="nav-icon-btn position-relative" (click)="navigateTo('/cart')" title="Shopping Cart" aria-label="Open shopping cart">
+        <span class="material-symbols-outlined">shopping_cart</span>
+        <span *ngIf="(cartService.cartCount$ | async) as count" class="cart-badge">
+          {{ count }}
+        </span>
+      </button>
+
+      <button class="nav-icon-btn position-relative" (click)="navigateTo('/favourites')" title="Favourites" aria-label="Open favourites">
+        <span class="material-symbols-outlined">favorite</span>
+        <span *ngIf="favouritesService.favouritesCount() > 0" class="cart-badge alt-badge">
+          {{ favouritesService.favouritesCount() }}
+        </span>
+      </button>
+
+      <ng-container *ngIf="authService.isLoggedIn(); else loginBtn">
+        <button class="nav-icon-btn" (click)="navigateTo('/account')" title="My Account" aria-label="Open my account settings">
+          <span class="material-symbols-outlined">manage_accounts</span>
+        </button>
+
+        <button class="nav-icon-btn" (click)="navigateTo('/orders')" title="My Orders" aria-label="Open my orders">
+          <span class="material-symbols-outlined">receipt_long</span>
+        </button>
+
+        <button *ngIf="showDashboardIcon" class="nav-icon-btn" (click)="navigateTo(dashboardLink)" title="Dashboard" aria-label="Open dashboard">
+          <span class="material-symbols-outlined">dashboard</span>
+        </button>
+
+        <button class="nav-icon-btn" (click)="logout()" title="Logout" aria-label="Log out">
+          <span class="material-symbols-outlined">logout</span>
+        </button>
+      </ng-container>
+
+      <ng-template #loginBtn>
+        <button class="nav-icon-btn" (click)="navigateTo('/login')" title="Login" aria-label="Open login page">
+          <span class="material-symbols-outlined">person</span>
+        </button>
+      </ng-template>
+
+      <button class="d-md-none nav-icon-btn" (click)="mobileSearchOpen = !mobileSearchOpen" title="Search" aria-label="Toggle search">
+        <span class="material-symbols-outlined">search</span>
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="mobileSearchOpen" class="d-md-none px-3 pb-3">
+    <div class="search-wrap">
+      <span class="material-symbols-outlined search-icon">search</span>
+      <input type="text" class="search-input"
+        placeholder="Search products..."
+        aria-label="Search products"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="onSearchChange($event)">
+    </div>
+  </div>
+</header>

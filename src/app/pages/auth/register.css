@@ -1,0 +1,222 @@
+.auth-container {
+  min-height: 100vh;
+  background: var(--background);
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-bg-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+.glow-1 {
+  width: 600px;
+  height: 600px;
+  background: var(--secondary);
+  top: -200px;
+  right: -200px;
+}
+
+.glow-2 {
+  width: 500px;
+  height: 500px;
+  background: var(--primary);
+  bottom: -150px;
+  left: -150px;
+}
+
+.auth-card {
+  max-width: 600px;
+  z-index: 1;
+  border-radius: 20px;
+  background: var(--surface);
+  border: 1px solid var(--outline-variant);
+  box-shadow: var(--shadow-elevated);
+}
+
+.brand-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: var(--primary);
+  color: var(--background);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+h2 {
+  color: var(--on-surface);
+}
+
+.subtitle {
+  color: var(--on-surface-variant);
+}
+
+.label-text {
+  color: var(--on-surface-variant);
+  letter-spacing: 0.08em;
+}
+
+.input-wrap {
+  position: relative;
+}
+
+.input-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20px;
+  color: var(--on-surface-variant);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.toggle-pw-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--on-surface-variant);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+}
+
+.toggle-pw-btn:hover {
+  color: var(--on-surface);
+}
+
+.toggle-pw-btn .material-symbols-outlined {
+  font-size: 20px;
+}
+
+.auth-input {
+  padding-left: 44px !important;
+}
+
+.auth-input-padded {
+  padding-right: 44px !important;
+  background: var(--surface-container-low) !important;
+  border: 1px solid var(--outline-variant) !important;
+  border-radius: 12px !important;
+  color: var(--on-surface) !important;
+  font-size: 0.925rem;
+  transition: var(--transition-smooth);
+}
+
+.auth-textarea {
+  padding-top: 12px !important;
+}
+
+.auth-input::placeholder {
+  color: var(--on-surface-variant);
+  opacity: 0.5;
+}
+
+.auth-input:focus {
+  background: var(--surface) !important;
+  border-color: var(--secondary) !important;
+  box-shadow: 0 0 0 4px rgba(0, 99, 151, 0.15) !important;
+}
+
+.auth-input.is-invalid {
+  border-color: var(--error) !important;
+  box-shadow: 0 0 0 4px rgba(186, 26, 26, 0.1) !important;
+}
+
+.error-text {
+  color: var(--error);
+  font-size: 0.8rem;
+}
+
+.error-banner {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  background: var(--error-container);
+  color: var(--on-error-container);
+  font-size: 0.875rem;
+}
+
+.link-text {
+  color: var(--secondary);
+  transition: var(--transition-smooth);
+}
+
+.link-text:hover {
+  color: var(--primary);
+}
+
+.role-card {
+  cursor: pointer;
+  border-radius: 14px;
+  border: 1px solid var(--outline-variant);
+  background: var(--surface-container-low);
+  color: var(--on-surface);
+  transition: var(--transition-smooth);
+}
+
+.role-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-elevated);
+  background: var(--surface);
+}
+
+.role-card.active {
+  background: var(--primary);
+  color: var(--background);
+  border-color: var(--primary);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.role-card.active .role-sub {
+  color: var(--on-surface-variant);
+  opacity: 0.8;
+}
+
+.role-sub {
+  color: var(--on-surface-variant);
+  transition: var(--transition-smooth);
+}
+
+.x-small {
+  font-size: 0.65rem;
+}
+
+.btn-auth-primary {
+  background: var(--primary);
+  color: var(--background);
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition-smooth);
+}
+
+.btn-auth-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  background: var(--primary-container);
+  color: var(--on-surface);
+}
+
+.btn-auth-primary:disabled {
+  opacity: 0.5;
+  transform: none;
+  box-shadow: none;
+}

@@ -3,6 +3,7 @@
 
 .object-fit-cover { object-fit: cover; }
 
+.button:disabled,
 button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
@@ -16,7 +17,7 @@ button:disabled {
   border-radius: 28px;
   box-shadow: var(--shadow-elevated);
   background:
-    radial-gradient(circle at top right, rgba(255, 255, 255, 0.4), transparent 20%),
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.18), transparent 20%),
     var(--surface-container-low);
 }
 
@@ -33,20 +34,26 @@ button:disabled {
 .detail-meta-row {
   padding: 0.85rem 1rem;
   border-radius: 18px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.7), rgba(243, 244, 245, 0.9));
+  background: var(--surface-container-low);
   box-shadow: var(--shadow-ambient);
 }
 
 .detail-utility-btn {
-  min-width: 56px;
-  border-radius: 18px !important;
+  min-width: 180px;
+  border-radius: 999px !important;
   box-shadow: var(--shadow-ambient);
   transition: var(--transition-smooth);
+  color: var(--on-surface);
 }
 
 .detail-utility-btn:hover {
   transform: translateY(-2px);
   color: var(--secondary);
+}
+
+.detail-utility-btn.active {
+  background: var(--error-container) !important;
+  color: var(--on-error-container);
 }
 
 .review-panel,
@@ -57,13 +64,25 @@ button:disabled {
 }
 
 .review-form-body {
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.6), rgba(243,244,245,0.9)),
-    var(--surface-container-low);
+  background: var(--surface-container-low);
+}
+
+.feedback-success {
+  background-color: var(--success-container);
+  color: var(--on-success-container);
+}
+
+.feedback-error {
+  background-color: var(--error-container);
+  color: var(--on-error-container);
 }
 
 @media (max-width: 991px) {
   .detail-meta-row {
     flex-wrap: wrap;
+  }
+
+  .detail-utility-btn {
+    min-width: 0;
   }
 }

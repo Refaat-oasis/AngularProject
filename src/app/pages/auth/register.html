@@ -1,0 +1,148 @@
+<div class="auth-container d-flex align-items-center justify-content-center py-5">
+  <div class="auth-bg-glow glow-1"></div>
+  <div class="auth-bg-glow glow-2"></div>
+
+  <div class="auth-card p-5 w-100 position-relative z-1">
+    <div class="text-center mb-5">
+      <div class="brand-icon mx-auto mb-3">
+        <span class="material-symbols-outlined" style="font-size: 32px; font-variation-settings: 'FILL' 1;">person_add</span>
+      </div>
+      <h2 class="h3 fw-bold mb-2">Create Account</h2>
+      <p class="subtitle small mb-0">Join the NEXUS network of artisans and curators</p>
+    </div>
+
+    <form (ngSubmit)="onRegister()" #regForm="ngForm">
+      <div class="row g-4 mb-4">
+        <div class="col-md-6">
+          <label class="form-label label-text small fw-bold mb-2">FULL NAME</label>
+          <div class="input-wrap">
+            <span class="material-symbols-outlined input-icon">person</span>
+            <input type="text"
+              class="form-control auth-input"
+              [class.is-invalid]="name.invalid && name.touched"
+              name="name" #name="ngModel" [(ngModel)]="user.name"
+              required minlength="3" pattern="^[a-zA-Z ]+$"
+              placeholder="John Doe">
+          </div>
+          @if (name.touched && name.invalid) {
+            <div class="error-text mt-2">
+              @if (name.errors?.['required']) { <span>Full name is required.</span> }
+              @if (name.errors?.['minlength']) { <span>Name must be at least 3 characters.</span> }
+              @if (name.errors?.['pattern']) { <span>Only letters and spaces are allowed.</span> }
+            </div>
+          }
+        </div>
+        <div class="col-md-6">
+          <label class="form-label label-text small fw-bold mb-2">EMAIL ADDRESS</label>
+          <div class="input-wrap">
+            <span class="material-symbols-outlined input-icon">mail</span>
+            <input type="email"
+              class="form-control auth-input"
+              [class.is-invalid]="email.invalid && email.touched"
+              name="email" #email="ngModel" [(ngModel)]="user.email"
+              required email
+              placeholder="name@company.com">
+          </div>
+          @if (email.touched && email.invalid) {
+            <div class="error-text mt-2">
+              @if (email.errors?.['required']) { <span>Email is required.</span> }
+              @if (email.errors?.['email']) { <span>Please enter a valid email address.</span> }
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label label-text small fw-bold mb-2">ADDRESS</label>
+        <div class="input-wrap">
+          <span class="material-symbols-outlined input-icon" style="top: 22px; transform: none;">location_on</span>
+          <textarea
+            class="form-control auth-input auth-textarea"
+            [class.is-invalid]="address.invalid && address.touched"
+            name="address" #address="ngModel" [(ngModel)]="user.address"
+            required minlength="5" rows="2"
+            placeholder="123 Main St, City, Country"></textarea>
+        </div>
+        @if (address.touched && address.invalid) {
+          <div class="error-text mt-2">
+            @if (address.errors?.['required']) { <span>Address is required.</span> }
+            @if (address.errors?.['minlength']) { <span>Address must be at least 5 characters.</span> }
+          </div>
+        }
+      </div>
+
+      <div class="mb-4">
+        <fieldset>
+          <legend class="form-label label-text small fw-bold mb-3">I WANT TO JOIN AS</legend>
+          <div class="row g-3">
+            <div class="col-6">
+              <label class="role-card p-3 text-center d-block"
+                [class.active]="user.role === 'User'">
+                <input type="radio" class="visually-hidden" name="role" [(ngModel)]="user.role" value="User" required>
+                <span class="material-symbols-outlined mb-2 fs-2">shopping_bag</span>
+                <div class="fw-bold small">Customer</div>
+                <div class="role-sub x-small">Browse & Buy</div>
+              </label>
+            </div>
+            <div class="col-6">
+              <label class="role-card p-3 text-center d-block"
+                [class.active]="user.role === 'Seller'">
+                <input type="radio" class="visually-hidden" name="role" [(ngModel)]="user.role" value="Seller" required>
+                <span class="material-symbols-outlined mb-2 fs-2">storefront</span>
+                <div class="fw-bold small">Seller</div>
+                <div class="role-sub x-small">Curation & Sales</div>
+              </label>
+            </div>
+          </div>
+        </fieldset>
+        @if (!user.role && regForm.submitted) {
+          <div class="error-text mt-2">Please choose whether you are joining as a customer or seller.</div>
+        }
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label label-text small fw-bold mb-2">PASSWORD</label>
+        <div class="input-wrap">
+          <span class="material-symbols-outlined input-icon">lock</span>
+          <input
+            class="form-control auth-input auth-input-padded"
+            [class.is-invalid]="password.invalid && password.touched"
+            name="password" #password="ngModel" [(ngModel)]="user.password"
+            required minlength="6"
+            [type]="showPassword ? 'text' : 'password'"
+            pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@@$!%*?&])[A-Za-z\\d@@$!%*?&]{6,}$"
+            placeholder="........">
+          <button type="button" class="toggle-pw-btn" (click)="showPassword = !showPassword" tabindex="-1" aria-label="Toggle password visibility">
+            <span class="material-symbols-outlined">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
+          </button>
+        </div>
+        @if (password.touched && password.invalid) {
+          <div class="error-text mt-2">
+            @if (password.errors?.['required']) { <span>Password is required.</span> }
+            @if (password.errors?.['minlength']) { <span>Password must be at least 6 characters.</span> }
+            @if (password.errors?.['pattern']) {
+              <span>Must contain uppercase, lowercase, number, and special character.</span>
+            }
+          </div>
+        }
+      </div>
+
+      @if (errorMessage) {
+        <div class="error-banner mb-3">
+          <span class="material-symbols-outlined me-2" style="font-size: 18px;">error</span>
+          {{ errorMessage }}
+        </div>
+      }
+
+      <button type="submit" class="btn btn-auth-primary w-100 py-3 mb-4" [disabled]="!regForm.form.valid">
+        <span class="me-2">Create Account</span>
+        <span class="material-symbols-outlined" style="font-size: 18px;">arrow_forward</span>
+      </button>
+
+      <p class="text-center small subtitle mb-0">
+        Already have an account?
+        <a routerLink="/login" class="link-text fw-bold text-decoration-none">Sign In</a>
+      </p>
+    </form>
+  </div>
+</div>

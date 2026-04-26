@@ -3,6 +3,24 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
 import { environment } from '../environment';
+
+export interface AccountProfile {
+  fullName: string;
+  email: string;
+  address: string;
+}
+
+export interface UpdateAccountProfilePayload {
+  fullName: string;
+  address: string;
+}
+
+export interface ChangePasswordPayload {
+  currentPassword: string;
+  newPassword: string;
+  confirmNewPassword: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -52,6 +70,18 @@ export class AuthService {
     return this.http.post(`${this.baseUrl}/reset-password`, data);
   }
 
+  getProfile(): Observable<AccountProfile> {
+    return this.http.get<AccountProfile>(`${this.baseUrl}/profile`);
+  }
+
+  updateProfile(payload: UpdateAccountProfilePayload): Observable<AccountProfile> {
+    return this.http.put<AccountProfile>(`${this.baseUrl}/profile`, payload);
+  }
+
+  changePassword(payload: ChangePasswordPayload): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.baseUrl}/change-password`, payload);
+  }
+
   logout(): void {
     localStorage.removeItem('token');
     sessionStorage.removeItem('token');
@@ -87,6 +117,19 @@ export class AuthService {
     try {
       const decoded: any = jwtDecode(token);
       return decoded.nameid || decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+    } catch (e) {
+      return '';
+    }
+  }
+
+  getUserEmail(): string {
+    let token = this.getToken();
+    if (!token) return '';
+    if (token.startsWith('Bearer ')) token = token.substring(7);
+
+    try {
+      const decoded: any = jwtDecode(token);
+      return decoded.email || decoded.unique_name || decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'] || '';
     } catch (e) {
       return '';
     }

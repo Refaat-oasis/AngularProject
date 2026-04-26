@@ -12,4 +12,14 @@
     .custom-range::-webkit-slider-runnable-track { background: var(--outline-variant); }
     .custom-range::-webkit-slider-thumb { background: var(--secondary); }
     .mobile-filter-card { border: 1px solid rgba(0, 0, 0, 0.04); }
-    .quick-action-btn { min-width: 44px; min-height: 44px; }
+    .quick-action-btn {
+      min-height: 44px;
+      padding: 0.7rem 1rem !important;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .quick-action-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+    }

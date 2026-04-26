@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, map } from 'rxjs';
+import { BehaviorSubject, Observable, map, of, switchMap, tap } from 'rxjs';
 import { CartItemResponse } from '../models/interfaces';
 import { AuthService } from './auth.service';
 import { environment } from '../environment';
@@ -10,6 +10,7 @@ import { environment } from '../environment';
 })
 export class CartService {
   private baseUrl = `${environment.apiUrl}/cart`;
+  private readonly guestCartKey = 'guestCart';
   
   private cartItemsSubject = new BehaviorSubject<CartItemResponse[]>([]);
   cartItems$ = this.cartItemsSubject.asObservable();
@@ -31,107 +32,144 @@ export class CartService {
 
   loadCart() {
     if (this.authService.isLoggedIn()) {
-      this.http.get<CartItemResponse[]>(this.baseUrl).subscribe({
-        next: (items) => this.cartItemsSubject.next(items),
+      this.fetchServerCart().subscribe({
+        next: (items) => this.setCartState(items, false),
         error: (err) => console.error('Failed to load cart', err)
       });
     } else {
-      // Guest cart
-      const savedCart = localStorage.getItem('guestCart');
-      if (savedCart) {
-        this.cartItemsSubject.next(JSON.parse(savedCart));
-      }
+      this.setCartState(this.readGuestCart(), true);
     }
   }
 
-  addToCart(productId: number, quantity: number = 1): void {
+  addToCart(productId: number, quantity: number = 1): Observable<CartItemResponse[]> {
     if (this.authService.isLoggedIn()) {
-      this.http.post(`${this.baseUrl}/add`, { productId, quantity }).subscribe({
-        next: () => this.loadCart(),
-        error: (err) => console.error('Failed to add to cart', err)
-      });
-    } else {
-      // Guest logic
-      const currentCart = this.cartItemsSubject.value;
-      const existingItem = currentCart.find(i => i.productId === productId);
-      
-      if (existingItem) {
-        existingItem.quantity += quantity;
-        existingItem.subtotal = existingItem.quantity * existingItem.productPrice;
-      } else {
-        // We lack product details here without an extra API call for guests, 
-        // to simplify for guests, we'd need minimal details. But since guest checkout
-        // uses localStorage we simulate it:
-        // Actually, for a fully working guest, let's just make a product API call to get details
-        this.http.get<any>(`${environment.apiUrl}/products/${productId}`).subscribe(product => {
-          const newItem: CartItemResponse = {
-            id: Date.now(), // fake id
-            productId: product.id,
-            productName: product.name,
-            productImage: this.buildProductImage(product),
-            productPrice: product.price,
-            quantity: quantity,
-            subtotal: product.price * quantity
-          };
-          const newCart = [...this.cartItemsSubject.value, newItem];
-          this.cartItemsSubject.next(newCart);
-          this.saveGuestCart(newCart);
-        });
-        return;
-      }
-      this.cartItemsSubject.next([...currentCart]);
-      this.saveGuestCart(currentCart);
+      return this.http.post(`${this.baseUrl}/add`, { productId, quantity }).pipe(
+        switchMap(() => this.fetchServerCart()),
+        tap(items => this.setCartState(items, false))
+      );
     }
+
+    const currentCart = [...this.cartItemsSubject.value];
+    const existingItem = currentCart.find(item => item.productId === productId);
+
+    if (existingItem) {
+      existingItem.quantity += quantity;
+      existingItem.subtotal = existingItem.quantity * existingItem.productPrice;
+
+      const updatedCart = this.normalizeCartItems(currentCart);
+      this.setCartState(updatedCart, true);
+      return of(updatedCart);
+    }
+
+    return this.http.get<any>(`${environment.apiUrl}/products/${productId}`).pipe(
+      map(product => {
+        const newItem: CartItemResponse = {
+          id: Date.now(),
+          productId: product.id,
+          productName: product.name,
+          productImage: this.buildProductImage(product),
+          productPrice: product.price,
+          quantity,
+          subtotal: product.price * quantity
+        };
+
+        return this.normalizeCartItems([...currentCart, newItem]);
+      }),
+      tap(items => this.setCartState(items, true))
+    );
   }
 
-  updateQuantity(cartItemId: number, quantity: number): void {
+  updateQuantity(cartItemId: number, quantity: number): Observable<CartItemResponse[]> {
     if (this.authService.isLoggedIn()) {
-      this.http.put(`${this.baseUrl}/${cartItemId}`, { quantity }).subscribe({
-        next: () => this.loadCart(),
-        error: (err) => console.error('Failed to update quantity', err)
-      });
-    } else {
-      const currentCart = this.cartItemsSubject.value;
-      const item = currentCart.find(i => i.id === cartItemId);
-      if (item) {
-        item.quantity = quantity;
-        item.subtotal = item.quantity * item.productPrice;
-        this.cartItemsSubject.next([...currentCart]);
-        this.saveGuestCart(currentCart);
-      }
+      return this.http.put(`${this.baseUrl}/${cartItemId}`, { quantity }).pipe(
+        switchMap(() => this.fetchServerCart()),
+        tap(items => this.setCartState(items, false))
+      );
     }
+
+    const currentCart = [...this.cartItemsSubject.value];
+    const item = currentCart.find(cartItem => cartItem.id === cartItemId);
+    if (!item) {
+      return of(this.cartItemsSubject.value);
+    }
+
+    item.quantity = quantity;
+    item.subtotal = item.quantity * item.productPrice;
+
+    const updatedCart = this.normalizeCartItems(currentCart);
+    this.setCartState(updatedCart, true);
+    return of(updatedCart);
   }
 
-  removeItem(cartItemId: number): void {
+  removeItem(cartItemId: number): Observable<CartItemResponse[]> {
     if (this.authService.isLoggedIn()) {
-      this.http.delete(`${this.baseUrl}/${cartItemId}`).subscribe({
-        next: () => this.loadCart(),
-        error: (err) => console.error('Failed to remove item', err)
-      });
-    } else {
-      const currentCart = this.cartItemsSubject.value.filter(i => i.id !== cartItemId);
-      this.cartItemsSubject.next(currentCart);
-      this.saveGuestCart(currentCart);
+      return this.http.delete(`${this.baseUrl}/${cartItemId}`).pipe(
+        switchMap(() => this.fetchServerCart()),
+        tap(items => this.setCartState(items, false))
+      );
     }
+
+    const currentCart = this.cartItemsSubject.value.filter(item => item.id !== cartItemId);
+    this.setCartState(currentCart, true);
+    return of(currentCart);
   }
 
-  clearCart(): void {
+  clearCart(): Observable<CartItemResponse[]> {
     if (this.authService.isLoggedIn()) {
-      this.http.delete(`${this.baseUrl}/clear`).subscribe({
-        next: () => this.loadCart(),
-        error: (err) => console.error('Failed to clear cart', err)
-      });
-    } else {
-      this.cartItemsSubject.next([]);
-      localStorage.removeItem('guestCart');
+      return this.http.delete(`${this.baseUrl}/clear`).pipe(
+        switchMap(() => this.fetchServerCart()),
+        tap(items => this.setCartState(items, false))
+      );
     }
+
+    this.setCartState([], true);
+    return of([]);
   }
 
   getCartTotal(): number {
     return this.cartItemsSubject.value.reduce((total, item) => total + item.subtotal, 0);
   }
 
-  private saveGuestCart(cart: CartItemResponse[]) {
-    localStorage.setItem('guestCart', JSON.stringify(cart));
+  private fetchServerCart(): Observable<CartItemResponse[]> {
+    return this.http.get<CartItemResponse[]>(this.baseUrl).pipe(
+      map(items => this.normalizeCartItems(items))
+    );
+  }
+
+  private normalizeCartItems(items: CartItemResponse[]): CartItemResponse[] {
+    return items.map(item => ({
+      ...item,
+      productImage: this.buildProductImage({ image: item.productImage })
+    }));
+  }
+
+  private setCartState(items: CartItemResponse[], persistGuestCart: boolean): void {
+    this.cartItemsSubject.next(items);
+
+    if (persistGuestCart) {
+      if (items.length === 0) {
+        localStorage.removeItem(this.guestCartKey);
+        return;
+      }
+
+      localStorage.setItem(this.guestCartKey, JSON.stringify(items));
+      return;
+    }
+
+    localStorage.removeItem(this.guestCartKey);
+  }
+
+  private readGuestCart(): CartItemResponse[] {
+    try {
+      const savedCart = localStorage.getItem(this.guestCartKey);
+      if (!savedCart) {
+        return [];
+      }
+
+      const parsed = JSON.parse(savedCart);
+      return Array.isArray(parsed) ? this.normalizeCartItems(parsed) : [];
+    } catch {
+      return [];
+    }
   }
 }
