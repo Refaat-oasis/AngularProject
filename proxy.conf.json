@@ -4,5 +4,11 @@
     "secure": false,
     "changeOrigin": true,
     "logLevel": "info"
+  },
+  "/images": {
+    "target": "http://architecture.runasp.net",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "info"
   }
 }

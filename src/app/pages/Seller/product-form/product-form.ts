@@ -80,11 +80,13 @@ export class ProductFormComponent implements OnInit {
 
   getImageUrl(product: any): string | null {
     if (!product) return null;
-    const path = product.imageUrl || product.image;
-    if (!path) return null;
+    const rawPath = product.imageUrl || product.image;
+    if (!rawPath) return null;
+    const path = rawPath.replace(/\\/g, '/').trim();
     if (path.startsWith('data:image') || path.startsWith('http')) return path;
-    // Bare filename with no path separator (e.g. "product.jpg") → unresolvable
-    if (!path.includes('/')) return null;
+    if (path.startsWith('/images/')) return path;
+    if (path.startsWith('images/')) return `/${path}`;
+    if (!path.includes('/')) return `/images/products/${path}`;
     return path.startsWith('/') ? `${environment.baseUrl}${path}` : `${environment.baseUrl}/${path}`;
   }
 

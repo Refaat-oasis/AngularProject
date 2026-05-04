@@ -130,17 +130,26 @@ export class ProductDetailsComponent implements OnInit {
       return fallbackImage;
     }
 
-    const path = product.imageUrl || product.image;
-    if (!path) {
+    const rawPath = product.imageUrl || product.image;
+    if (!rawPath) {
       return fallbackImage;
     }
+    const path = rawPath.replace(/\\/g, '/').trim();
 
     if (path.startsWith('data:image') || path.startsWith('http')) {
       return path;
     }
 
+    if (path.startsWith('/images/')) {
+      return path;
+    }
+
+    if (path.startsWith('images/')) {
+      return `/${path}`;
+    }
+
     if (!path.includes('/')) {
-      return fallbackImage;
+      return `/images/products/${path}`;
     }
 
     return path.startsWith('/') ? `${environment.baseUrl}${path}` : `${environment.baseUrl}/${path}`;

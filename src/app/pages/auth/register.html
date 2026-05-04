@@ -110,7 +110,7 @@
             name="password" #password="ngModel" [(ngModel)]="user.password"
             required minlength="6"
             [type]="showPassword ? 'text' : 'password'"
-            pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@@$!%*?&])[A-Za-z\\d@@$!%*?&]{6,}$"
+            pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{6,}$"
             placeholder="........">
           <button type="button" class="toggle-pw-btn" (click)="showPassword = !showPassword" tabindex="-1" aria-label="Toggle password visibility">
             <span class="material-symbols-outlined">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>

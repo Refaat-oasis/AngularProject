@@ -67,7 +67,7 @@ export class ProductsComponent implements OnInit {
         this.loading.set(true);
         if (Number.isFinite(categoryId) && categoryId > 0) {
           this.selectedCategoryId = categoryId;
-          return this.categoryService.getByCategory(categoryId);
+          return this.productService.getByCategory(categoryId); // ✅ changed here
         }
         this.selectedCategoryId = null;
         if (search && search.trim() !== '') {
@@ -77,7 +77,7 @@ export class ProductsComponent implements OnInit {
       })
     ).subscribe({
       next: (data) => {
-        const items = Array.isArray(data) ? data : data.products;
+        const items = Array.isArray(data) ? data : (data as any).products;
         this.products.set(items ?? []);
         this.loading.set(false);
       },
@@ -114,12 +114,13 @@ export class ProductsComponent implements OnInit {
 
   getImageUrl(product: IProduct | null | undefined): string {
     if (!product) return this.fallbackImage;
-    const path = product.imageUrl || product.image;
-    if (!path) return this.fallbackImage;
-    // Full external URL or data URI → use directly
+    const rawPath = product.imageUrl || product.image;
+    if (!rawPath) return this.fallbackImage;
+    const path = rawPath.replace(/\\/g, '/').trim();
     if (path.startsWith('data:image') || path.startsWith('http')) return path;
-    // Bare filename with no path separator (e.g. "product.jpg") → unresolvable
-    if (!path.includes('/')) return this.fallbackImage;
+    if (path.startsWith('/images/')) return path;
+    if (path.startsWith('images/')) return `/${path}`;
+    if (!path.includes('/')) return `/images/products/${path}`;
     return path.startsWith('/') ? `${this.imageBaseUrl}${path}` : `${this.imageBaseUrl}/${path}`;
   }
 
@@ -140,4 +141,3 @@ export class ProductsComponent implements OnInit {
     });
   }
 }
-

@@ -68,11 +68,13 @@ export class ProductsListComponent implements OnInit {
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 720"><rect width="600" height="720" fill="#f7fafc"/><circle cx="220" cy="240" r="54" fill="#cbd5e0"/><path d="M100 560l120-118 92 76 92-112 96 154H100z" fill="#a0aec0"/><text x="300" y="650" text-anchor="middle" font-family="Arial, sans-serif" font-size="30" fill="#4a5568">No Image</text></svg>'
     );
     if (!product) return fallbackImage;
-    const path = product.imageUrl || product.image;
-    if (!path) return fallbackImage;
+    const rawPath = product.imageUrl || product.image;
+    if (!rawPath) return fallbackImage;
+    const path = rawPath.replace(/\\/g, '/').trim();
     if (path.startsWith('data:image') || path.startsWith('http')) return path;
-    // Bare filename with no path separator (e.g. "product.jpg") → unresolvable
-    if (!path.includes('/')) return fallbackImage;
+    if (path.startsWith('/images/')) return path;
+    if (path.startsWith('images/')) return `/${path}`;
+    if (!path.includes('/')) return `/images/products/${path}`;
     return path.startsWith('/') ? `${this.baseUrl}${path}` : `${this.baseUrl}/${path}`;
   }
 }

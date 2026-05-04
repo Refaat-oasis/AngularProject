@@ -24,9 +24,13 @@ export class CartService {
   }
 
   private buildProductImage(product: any): string {
-    const imagePath = product?.image ?? product?.imageUrl ?? '';
-    if (!imagePath) return '';
+    const rawPath = product?.image ?? product?.imageUrl ?? '';
+    if (!rawPath) return '';
+    const imagePath = String(rawPath).replace(/\\/g, '/').trim();
     if (imagePath.startsWith('http') || imagePath.startsWith('data:image')) return imagePath;
+    if (imagePath.startsWith('/images/')) return imagePath;
+    if (imagePath.startsWith('images/')) return `/${imagePath}`;
+    if (!imagePath.includes('/')) return `/images/products/${imagePath}`;
     return imagePath.startsWith('/') ? `${environment.baseUrl}${imagePath}` : `${environment.baseUrl}/${imagePath}`;
   }
 

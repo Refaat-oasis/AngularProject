@@ -69,17 +69,26 @@ export class FavouritesListComponent {
       return this.fallbackImage;
     }
 
-    const path = product.imageUrl || product.image;
-    if (!path) {
+    const rawPath = product.imageUrl || product.image;
+    if (!rawPath) {
       return this.fallbackImage;
     }
+    const path = rawPath.replace(/\\/g, '/').trim();
 
     if (path.startsWith('data:image') || path.startsWith('http')) {
       return path;
     }
 
+    if (path.startsWith('/images/')) {
+      return path;
+    }
+
+    if (path.startsWith('images/')) {
+      return `/${path}`;
+    }
+
     if (!path.includes('/')) {
-      return this.fallbackImage;
+      return `/images/products/${path}`;
     }
 
     return path.startsWith('/') ? `${this.imageBaseUrl}${path}` : `${this.imageBaseUrl}/${path}`;
